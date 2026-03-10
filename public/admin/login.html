@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+
+  <link rel="stylesheet" href="login.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<div class="login-container">
+
+  <div class="login-left">
+    <h1>Hello,<br>Welcome Back</h1>
+    <p class="subtitle">Hey, welcome back to File Manager</p>
+   <form onsubmit="login(); return false;">
+  <input type="text" id="email" placeholder="Email">
+  <div class="password-wrapper">
+  <input type="password" id="password" placeholder="Password">
+  <i class="fa-solid fa-eye toggle-password" id="togglePassword"></i>
+</div>
+  <div id="loginMessage" class="login-message"></div>
+  <button type="submit">Sign In</button>
+</form>
+
+  </div>
+
+  <div class="login-right">
+  <img src="images/login1.jpg" alt="Login Image">
+</div>
+
+
+</div>
+
+
+<script src="login.js"></script>
+
+</body>
+</html>

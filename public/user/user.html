@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>College Files</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" href="user.css">
+<link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet"
+href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css"/>
+
+  <style>
+.iti__flag { background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/img/flags.png"); }
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .iti__flag { background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/img/flags@2x.png"); }
+}
+</style>
+
+</head>
+
+<body>
+
+<h2>College Files</h2>
+
+<div class="top-controls">
+  <input type="text" id="search" placeholder="Search..." onkeyup="renderFiles()">
+
+  <select id="filterCategory" onchange="changeFilter()">
+  <option value="All">All Categories</option>
+</select>
+
+</div>
+
+<div id="files" class="file-grid"></div>
+
+
+
+<!-- OTP MODAL -->
+
+<div id="otpModal" class="modal">
+
+  <div class="otp-card">
+    <span class="close-btn" onclick="closeOtp()">✖</span>
+
+    <!-- STEP 1 -->
+    <div id="mobileStep">
+
+      <h3>Enter your Name and WhatsappNumber</h3>
+      <input type="text" id="userName" placeholder="Full Name">
+
+      <input id="mobileInput" type="tel" placeholder="Mobile Number">
+
+      <button class="btn-green" onclick="sendOtp()">Continue</button>
+
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="otpStep" style="display:none">
+
+      <h3>Enter OTP</h3>
+      <p class="sub">Code sent to your phone</p>
+
+      <div class="otp-boxes">
+        <input maxlength="1">
+        <input maxlength="1">
+        <input maxlength="1">
+        <input maxlength="1">
+      </div>
+
+      <button class="btn-green" onclick="verifyOtp()">Verify</button>
+
+    </div>
+
+    <!-- RESULT STEP -->
+<div id="resultStep" style="display:none; position:relative;">
+
+  <div id="resultIcon" class="result-icon"></div>
+
+
+      <h3 id="resultTitle"></h3>
+      <p id="resultMessage"></p>
+
+      <button id="resultButton" onclick="retryOtp()">Try Again</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- Viewer -->
+<div id="viewerModal" class="modal">
+  <div class="viewer-box">
+
+    <span class="close-btn" onclick="closeViewer()">✖</span>
+
+    <!-- Banner -->
+    <div class="viewer-header">
+      <img src="images/images.png">
+    </div>
+
+    <!-- PDF -->
+    <div id="pdfContainer"></div>
+    <!-- Watermarks -->
+    <div class="watermarks">
+      <div class="wm wm1">MCET</div>
+      <div class="wm wm2">MCET</div>
+      <div class="wm wm3">MCET</div>
+      <div class="wm wm4">MCET</div>
+    </div>
+
+    <!-- Download -->
+    <button id="downloadBtn" class="download-btn">
+      ⬇ Download
+    </button>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+<script src="user.js"></script>
+
+</body>
+</html>

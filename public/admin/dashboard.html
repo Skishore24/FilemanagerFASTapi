@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+
+  <link rel="stylesheet" href="dashboard.css">
+<link rel="stylesheet" href="sidebar.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+
+  <link href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" rel="stylesheet">
+  <link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+
+  <!-- College Logo -->
+  <div class="logo-box">
+    <img src="images/logo.png" alt="College Logo">
+  </div>
+
+  <!-- Menu -->
+  <div class="menu">
+    <a href="dashboard.html" class="active">
+      <i class="fa fa-chart-line"></i> Dashboard
+    </a>
+
+    <a href="manage.html">
+      <i class="fa fa-folder-open"></i> Manage Files
+    </a>
+
+    <a href="views.html">
+      <i class="fa fa-eye"></i> View Logs
+    </a>
+
+    <a href="userDetails.html">
+      <i class="fa fa-users"></i> User Analytics
+    </a>
+  </div>
+
+  <!-- Bottom -->
+<div class="sidebar-bottom">
+
+  <div class="profile-box">
+  <img src="images/avatar.jpg" class="avatar">
+  <div class="profile-info">
+  <span id="userEmail"></span>
+</div>
+</div>
+
+  <button class="logout-btn" onclick="logoutUser()">
+    <i class="fa fa-sign-out-alt"></i> Logout
+  </button>
+
+</div>
+
+
+</div>
+<div class="overlay" onclick="closeMenu()"></div>
+<div class="main">
+
+  <div class="topbar">
+  <button onclick="toggleMenu()" class="menu-toggle">☰</button>
+  <h1 class="page-title">Overview</h1>
+</div>
+
+<p class="subtitle">Analytics and statistics</p>
+  <!-- TOP CARDS -->
+  <div class="stats-row">
+
+    <div class="stat-card purple">
+      <div>
+        <p>Total Files</p>
+        <h2 id="totalFiles">0</h2>
+      </div>
+      <i class="fa fa-folder"></i>
+    </div>
+
+    <div class="stat-card pink">
+      <div>
+        <p>Total Views</p>
+        <h2 id="totalViews">0</h2>
+      </div>
+      <i class="fa fa-eye"></i>
+    </div>
+
+    <div class="stat-card green">
+      <div>
+        <p>Top File</p>
+        <h3 id="topFile">None</h3>
+      </div>
+      <i class="fa fa-file"></i>
+    </div>
+
+    <div class="stat-card orange">
+      <div>
+        <p>Categories</p>
+        <h2 id="totalCategories">0</h2>
+      </div>
+      <i class="fa fa-layer-group"></i>
+    </div>
+
+    <div class="stat-card blue">
+      <div>
+        <p>Active Users</p>
+        <h2 id="activeUsers">0</h2>
+      </div>
+      <i class="fa fa-users"></i>
+    </div>
+
+  </div>
+
+  <!-- GRID -->
+<div class="dashboard-grid">
+
+  <!-- Row 1 -->
+  <div class="card">
+    <h3>Performance</h3>
+    <div class="chart-container">
+      <canvas id="performanceChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Visitors Worldwide</h3>
+    <div id="worldMap"></div>
+  </div>
+
+  <!-- Row 2 -->
+  <div class="card">
+    <h3>Devices</h3>
+    <div class="chart-container">
+      <canvas id="deviceChart"></canvas>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Top Countries</h3>
+    <table class="country-table">
+      <tbody id="topCountries"></tbody>
+    </table>
+  </div>
+
+  <!-- Row 3 (Full Width) -->
+  <div class="card full-width">
+    <h3>Total Users Visited</h3>
+    <div class="chart-container">
+      <canvas id="usersChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Row 4 (Full Width) -->
+  <div class="card full-width">
+  <h3>Recent Users</h3>
+
+  <table class="users-table">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Mobile</th>
+        <th>Visits</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+
+    <tbody id="recentUsers">
+    </tbody>
+  </table>
+
+</div>
+  </div>
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="dashboard.js"></script>
+
+</body>
+</html>

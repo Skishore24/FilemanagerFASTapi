@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>User Details</title>
+<link rel="stylesheet" href="sidebar.css">
+<link rel="stylesheet" href="userDetails.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+  <!-- College Logo -->
+  <div class="logo-box">
+    <img src="images/logo.png" alt="College Logo">
+  </div>
+
+  <!-- Menu -->
+  <div class="menu">
+    <a href="dashboard.html">
+      <i class="fa fa-chart-line"></i> Dashboard
+    </a>
+
+    <a href="manage.html">
+      <i class="fa fa-folder-open"></i> Manage Files
+    </a>
+
+    <a href="views.html">
+      <i class="fa fa-eye"></i> View Logs
+    </a>
+
+    <a href="userDetails.html"class="active">
+      <i class="fa fa-users"></i> User Analytics
+    </a>
+  </div>
+
+  <!-- Bottom -->
+<div class="sidebar-bottom">
+
+  <div class="profile-box">
+  <img src="images/avatar.jpg" class="avatar">
+  <div class="popup-profile-info">
+
+    <span id="userEmail"></span>
+
+  </div>
+</div>
+
+  <button class="logout-btn" onclick="logoutUser()">
+    <i class="fa fa-sign-out-alt"></i> Logout
+  </button>
+
+</div>
+
+
+</div>
+
+<div class="overlay" onclick="toggleMenu()"></div>
+
+<div class="main">
+
+<div class="topbar">
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+</div>
+
+<h2 class="page-title">User Details</h2>
+<p class="subtitle">Track users and file activity</p>
+
+<div class="table-card">
+
+<div class="table-header">
+  <div>
+    <h3>User List</h3>
+    <p>All users activity</p>
+  </div>
+
+  <div class="table-actions">
+    <input type="text" id="searchUsers"
+      placeholder="Search name or mobile..."
+      onkeyup="currentPage=1; renderUsers()">
+
+    <button class="filter-btn" onclick="openBlockedModal()">
+  <i class="fa fa-ban"></i> Blocked
+</button>
+
+  </div>
+</div>
+
+<div id="bulkActions" style="display:none; margin-bottom:10px;">
+  <button class="btn-delete" onclick="blockSelected()">Block Selected</button>
+  <button class="btn-delete" onclick="deleteSelected()">Delete Selected</button>
+</div>
+
+<table class="file-table">
+<thead>
+<tr>
+  <th><input type="checkbox" onclick="toggleSelectAll()"></th>
+  <th>Name</th>
+  <th>Mobile</th>
+  <th>Status</th>
+  <th>Location</th>
+  <th>Total Visits</th>
+  <th>Action</th>
+</tr>
+</thead>
+<tbody id="userTable"></tbody>
+</table>
+
+<div class="pagination">
+<button onclick="prevPage()">Prev</button>
+<span id="pageInfo"></span>
+<button onclick="nextPage()">Next</button>
+</div>
+
+</div>
+</div>
+
+
+<!-- USER POPUP -->
+<div id="userModal" class="modal">
+  <div class="modal-content">
+
+    <span class="close" onclick="closeUserModal()">×</span>
+
+   <div class="profile-header">
+  <div id="avatarCircle" class="avatar-circle"></div>
+  <div>
+    <h3 id="uName"></h3>
+    <p id="uMobile"></p>
+  </div>
+</div>
+
+
+    <div class="profile-info">
+      <p><b>Total Visits:</b> <span id="uVisits"></span></p>
+      <p><b>Last Visit:</b> <span id="uLastVisit"></span></p>
+      <p><b>Location:</b> <span id="uLocation"></span></p>
+      <p><b>Status:</b> <span id="uStatus"></span></p>
+
+    </div>
+
+    <!-- BUTTONS BELOW LOCATION -->
+    <div class="popup-actions">
+      <button class="btn-delete" onclick="blockUser()">Block</button>
+      <button class="btn-delete" onclick="deleteUser()">Delete</button>
+    </div>
+    <h4 style="margin-top:15px;">Files Viewed</h4>
+
+<table class="file-table">
+<thead>
+<tr>
+  <th>File</th>
+  <th>Viewed At</th>
+</tr>
+</thead>
+<tbody id="uFileTable"></tbody>
+</table>
+
+<div id="popupPagination" class="popup-pagination"></div>
+
+  </div>
+</div>
+
+<!-- Confirm Action Modal -->
+<div id="confirmModal" class="modal">
+  <div class="modal-content confirm-box">
+
+    <h3 id="confirmTitle">Confirm</h3>
+    <p id="confirmMessage">Are you sure?</p>
+
+    <div class="popup-actions">
+      <button class="view-btn" onclick="closeConfirm()">Cancel</button>
+      <button class="btn-delete" onclick="confirmAction()">Yes</button>
+    </div>
+
+  </div>
+</div>
+
+<!-- BLOCKED USERS -->
+<div id="blockedModal" class="modal">
+  <div class="modal-content">
+
+    <span class="close" onclick="closeBlockedModal()">×</span>
+
+    <h3>Blocked Users</h3>
+
+    <table class="file-table">
+      <thead>
+        <tr>
+          <th>Mobile</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="blockedTable"></tbody>
+    </table>
+
+  </div>
+</div>
+
+
+<script src="userDetails.js"></script>
+</body>
+</html>

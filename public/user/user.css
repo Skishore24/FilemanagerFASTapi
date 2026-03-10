@@ -1,0 +1,722 @@
+*{
+  font-family:"Poppins",sans-serif;
+  box-sizing:border-box;
+}
+
+body{
+  background:#f4f6fb;
+  padding:30px;
+}
+
+h2{ margin-bottom:15px; }
+
+.top-controls{
+  display:flex;
+  gap:15px;
+  margin-bottom:20px;
+}
+
+#search, select{
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+
+.file-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:20px;
+}
+
+.card{
+  background:white;
+  padding:18px;
+  border-radius:14px;
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
+  transition:.25s;
+}
+
+.card:hover{
+  transform:translateY(-6px);
+}
+
+button{
+  margin-top:12px;
+  background:#ff5430;
+  color:white;
+  border:none;
+  padding:8px 14px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+button:hover{
+  background:#ff2a00;
+}
+
+/* Modal */
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.5);
+  justify-content:center;
+  align-items:center;
+  z-index:999;
+  backdrop-filter:blur(6px);
+}
+.download-btn{
+  position:absolute;
+  bottom:20px;
+  right:20px;
+  width:auto;              /* important */
+  padding:10px 18px;
+  border-radius:30px;
+  background:#22c55e;
+  color:white;
+  font-weight:500;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(0,0,0,0.25);
+  z-index:10;
+}
+
+.download-btn:hover{
+  transform:scale(1.05);
+  box-shadow:0 12px 25px rgba(0,0,0,0.3);
+}
+
+/* OTP CARD */
+.otp-card-modern{
+  width:360px;
+  background:white;
+  padding:30px;
+  border-radius:18px;
+  text-align:center;
+  box-shadow:0 20px 50px rgba(0,0,0,0.2);
+  animation:fadeUp .35s ease;
+}
+
+@keyframes fadeUp{
+  from{transform:translateY(20px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+
+.otp-card-modern input{
+  width:100%;
+  padding:12px;
+  margin-bottom:15px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+}
+
+.primary-btn{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:linear-gradient(135deg,#6366f1,#7c3aed);
+  color:white;
+  cursor:pointer;
+}
+
+.sub{
+  color:#6b7280;
+  font-size:14px;
+  margin-bottom:20px;
+}
+
+.success{
+  color:#10b981;
+}
+
+/* OTP Boxes */
+.otp-boxes{
+  display:flex;
+  justify-content:space-between;
+  margin:20px 0;
+}
+
+.otp-boxes input{
+  width:45px;
+  height:50px;
+  text-align:center;
+  font-size:18px;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
+
+/* Viewer */
+.viewer-box{
+  width:85%;
+  height:85%;
+  background:white;
+  border-radius:12px;
+  position:relative;   
+}
+
+.viewer-box iframe{
+  width:100%;
+  height:100%;
+  border:none;
+}
+
+.close-btn{
+  position:absolute;
+  top:12px;
+  right:14px;
+  font-size:20px;
+  cursor:pointer;
+  color:#666;
+  transition:0.2s;
+}
+
+.close-btn:hover{
+  color:#000;
+  transform:scale(1.1);
+}
+
+
+.watermark{
+  position:absolute;
+  top:40%;
+  left:25%;
+  font-size:40px;
+  color:rgba(0,0,0,0.15);
+  transform:rotate(-30deg);
+  pointer-events:none;
+}
+/* Modal */
+.modal{
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  justify-content:center;
+  align-items:center;
+}
+
+/* Card */
+.otp-card{
+  width:360px;
+  background:#fff;
+  padding:30px;
+  border-radius:16px;
+  text-align:center;
+  box-shadow:0 20px 40px rgba(0,0,0,0.2);
+  animation:fadeUp .35s ease;
+}
+
+@keyframes fadeUp{
+  from{transform:translateY(20px);opacity:0}
+  to{transform:translateY(0);opacity:1}
+}
+
+.otp-card h3{
+  margin-bottom:8px;
+}
+
+.sub{
+  font-size:14px;
+  color:#6b7280;
+  margin-bottom:18px;
+}
+
+.otp-card input{
+  width:100%;
+  padding:12px;
+  margin-bottom:14px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  font-size:14px;
+}
+
+/* Green WhatsApp button */
+.btn-green{
+  width:100%;
+  padding:12px;
+  background:#25D366;
+  border:none;
+  color:white;
+  border-radius:10px;
+  font-weight:600;
+  cursor:pointer;
+  transition:0.25s;
+}
+
+.btn-green:hover{
+  background:#1ebe5d;
+  transform:translateY(-1px);
+}
+
+/* OTP boxes */
+.otp-boxes{
+  display:flex;
+  justify-content:space-between;
+  margin-bottom:20px;
+}
+
+.otp-boxes input{
+  width:55px;
+  height:55px;
+  text-align:center;
+  font-size:20px;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
+
+/* Success */
+.success-icon{
+  font-size:40px;
+  color:#25D366;
+  margin-bottom:10px;
+}
+/* Result Step */
+#resultStep{
+  text-align:center;
+  position:relative;
+}
+
+/* Circle Icon */
+.result-icon{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  margin:15px auto;
+  position:relative;
+  animation:pop .4s ease;
+}
+
+/* Success */
+.result-icon.success{
+  background:#22c55e;
+}
+.result-icon.success::after{
+  content:"✔";
+  color:white;
+  font-size:36px;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+
+/* Error */
+.result-icon.error{
+  background:#ef4444;
+}
+.result-icon.error::after{
+  content:"✖";
+  color:white;
+  font-size:36px;
+  position:absolute;
+  top:50%;
+  left:50%;
+  transform:translate(-50%,-50%);
+}
+
+/* Button */
+#resultButton{
+  margin-top:15px;
+  background:#ef4444;
+  color:white;
+  border:none;
+  padding:10px 18px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* Animation */
+@keyframes pop{
+  from{transform:scale(0.6);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+/* Fix close button inside OTP */
+.otp-card{
+  position:relative;
+}
+
+/* Country dropdown spacing fix */
+.iti {
+  width:100%;
+}
+
+.iti input {
+  width:100%;
+  height:45px;
+  border-radius:10px;
+}
+.iti__selected-flag {
+  border-radius:8px 0 0 8px;
+  background:#f9fafb;
+}
+
+.iti--separate-dial-code .iti__selected-dial-code {
+  font-weight:500;
+}
+
+/* Result screen spacing */
+#resultStep h3{
+  margin-top:10px;
+}
+.otp-card{
+  position:relative;   /* IMPORTANT */
+}
+
+#resultStep p{
+  font-size:14px;
+  color:#6b7280;
+}
+
+/* Smooth modal animation */
+.modal{
+  animation:fadeIn .25s ease;
+}
+
+@keyframes fadeIn{
+  from{opacity:0}
+  to{opacity:1}
+}
+@keyframes shake{
+  0%{transform:translateX(0)}
+  25%{transform:translateX(-6px)}
+  50%{transform:translateX(6px)}
+  75%{transform:translateX(-6px)}
+  100%{transform:translateX(0)}
+}
+
+.shake{
+  animation:shake 0.35s;
+}
+.otp-card{
+  width:360px;
+  background:#fff;
+  padding:32px;
+  border-radius:18px;
+  text-align:center;
+  box-shadow:0 30px 60px rgba(0,0,0,0.25);
+}
+
+.otp-boxes input{
+  width:60px;
+  height:60px;
+  border-radius:12px;
+  font-size:22px;
+  border:2px solid #e5e7eb;
+  transition:0.2s;
+}
+
+.otp-boxes input:focus{
+  border-color:#25D366;
+  box-shadow:0 0 0 2px rgba(37,211,102,0.2);
+}
+.result-icon.success{
+  background:#22c55e;
+  animation:pop 0.4s ease;
+}
+.viewer-box{
+  width:85%;
+  height:90%;
+  background:white;
+  border-radius:12px;
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+
+/* Banner */
+.viewer-header{
+  width:100%;
+  flex-shrink:0;
+  background:white;
+  border-bottom:1px solid #eee;
+}
+
+.viewer-header img{
+  width:100%;
+  height:70px;
+  object-fit:contain;
+}
+
+/* PDF area fills remaining space */
+.viewer-box iframe{
+  flex:1;
+  width:100%;
+  border:none;
+}
+
+/* Close button */
+.close-btn{
+  position:absolute;
+  top:10px;
+  right:12px;
+  z-index:10;
+  cursor:pointer;
+  font-size:18px;
+}
+
+/* Download button */
+.download-btn{
+  position:absolute;
+  bottom:18px;
+  right:18px;
+  padding:10px 18px;
+  border-radius:30px;
+  background:#22c55e;
+  color:white;
+  border:none;
+  cursor:pointer;
+  box-shadow:0 8px 18px rgba(0,0,0,0.25);
+}
+
+/* Watermark container */
+.watermarks{
+position:absolute;
+top:70px;
+left:0;
+width:100%;
+height:calc(100% - 70px);
+pointer-events:none;
+z-index:5;
+}
+
+/* Watermark style */
+.wm{
+position:absolute;
+color:rgba(0,0,0,0.18);
+font-weight:bold;
+transform:rotate(-28deg);
+user-select:none;
+}
+
+/* Laptop size */
+.wm{
+font-size:50px;
+}
+
+/* Positions (same as mobile) */
+
+.wm1{
+top:15%;
+left:10%;
+}
+
+.wm2{
+top:55%;
+left:20%;
+}
+
+.wm3{
+top:30%;
+right:30%;
+}
+
+.wm4{
+bottom:10%;
+right:25%;
+}
+#pdfContainer {
+  flex: 1;
+  width: 100%;
+  overflow: auto;
+  padding: 20px;
+  background: #f9fafb;
+}
+
+@keyframes pop{
+  0%{transform:scale(0.6);opacity:0}
+  100%{transform:scale(1);opacity:1}
+}
+
+/* =========================
+   TABLET RESPONSIVE
+========================= */
+@media (max-width:900px){
+
+  body{
+    padding:20px;
+  }
+
+  .top-controls{
+    flex-wrap:wrap;
+  }
+
+  #search, select{
+    flex:1;
+    min-width:140px;
+  }
+
+  .file-grid{
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  }
+
+  .viewer-box{
+    width:95%;
+    height:85%;
+  }
+
+}
+
+/* =========================
+   MOBILE RESPONSIVE
+========================= */
+@media (max-width:600px){
+
+  body{
+    padding:15px;
+  }
+
+  h2{
+    font-size:20px;
+  }
+.viewer-box{
+    width:96%;
+    height:92%;
+  }
+
+  .viewer-header img{
+    height:55px;
+  }
+
+  .download-btn{
+    bottom:12px;
+    right:12px;
+    padding:8px 14px;
+    font-size:13px;
+  }
+
+ 
+  /* Controls stack */
+  .top-controls{
+    flex-direction:column;
+    gap:10px;
+  }
+
+  #search, select{
+    width:100%;
+  }
+
+  /* Cards full width */
+  .file-grid{
+    grid-template-columns:1fr;
+  }
+
+  .card{
+    padding:14px;
+  }
+
+  /* OTP modal */
+  .otp-card,
+  .otp-card-modern{
+    width:92%;
+    padding:20px;
+  }
+
+  .otp-boxes{
+    justify-content:space-between;
+  }
+
+  .otp-boxes input{
+    width:48px;
+    height:52px;
+    font-size:18px;
+  }
+
+  /* Viewer */
+  .viewer-box{
+    width:96%;
+    height:85%;
+    border-radius:10px;
+  }
+
+  /* Download button mobile position */
+  .download-btn{
+    bottom:12px;
+    right:12px;
+    padding:8px 14px;
+    font-size:13px;
+  }
+
+  /* Watermark smaller */
+/* Watermark container */
+.watermarks{
+position:absolute;
+top:70px;
+left:0;
+width:100%;
+height:calc(100% - 70px);
+pointer-events:none;
+z-index:5;
+}
+
+/* Watermark */
+.wm{
+position:absolute;
+color:rgba(0,0,0,0.18);
+font-size:8vw;
+font-weight:bold;
+transform:rotate(-28deg);
+user-select:none;
+}
+
+/* Random positions */
+
+.wm1{
+top:15%;
+left:10%;
+}
+
+.wm2{
+top:55%;
+left:20%;
+}
+
+.wm3{
+top:30%;
+right:10%;
+}
+
+.wm4{
+bottom:10%;
+right:25%;
+}
+}
+
+/* =========================
+   SMALL PHONES
+========================= */
+@media (max-width:400px){
+
+  .otp-boxes input{
+    width:42px;
+    height:46px;
+    font-size:16px;
+  }
+
+  .download-btn{
+    font-size:12px;
+    padding:7px 12px;
+  }
+
+}
+.close-btn{
+  position:absolute;
+  top:12px;
+  right:15px;
+  font-size:20px;
+  cursor:pointer;
+  color:#666;
+  transition:0.2s;
+}
+
+.close-btn:hover{
+  color:#000;
+  transform:scale(1.1);
+}
+
+.otp-card{
+  position:relative; /* important */
+}

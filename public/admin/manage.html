@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manage Files</title>
+<link rel="stylesheet" href="sidebar.css">
+<link rel="stylesheet" href="manage.css">
+
+
+  <link rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<!-- Sidebar -->
+<div class="sidebar">
+
+  <!-- College Logo -->
+  <div class="logo-box">
+    <img src="images/logo.png" alt="College Logo">
+  </div>
+
+  <!-- Menu -->
+  <div class="menu">
+    <a href="dashboard.html" >
+      <i class="fa fa-chart-line"></i> Dashboard
+    </a>
+
+    <a href="manage.html"class="active">
+      <i class="fa fa-folder-open"></i> Manage Files
+    </a>
+
+    <a href="views.html">
+      <i class="fa fa-eye"></i> View Logs
+    </a>
+
+    <a href="userDetails.html">
+      <i class="fa fa-users"></i> User Analytics
+    </a>
+  </div>
+
+  <!-- Bottom -->
+<div class="sidebar-bottom">
+
+  <div class="profile-box">
+    <img src="images/avatar.jpg" class="avatar">
+    <div class="profile-info">
+      <span id="userEmail"></span>
+    </div>
+  </div>
+
+  <button class="logout-btn" onclick="logoutUser()">
+    <i class="fa fa-sign-out-alt"></i> Logout
+  </button>
+
+</div>
+
+
+</div>
+
+<div class="overlay" onclick="toggleMenu(event)"></div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+<button class="menu-toggle" onclick="toggleMenu(event)">☰</button>
+  </div>
+<h2 class="page-title">Manage Files</h2>
+<p class="subtitle">Upload and manage your documents</p>
+
+  <!-- Upload Box -->
+  <div class="upload-box" onclick="document.getElementById('fileInput').click()">
+    <i class="fa fa-cloud-upload-alt"></i>
+    <p>Click or drag files here</p>
+    <small>PDF, DOC, JPG supported</small>
+  </div>
+
+ <input type="file" id="fileInput" style="display:none;" multiple>
+
+
+  <!-- Table Card -->
+  <div class="table-card">
+
+    <div class="table-header">
+      <div>
+        <h3>Attached Files <span class="badge" id="fileCount">0</span></h3>
+        <p>Here you can explore your uploaded files.</p>
+      </div>
+
+      <div class="table-actions">
+  <input type="text" id="searchManage" placeholder="Search..." onkeyup="showFiles()">
+
+  <button class="filter-btn" onclick="openFilter()">
+    <i class="fa fa-filter"></i> Filter
+  </button>
+
+  <button class="filter-btn" onclick="openCategoryModal()">
+    <i class="fa fa-tags"></i> Category
+  </button>
+</div>
+
+    </div>
+<div id="bulkActions" style="display:none; margin-bottom:12px;">
+  <button class="btn-edit" onclick="markViewOnly()">Mark View Only</button>
+  <button class="btn-edit" onclick="markViewDownload()">Mark View & Download</button>
+  <button class="btn-delete" onclick="deleteSelected()">Delete Selected</button>
+</div>
+
+    <table class="file-table">
+  <thead>
+    <tr>
+      <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll()"></th>
+      <th>File Name</th>
+      <th>Category</th>
+      <th>Size</th>
+      <th>Uploaded</th>
+      <th>Viewable</th>
+      <th>Actions</th>
+    </tr>
+  </thead>
+  <tbody id="fileList"></tbody>
+</table>
+
+<div class="pagination">
+  <button onclick="prevFilePage()">Prev</button>
+  <span id="filePageInfo"></span>
+  <button onclick="nextFilePage()">Next</button>
+</div>
+  </div>
+
+</div>
+
+
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeEditModal()">&times;</span>
+    <h3>Edit File</h3>
+
+    <input type="text" id="editName" placeholder="File name"><br><br>
+
+    <label>Viewable</label>
+    <select id="editImportance">
+      <option value="less">View & Download</option>
+      <option value="important">View Only</option>
+    </select>
+
+    <br><br>
+
+    <label>Category</label>
+    <select id="editCategory"></select>
+
+    <br><br>
+
+    <input type="file" id="editFile"><br><br>
+<p id="editError" style="color:red; font-size:14px; margin-top:8px;"></p>
+<p id="editSuccess" style="color:green; font-size:14px; margin-top:8px;"></p>
+
+    <button class="btn-add" onclick="saveEdit()">Save Changes</button>
+  </div>
+</div>
+
+
+<!-- FILTER MODAL -->
+<div id="filterModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeFilter()">&times;</span>
+
+    <h3>Filter Files</h3>
+
+    <label>Category</label>
+    <select id="filterCategory">
+      <option value="All">All</option>
+    </select>
+
+    <br><br>
+
+    <label>Viewable</label>
+    <select id="filterImportance">
+      <option value="All">All</option>
+      <option value="important">View Only</option>
+      <option value="less">View & Download</option>
+    </select>
+
+   
+    <label>Date</label>
+    <input type="date" id="filterDate">
+
+    <br><br>
+
+    <button class="btn-add" onclick="applyFilter()">Apply</button>
+  </div>
+</div>
+
+<div id="viewerModal" class="modal">
+  <div class="modal-preview">
+
+    <span class="close" onclick="closeViewer()">✖</span>
+
+    <iframe id="viewerFrame"></iframe>
+
+  </div>
+</div>
+
+<!-- CATEGORY MODAL -->
+<div id="categoryModal" class="modal">
+  <div class="modal-content large-modal">
+
+    <span class="close" onclick="closeCategoryModal()">&times;</span>
+    <h3>Manage Categories</h3>
+
+    <!-- Add category -->
+    <div class="cat-add-row">
+      <input type="text" id="newCategory" placeholder="Enter category name">
+      <button onclick="addCategory()">Add Category</button>
+    </div>
+    <input type="text" id="categorySearch" 
+    placeholder="Search categories..." 
+    onkeyup="showCategories()" 
+    style="margin-bottom:12px;">
+
+    <!-- Scrollable table -->
+    <div class="table-wrapper">
+      <table class="category-table">
+        <thead>
+          <tr>
+            <th>Category Name</th>
+            <th style="width:180px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="categoryList"></tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination">
+      <button onclick="prevPage()">Prev</button>
+      <span id="pageInfo"></span>
+      <button onclick="nextPage()">Next</button>
+    </div>
+
+  </div>
+</div>
+
+<div id="confirmModal" class="modal">
+  <div class="modal-content">
+    <h3>Delete Category?</h3>
+    <p>This action cannot be undone.</p>
+
+    <button onclick="deleteCategory()">Yes, Delete</button>
+    <button onclick="closeConfirm()">Cancel</button>
+  </div>
+</div>
+
+<div id="detailsModal" class="modal">
+  <div class="modal-content">
+
+    <span class="close" onclick="closeDetails()">×</span>
+
+    <h3>File Details</h3>
+
+    <p><b>Name:</b> <span id="dName"></span></p>
+    <p><b>Category:</b> <span id="dCategory"></span></p>
+    <p><b>Size:</b> <span id="dSize"></span></p>
+    <p><b>Date:</b> <span id="dDate"></span></p>
+    <p><b>Viewable:</b> <span id="dImportance"></span></p>
+
+    <br>
+
+   <button class="btn-view" onclick="viewFile(selectedIndex)">
+  <i class="fa fa-eye"></i> View
+</button>
+
+<button class="btn-copy" id="downloadBtn" onclick="downloadFile(selectedIndex)">
+  <i class="fa fa-download"></i> Download
+</button>
+
+
+<button onclick="editFromDetails()">Edit</button>
+<button onclick="confirmDeleteFile(selectedIndex)">Delete</button>
+<button onclick="copyLink()">Copy Link</button>
+
+  </div>
+</div>
+<div id="confirmFileModal" class="modal">
+  <div class="modal-content">
+    <h3>Delete File?</h3>
+    <p>This action cannot be undone.</p>
+
+    <button onclick="deleteFileConfirmed()">Yes, Delete</button>
+    <button onclick="closeFileConfirm()">Cancel</button>
+  </div>
+</div>
+<!-- EDIT CATEGORY MODAL -->
+<div id="editCategoryModal" class="modal">
+  <div class="modal-content">
+    <h3>Edit Category</h3>
+
+    <input type="text" id="editCategoryInput">
+
+    <div style="display:flex; gap:10px; margin-top:15px;">
+      <button onclick="saveCategoryEdit()">OK</button>
+      <button onclick="closeEditCategory()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+
+<div id="bulkConfirmModal" class="modal">
+  <div class="modal-content">
+    <h3 id="bulkTitle">Confirm Action</h3>
+    <p id="bulkMessage">Are you sure?</p>
+
+    <div style="display:flex; gap:10px; margin-top:15px;">
+      <button onclick="confirmBulkAction()">OK</button>
+      <button onclick="closeBulkModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<div id="uploadModal" class="modal">
+  <div class="modal-content">
+    <h3>Upload File Settings</h3>
+
+    <label>Category</label>
+    <select id="uploadCategory"></select>
+
+    <br><br>
+
+    <label>Access Type</label>
+    <select id="uploadImportance">
+      <option value="less">View & Download</option>
+      <option value="important">View Only</option>
+    </select>
+
+    <div style="display:flex; gap:10px; margin-top:15px;">
+      <button onclick="confirmUpload()">Upload</button>
+      <button onclick="closeUploadModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="manage.js"></script>
+
+</body>
+</html>

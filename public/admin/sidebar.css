@@ -1,0 +1,286 @@
+
+/* Sidebar */
+.sidebar{
+  position:fixed;
+  left:0;
+  top:0;
+  height:100vh;
+  width:250px;
+  background:linear-gradient(180deg,#0f172a,#020617);
+  color:white;
+  padding:20px;
+  display:flex;
+  flex-direction:column;
+  z-index:2000;
+  transition:0.3s ease;   /* ADD THIS */
+}
+/* ===== Global Close Button Style ===== */
+
+.modal-content{
+  position:relative;
+}
+
+.close{
+  position:absolute;
+  top:15px;
+  right:18px;
+  cursor:pointer;
+  font-size:20px;
+  font-weight:600;
+  color:#000;
+  width:30px;
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  transition:0.25s ease;
+}
+
+.close:hover{
+  background:#fee2e2;
+  color:#dc2626;
+}
+
+
+/* Logo */
+.logo{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.logo-circle{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#6366f1,#7c3aed);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+}
+
+/* Menu */
+.menu a{
+  display:flex;
+  align-items:center;
+  flex:1;
+  gap:12px;
+  color:#cbd5e1;
+  text-decoration:none;
+  padding:10px 12px;
+  border-radius:10px;
+  margin-bottom:6px;
+  transition:0.25s;
+}
+
+.menu a i{
+  width:18px;
+}
+
+.menu a:hover{
+  background:#1e293b;
+}
+
+.menu a.active{
+  background:linear-gradient(135deg,#6366f1,#7c3aed);
+  color:white;
+}
+
+/* Bottom section */
+.sidebar-bottom{
+  margin-top:auto;
+}
+
+.profile{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:15px;
+}
+
+.profile img{
+  width:38px;
+  height:38px;
+  border-radius:50%;
+}
+
+.name{
+  font-size:14px;
+  font-weight:500;
+}
+
+.role{
+  font-size:12px;
+  color:#94a3b8;
+}
+
+/* Logout button */
+.logout-btn{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:#ef4444;
+  color:white;
+  cursor:pointer;
+  transition:0.25s;
+}
+
+.logout-btn:hover{
+  background:#dc2626;
+}
+.logo-box{
+  text-align:center;
+  margin-bottom:25px;
+}
+
+.logo-box img{
+  width:150px;
+  height:auto;
+  object-fit:contain;
+}
+
+.sidebar-bottom{
+  margin-top:auto;
+}
+
+/* Profile box */
+.profile-box{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  background:#111827;
+  padding:10px;
+  border-radius:12px;
+  margin-bottom:12px;
+}
+
+/* Avatar */
+.avatar{
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  object-fit:cover;
+  border:2px solid #6366f1;
+}
+
+/* Name + email */
+.profile-info{
+  text-align:left;
+}
+
+.profile-info span{
+  font-size:14px;
+  font-weight:500;
+}
+
+.popup-profile-info span,
+.profile-box span,
+#userEmail{
+  font-size:14px;
+  font-weight:600;   /* Bold */
+  color:#ffffff;     /* White */
+}
+
+.sidebar h2{
+  margin-bottom:24px;
+  font-weight:600;
+  letter-spacing:.5px;
+}
+
+.sidebar a{
+  display:block;
+  color:#cbd5e1;
+  text-decoration:none;
+  padding:11px 14px;
+  border-radius:12px;
+  margin-bottom:10px;
+  transition:0.25s;
+}
+
+.sidebar a:hover{
+  background:#1e293b;
+  transform:translateX(4px);
+}
+
+.sidebar a.active{
+  background:linear-gradient(135deg,#6366f1,#7c3aed);
+  color:white;
+}
+/* ===== SIDEBAR RESPONSIVE ===== */
+
+.menu-toggle{
+  display:none;
+  font-size:22px;
+  background:#6366f1;
+  color:white;
+  border:none;
+  padding:8px 12px;
+  border-radius:6px;
+  cursor:pointer;
+  margin-bottom:15px;
+}
+/* Overlay for mobile */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.35);
+  display:none;
+  z-index:1500;
+}
+
+.overlay.active{
+  display:block;
+}
+
+/* Mobile & Tablet */
+@media(max-width:900px){
+body{
+    overflow-x: hidden;
+}
+  .sidebar{
+    width:240px;
+    left:0;
+    transform:translateX(-100%);   /* hide sidebar */
+    transition:0.3s ease;
+    padding:14px;
+    height:100vh;
+    overflow-y:auto;
+  }
+
+/* FORCE sidebar open when active */
+.sidebar.active{
+  transform:translateX(0) !important;
+}
+
+  .menu-toggle{
+    display:inline-block;
+    margin-bottom:15px;
+  }
+
+  .logo-box img{
+    width:110px;
+  }
+
+  .menu a{
+    padding:8px 10px;
+    font-size:14px;
+  }
+
+  .profile-box{
+    padding:8px;
+  }
+
+  .avatar{
+    width:32px;
+    height:32px;
+  }
+
+  .logout-btn{
+    padding:8px;
+    font-size:14px;
+  }
+}

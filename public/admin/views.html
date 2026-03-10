@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>File View Logs</title>
+<link rel="stylesheet" href="sidebar.css">
+<link rel="stylesheet" href="views.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+  <div class="logo-box">
+    <img src="images/logo.png" alt="College Logo">
+  </div>
+
+  <div class="menu">
+    <a href="dashboard.html">
+      <i class="fa fa-chart-line"></i> Dashboard
+    </a>
+
+    <a href="manage.html">
+      <i class="fa fa-folder-open"></i> Manage Files
+    </a>
+
+    <a href="views.html"class="active">
+      <i class="fa fa-eye"></i> View Logs
+    </a>
+
+    <a href="userDetails.html">
+      <i class="fa fa-users"></i> User Analytics
+    </a>
+  </div>
+
+  <div class="sidebar-bottom">
+    <div class="profile-box">
+  <img src="images/avatar.jpg" class="avatar">
+  <div class="profile-info">
+    <span id="userEmail"></span>
+  </div>
+</div>
+    </div>
+
+    <button class="logout-btn" onclick="logoutUser()">
+      <i class="fa fa-sign-out-alt"></i> Logout
+    </button>
+  </div>
+
+</div>
+
+<div class="overlay" onclick="toggleMenu()"></div>
+
+<div class="main">
+<div class="topbar">
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+</div>
+
+  <h2 class="page-title">File View History</h2>
+  <p class="subtitle">Track file access and user activity</p>
+
+  <div class="table-card">
+
+    <div class="table-header">
+      <div>
+        <h3>Logs</h3>
+        <p>All file view activities</p>
+      </div>
+
+      <div class="table-actions">
+        <input type="text" id="searchLogs"
+  placeholder="Search mobile or file..."
+  onkeyup="currentPage=1; showLogs()">
+
+
+<button class="filter-btn" onclick="openFilterModal()">
+  <i class="fa fa-filter"></i> Filter
+</button>
+<button class="filter-btn" onclick="exportCSV()">
+  <i class="fa fa-download"></i> Export
+</button>
+<button class="filter-btn" onclick="openBlockedModal()">
+  <i class="fa fa-ban"></i> Blocked
+</button>
+      </div>
+    </div>
+  <div id="bulkActionsLogs" style="display:none; margin-bottom:12px;">
+  <button class="btn-delete" onclick="blockSelectedUsers()">
+    Block Selected
+  </button>
+
+  <button class="btn-delete" onclick="deleteSelectedLogs()">
+    Delete Selected
+  </button>
+</div>
+
+    
+    <table class="file-table logs-table">
+
+      <thead>
+        <tr>
+<td>
+  <input type="checkbox" id="selectAllLogs" onchange="toggleSelectAllLogs()">
+</td>
+          <th>File</th>
+          <th>Name</th>
+          <th>Number</th>
+          <th>IP</th>
+          <th>Viewed At
+          <select id="sortDate" onchange="sortLogs(this.value)">
+            <option value="newest">Newest</option>
+            <option value="oldest">Oldest</option>
+          </select>
+          </th>
+          <th>Action</th>
+        </tr>
+        </thead>
+        
+      <tbody id="logTable"></tbody>
+    </table>
+    <div class="pagination">
+  <button onclick="prevPage()">Prev</button>
+  <span id="pageInfo"></span>
+  <button onclick="nextPage()">Next</button>
+</div>
+
+
+  </div>
+</div>
+
+<!-- Log Detail Modal -->
+<div id="logModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeLogModal()">&times;</span>
+
+    <h3>User View Details</h3>
+
+    <p><b>File:</b> <span id="detailFile"></span></p>
+    <p><b>Mobile:</b> <span id="detailMobile"></span></p>
+    <p><b>IP Address:</b> <span id="detailIP"></span></p>
+    <p><b>MAC Address:</b> <span id="detailMAC"></span></p>
+    <p><b>Viewed At:</b> <span id="detailTime"></span></p>
+
+
+ <button class="btn-delete" onclick="openConfirm('block')">
+  <i class="fa fa-ban"></i> Block
+</button>
+
+<button class="btn-delete" onclick="openConfirm('delete')">
+  <i class="fa fa-trash"></i> Delete
+</button>
+
+  </div>
+</div>
+
+
+<!-- Filter Modal -->
+<div id="filterModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeFilterModal()">&times;</span>
+
+    <h3>Filter Logs</h3>
+
+    <label>Category</label>
+    <select id="modalCategory">
+      <option value="All">All</option>
+    </select>
+
+    <br><br>
+
+    <label>Date</label>
+    <input type="date" id="filterDate">
+
+    <br><br>
+    <button class="filter-btn" onclick="applyFilters()">Apply</button>
+  </div>
+</div>
+
+<!-- Blocked Users -->
+<div id="blockedModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeBlockedModal()">&times;</span>
+
+    <h3>Blocked Users</h3>
+
+    <table class="file-table">
+      <thead>
+        <tr>
+          <th>Mobile</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="blockedTable"></tbody>
+    </table>
+
+  </div>
+</div>
+<div id="blockConfirmModal" class="modal">
+  <div class="modal-content">
+    <h3>User Blocked</h3>
+    <p>The user has been blocked successfully.</p>
+    <button onclick="closeBlockConfirm()">OK</button>
+  </div>
+</div>
+<!-- Confirm Action Modal -->
+<div id="confirmActionModal" class="modal">
+  <div class="modal-content confirm-box">
+
+    <h3 id="confirmTitle">Confirm Action</h3>
+    <p id="confirmMessage">Are you sure?</p>
+
+    <div class="confirm-buttons">
+      <button class="btn-cancel" onclick="closeConfirmAction()">Cancel</button>
+      <button class="btn-confirm" onclick="confirmAction()">Yes</button>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- Success Popup -->
+
+<div id="successModal" class="modal">
+  <div class="modal-content confirm-box">
+    <h3>Success</h3>
+    <p id="successMessage"></p>
+
+    <div class="confirm-buttons">
+      <button class="btn-confirm" onclick="closeSuccessPopup()">OK</button>
+    </div>
+  </div>
+</div>
+
+<script src="views.js"></script>
+
+</body>
+</html>
