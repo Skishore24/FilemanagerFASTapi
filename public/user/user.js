@@ -1,4 +1,14 @@
+let otpCountdown;
 let files = [];
+function showStep(step){
+
+document.getElementById("mobileStep").style.display="none";
+document.getElementById("otpStep").style.display="none";
+document.getElementById("resultStep").style.display="none";
+
+document.getElementById(step).style.display="block";
+
+}
 
 async function loadFiles(){
   try{
@@ -40,9 +50,8 @@ function openFileFromURL(){
     selectedFileName = fileFromURL;
 
     document.getElementById("otpModal").style.display = "flex";
-    document.getElementById("mobileStep").style.display = "block";
-    document.getElementById("otpStep").style.display = "none";
-    document.getElementById("resultStep").style.display = "none";
+
+    showStep("mobileStep");   // IMPORTANT
   }
 }
 
@@ -61,6 +70,11 @@ function renderFiles() {
  let searchBox = document.getElementById("search");
 let search = searchBox ? searchBox.value.toLowerCase() : "";
   container.innerHTML = "";
+
+    if(files.length === 0){
+    container.innerHTML = "<p>No files available</p>";
+    return;
+    }
 
   files
   .filter(file =>
@@ -153,70 +167,101 @@ async function viewFile(index) {
         console.log("OTP expired → ask OTP");
 
         document.getElementById("otpModal").style.display = "flex";
-        document.getElementById("mobileStep").style.display = "block";
-        document.getElementById("otpStep").style.display = "none";
-        document.getElementById("resultStep").style.display = "none";
+        showStep("mobileStep");
     }
 
 }
 
 /* ================= SEND OTP ================= */
-async function sendOtp() {
+async function sendOtp(){
 
-    let name = document.getElementById("userName").value;
+let name = document.getElementById("userName").value.trim();
 
-    if (!name) {
-        alert("Enter name");
-        return;
-    }
-
-    if (!window.iti || !iti.isValidNumber()) {
-        alert("Invalid number");
-        return;
-    }
-
-    currentMobile = iti.getNumber();
-
-    try {
-
-        let res = await fetch("/api/send-otp", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ mobile: currentMobile })
-        });
-
-        let data = await res.json();
-
-        if (data.success) {
-
-            // CHECK BLOCK AFTER OTP SEND
-            let check = await fetch("/api/users/check-block", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ mobile: currentMobile })
-            });
-
-            let blockData = await check.json();
-
-            if (blockData.blocked) {
-                alert("Your access has been blocked by admin.");
-                sessionStorage.clear();
-                location.reload();
-                return;
-            }
-
-            // SHOW OTP BOX
-            document.getElementById("mobileStep").style.display = "none";
-            document.getElementById("otpStep").style.display = "block";
-
-        } else {
-            alert("OTP send failed");
-        }
-
-    } catch (err) {
-        alert("Server error while sending OTP");
-    }
+if(name === ""){
+showMessage("Please enter your name");
+document.getElementById("userName").focus();
+return;
 }
+
+if(!window.iti || !iti.isValidNumber()){
+showMessage("Please enter a valid mobile number");
+document.getElementById("mobileInput").focus();
+return;
+}
+
+currentMobile = iti.getNumber();
+
+try{
+
+let res = await fetch("/api/send-otp",{
+method:"POST",
+headers:{ "Content-Type":"application/json" },
+body:JSON.stringify({ mobile:currentMobile })
+});
+
+let data = await res.json();
+
+if(data.success){
+
+showStep("otpStep");
+startOtpTimer();
+document.querySelectorAll(".otp-boxes input")
+.forEach(i => i.value="");
+document.getElementById("verifyOtpBtn").disabled = true;
+document.querySelector(".otp-boxes input").focus();
+
+}else{
+showMessage("Failed to send OTP");
+}
+
+}catch(err){
+showMessage("Server error");
+}
+
+}
+
+function startOtpTimer(){
+
+clearInterval(otpCountdown);
+
+let time = 120;
+
+const timerEl = document.getElementById("timer");
+const btn = document.getElementById("verifyOtpBtn");
+
+btn.innerText = "Verify";
+btn.onclick = verifyOtp;
+btn.disabled = true;
+timerEl.innerText = time;
+
+otpCountdown = setInterval(()=>{
+
+time--;
+
+timerEl.innerText = time;
+
+if(time <= 0){
+
+clearInterval(otpCountdown);
+
+btn.innerText = "Resend OTP";
+btn.onclick = resendOtp;
+btn.disabled = false;
+
+}
+
+},1000);
+
+}
+async function resendOtp(){
+
+document.querySelectorAll(".otp-boxes input")
+.forEach(i => i.value="");
+
+await sendOtp();
+
+}
+
 
 
 /* ================= VERIFY OTP ================= */
@@ -226,10 +271,13 @@ async function verifyOtp() {
     document.querySelectorAll(".otp-boxes input")
         .forEach(i => otp += i.value);
 
-    if (otp.length !== 4) {
-        alert("Enter 4 digit OTP");
-        return;
-    }
+    if(otp.length !== 4){
+
+      document.getElementById("otpError").style.display="block";
+
+      return;
+
+      }
 
     try {
 
@@ -247,14 +295,13 @@ async function verifyOtp() {
             card.classList.add("shake");
 
             setTimeout(() => card.classList.remove("shake"), 400);
-
+            document.getElementById("otpError").style.display="none";
             document.getElementById("resultIcon").className = "result-icon error";
             document.getElementById("resultTitle").innerText = "Oops!";
             document.getElementById("resultMessage").innerText = "Wrong OTP. Try again.";
             document.getElementById("resultButton").style.display = "block";
 
-            document.getElementById("otpStep").style.display = "none";
-            document.getElementById("resultStep").style.display = "block";
+            showStep("resultStep");
             return;
         }
 
@@ -298,16 +345,24 @@ async function verifyOtp() {
 }
 
 /* ================= RETRY OTP ================= */
-function retryOtp() {
-    document.getElementById("resultStep").style.display = "none";
-    document.getElementById("otpStep").style.display = "block";
-    document.querySelectorAll(".otp-boxes input").forEach(i => i.value = "");
+function retryOtp(){
+
+showStep("otpStep");
+
+document.querySelectorAll(".otp-boxes input")
+.forEach(i => i.value="");
+
+document.querySelector(".otp-boxes input").focus();
+
 }
 
-function closeOtp() {
-    document.getElementById("otpModal").style.display = "none";
-}
+function closeOtp(){
 
+ document.getElementById("otpModal").style.display = "none";
+
+ clearInterval(otpCountdown);
+
+}
 
 
 
@@ -590,7 +645,19 @@ function checkIfBlocked() {
     });
 }
 
+function showMessage(text,type="error"){
 
+const msg = document.getElementById("uiMessage") || document.getElementById("mobileMessage");
+
+if(!msg) return;
+  msg.innerText = text;
+  msg.className = "ui-message " + type;
+  msg.style.display = "block";
+
+  setTimeout(()=>{
+    msg.style.display="none";
+  },3000);
+}
 setInterval(() => {
   let mobile = sessionStorage.getItem("verifiedMobile");
   if (mobile) checkIfBlocked();
@@ -628,12 +695,27 @@ window.addEventListener("DOMContentLoaded", () => {
 
   document.getElementById("search").addEventListener("keyup", renderFiles);
   document.getElementById("filterCategory").addEventListener("change", changeFilter);
-
   document.getElementById("closeOtpBtn").onclick = closeOtp;
   document.getElementById("sendOtpBtn").onclick = sendOtp;
   document.getElementById("verifyOtpBtn").onclick = verifyOtp;
   document.getElementById("resultButton").onclick = retryOtp;
   document.getElementById("closeViewerBtn").onclick = closeViewer;
+  document.addEventListener("keydown",function(e){
+    if(e.ctrlKey && e.shiftKey && e.key==="C"){
+    e.preventDefault();
+    }
+    });
+      document.getElementById("mobileInput").addEventListener("keypress",(e)=>{
+    if(e.key==="Enter") sendOtp();
+    });
+
+const nameInput = document.getElementById("userName");
+
+if(nameInput){
+nameInput.addEventListener("keypress",(e)=>{
+if(e.key==="Enter") sendOtp();
+});
+}
 
   document.addEventListener("click", function(e) {
     if (e.target.classList.contains("viewBtn")) {
@@ -644,26 +726,39 @@ window.addEventListener("DOMContentLoaded", () => {
 
   // OTP auto input
   document.querySelectorAll(".otp-boxes input")
-  .forEach((box, i, arr) => {
+.forEach((box, i, arr) => {
 
-    box.addEventListener("input", () => {
-      if (box.value && arr[i + 1]) arr[i + 1].focus();
+  box.addEventListener("input", () => {
 
-      let otp="";
-      arr.forEach(i=>otp+=i.value);
+    document.getElementById("otpError").style.display = "none";
 
-      if(otp.length===4) verifyOtp();
-    });
+    if (box.value && arr[i + 1]) arr[i + 1].focus();
 
-    box.addEventListener("keydown",(e)=>{
-      if(e.key==="Backspace" && !box.value && arr[i-1]){
-        arr[i-1].focus();
-      }
-    });
+    let otp="";
+    arr.forEach(input => otp += input.value);
+
+    const btn = document.getElementById("verifyOtpBtn");
+
+    if(otp.length === 4){
+      btn.disabled = false;
+      btn.focus();
+    }else{
+      btn.disabled = true;
+    }
 
   });
 
+  box.addEventListener("keydown",(e)=>{
+    if(e.key==="Backspace" && !box.value && arr[i-1]){
+      arr[i-1].focus();
+    }
+  });
+
 });
+
+  });
+
+
 let devtoolsOpen = false;
 
 setInterval(() => {
@@ -674,7 +769,8 @@ setInterval(() => {
      window.outerHeight - window.innerHeight > threshold) {
 
    if(!devtoolsOpen){
-     console.warn("Developer tools detected");
+     console.clear();
+    console.warn("Developer tools detected");
      devtoolsOpen = true;
    }
 
@@ -688,11 +784,15 @@ document.addEventListener("keydown",function(e){
  if(
   e.key === "F12" ||
   (e.ctrlKey && e.shiftKey && e.key === "I") ||
-  (e.ctrlKey && e.shiftKey && e.key === "J") ||
-  (e.ctrlKey && e.key === "U")
+  (e.ctrlKey && e.shiftKey && e.key === "J")
  ){
   e.preventDefault();
+
+  if(!devtoolsOpen){
   alert("Developer tools blocked");
+  }
+
  }
 
 });
+

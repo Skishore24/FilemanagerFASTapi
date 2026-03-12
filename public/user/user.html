@@ -1,24 +1,21 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>College Files</title>
+  <meta http-equiv="X-Content-Type-Options" content="nosniff">
+  <link rel="icon" href="images/favicon.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="user.css">
   <link rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css"/>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-      .iti__flag { background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/img/flags.png"); }
-      @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-        .iti__flag { background-image: url("https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/img/flags@2x.png"); }
-      }
-    </style>
 </head>
 
 
 <body>
 
-<h2>College Files</h2>
+<h1>College Files</h1>
 
 <div class="top-controls">
   <input type="text" id="search" placeholder="Search...">
@@ -29,9 +26,9 @@
 
 </div>
 
-<div id="files" class="file-grid"></div>
-
-
+<div id="files" class="file-grid">
+<p>Loading files...</p>
+</div>
 
 <!-- OTP MODAL -->
 
@@ -43,34 +40,48 @@
     <!-- STEP 1 -->
     <div id="mobileStep">
 
-      <h3>Enter your Name and Whatsapp Number</h3>
-      <input type="text" id="userName" placeholder="Full Name">
+    <h3>Enter your Name and Whatsapp Number</h3>
 
-      <input id="mobileInput" type="tel" placeholder="Mobile Number">
+    <p id="mobileMessage" class="ui-message"></p>
 
-      <button class="btn-green" id="sendOtpBtn">Continue</button>
+    <label for="userName">Full Name</label>
+    <input type="text" id="userName" placeholder="Enter your name" required>
+
+    <label for="mobileInput">Mobile Number</label>
+    <input id="mobileInput" type="tel" placeholder="Enter mobile number" required>
+
+    <button class="btn-green" id="sendOtpBtn">Continue</button>
 
     </div>
 
     <!-- STEP 2 -->
     <div id="otpStep" style="display:none">
 
-      <h3>Enter OTP</h3>
-      <p class="sub">Code sent to your phone</p>
+    <h3>Enter OTP</h3>
+    <p class="sub">Code sent to your phone</p>
+
+    <p id="uiMessage" class="ui-message"></p>
+
+    <p id="otpTimer">
+      OTP expires in <strong><span id="timer">60</span>s</strong>
+      </p>
 
       <div class="otp-boxes">
-        <input maxlength="1">
-        <input maxlength="1">
-        <input maxlength="1">
-        <input maxlength="1">
+      <input type="tel" maxlength="1" autocomplete="one-time-code">
+      <input type="tel" maxlength="1" autocomplete="one-time-code">
+      <input type="tel" maxlength="1" autocomplete="one-time-code">
+      <input type="tel" maxlength="1" autocomplete="one-time-code">
       </div>
 
-      <button class="btn-green" id="verifyOtpBtn">Verify</button>
+      <p id="otpError" class="ui-error">
+      Enter 4 digit OTP
+      </p>
 
+      <button class="btn-green" id="verifyOtpBtn">Verify</button>
     </div>
 
     <!-- RESULT STEP -->
-<div id="resultStep" style="display:none; position:relative;">
+  <div id="resultStep" style="display:none; position:relative;">
 
   <div id="resultIcon" class="result-icon"></div>
 
@@ -95,7 +106,7 @@
 
     <!-- Banner -->
     <div class="viewer-header">
-      <img src="images/images.png">
+      <img src="images/images.png" alt="College Banner" loading="lazy">
     </div>
 
     <!-- PDF -->

@@ -11,9 +11,16 @@ function verifyAdmin(req,res,next){
  const token = authHeader.split(" ")[1];
 
  jwt.verify(token,process.env.JWT_SECRET,(err,user)=>{
+
   if(err) return res.sendStatus(403);
+
+  if(user.role !== "admin"){
+   return res.status(403).json({message:"Admin access required"});
+  }
+
   req.user = user;
   next();
+
  });
 
 }
