@@ -14,7 +14,6 @@ const path     = require("path");
 const app  = express();
 const PORT = process.env.PORT || 5000;
 
-
 /* ============================================================
    SECTION 1 — HELMET SECURITY HEADERS
    Sets HTTP security headers (CSP, XSS guard, etc.)
@@ -22,6 +21,7 @@ const PORT = process.env.PORT || 5000;
 app.use(
   helmet({
     crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: false,
     contentSecurityPolicy: {
       useDefaults: true,
       directives: {
@@ -39,7 +39,7 @@ app.use(
           "'self'",
           "'unsafe-inline'"
         ],
-
+        mediaSrc: ["'self'", "blob:"],
         /* Allow styles from self and font/CDN sources */
         styleSrc: [
           "'self'",
@@ -137,7 +137,12 @@ const fileLimiter = rateLimit({
   windowMs: 5 * 60 * 1000,
   max:      50
 });
+const apiLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000,
+  max: 100
+});
 
+app.use("/api/files", apiLimiter);
 app.use("/api/send-otp",    otpLimiter);
 app.use("/api/verify-otp",  otpLimiter);
 app.use("/api/auth/login",  loginLimiter);

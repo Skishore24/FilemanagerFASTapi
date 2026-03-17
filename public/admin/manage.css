@@ -701,15 +701,19 @@ width:90%;
    Shown below form fields in modals
    ============================================================ */
 
-/* Base style for both success and error messages */
+/* Base style for both success and error messages — hidden by default */
 .form-msg {
+  display:     none;   /* hidden until JS shows message */
   font-size:   13px;
   margin-top:  8px;
+  margin-bottom: 10px;
   padding:     8px 10px;
   border-radius: 6px;
-  min-height:  20px;
 }
-
+#editModal .btn-add{
+margin-top:10px;
+width:100%;
+}
 .form-msg.error {
   background: #fff1f2;
   color:      #9f1239;
@@ -868,14 +872,21 @@ overflow-x:hidden;
   min-width:110px;
 }
 
-/* File colors */
-.fa-file-pdf{ color:#ef4444; }       /* Red */
-.fa-file-word{ color:#2563eb; }      /* Blue */
-.fa-file-excel{ color:#16a34a; }     /* Green */
-.fa-file-powerpoint{ color:#ea580c; }/* Orange */
-.fa-file-image{ color:#9333ea; }     /* Purple */
-.fa-file-archive{ color:#6b7280; }   /* Gray */
-.fa-file{ color:#64748b; }           /* Default */
+/* File icon colors — apply to both 'fa' and 'fa-solid' prefix classes */
+.fa-file-pdf,
+.fa-solid.fa-file-pdf   { color: #ef4444; }   /* Red   */
+.fa-file-word,
+.fa-solid.fa-file-word  { color: #2563eb; }   /* Blue  */
+.fa-file-excel,
+.fa-solid.fa-file-excel { color: #16a34a; }   /* Green */
+.fa-file-powerpoint,
+.fa-solid.fa-file-powerpoint { color: #ea580c; } /* Orange */
+.fa-file-image,
+.fa-solid.fa-file-image { color: #9333ea; }   /* Purple */
+.fa-file-zipper,
+.fa-solid.fa-file-zipper{ color: #6b7280; }   /* Gray  */
+.fa-file,
+.fa-solid.fa-file       { color: #64748b; }   /* Default */
 
 
 .file-table tr:hover{

@@ -40,8 +40,12 @@ router.post("/send-otp", async (req, res) => {
   const { mobile } = req.body;
 
   /* Validate mobile number is in E.164 format (e.g. +919876543210) */
-  if (!mobile || !/^\+\d{10,15}$/.test(mobile)) {
-    return res.status(400).json({ success: false, message: "Invalid mobile number format" });
+  if (!mobile || !/^\+\d{8,15}$/.test(mobile)) {
+    console.log("Invalid mobile received:", mobile);
+    return res.status(400).json({
+      success: false,
+      message: "Invalid mobile format. Use international format like +919876543210"
+    });
   }
 
   /* Enforce 30-second cooldown between OTP requests */
@@ -84,7 +88,15 @@ router.post("/send-otp", async (req, res) => {
     delete lastOtpRequest[mobile];
 
     console.error("Twilio send error:", err.message);
-    res.status(500).json({ success: false, message: "Failed to send OTP. Please try again." });
+
+    /* Return a friendly 400 instead of 500 so the UI can show the message */
+    const friendly = err.message && err.message.includes("unverified")
+      ? "This number is not registered in the WhatsApp sandbox. Please send 'join <sandbox-word>' to the Twilio number first."
+      : err.message && err.message.includes("To'")
+      ? "OTP could not be delivered. Please check your WhatsApp number and try again."
+      : "Failed to send OTP. Please try again later.";
+
+    res.status(400).json({ success: false, message: friendly });
   }
 
 });
@@ -116,8 +128,8 @@ router.post("/verify-otp", (req, res) => {
 
   /* Check if the OTP has expired */
   if (Date.now() > otpStore[mobile].expires) {
-    delete otpStore[mobile];
-    otpAttempts[mobile] = 0;
+  delete otpStore[mobile];
+  delete otpAttempts[mobile]; // important fix
     return res.json({ success: false, message: "OTP has expired. Please request a new one." });
   }
 

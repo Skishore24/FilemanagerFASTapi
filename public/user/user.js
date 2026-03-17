@@ -29,14 +29,13 @@ document.getElementById(step).style.display="block";
 }
 
 async function loadFiles() {
+  document.getElementById("files").innerHTML = `
+  <div class="spinner"></div>
+`;
 
   try {
 
-    const token = localStorage.getItem("token");
-
-    const res = await fetch("/api/files", {
-      headers: { "Authorization": "Bearer " + token }
-    });
+    const res = await fetch("/api/files");
 
     if (!res.ok) throw new Error("Failed to fetch files");
 
@@ -114,15 +113,15 @@ function getFileIcon(name) {
 
   const ext = (name || "").split(".").pop().toLowerCase();
 
-  if (ext === "pdf")  return { icon: "fa-file-pdf",        cls: "pdf"   };
+  if (ext === "pdf")  return { icon: "fa-solid fa-file-pdf",        cls: "pdf"   };
   if (ext === "doc" ||
-      ext === "docx") return { icon: "fa-file-word",       cls: "doc"   };
+      ext === "docx") return { icon: "fa-solid fa-file-word",       cls: "doc"   };
   if (ext === "xls" ||
-      ext === "xlsx") return { icon: "fa-file-excel",      cls: "image" };
+      ext === "xlsx") return { icon: "fa-solid fa-file-excel",      cls: "image" };
   if (["jpg","jpeg","png","gif","webp"].includes(ext))
-                      return { icon: "fa-file-image",      cls: "image" };
+                      return { icon: "fa-solid fa-file-image",      cls: "image" };
 
-  return              { icon: "fa-file-alt",          cls: "other" };
+  return              { icon: "fa-solid fa-file",          cls: "other" };
 
 }
 
@@ -191,14 +190,14 @@ function renderFiles() {
     /* Truncate very long file names for display */
     const displayName = escapeHTML(file.name).replace(/\.[^.]+$/, ""); /* strip ext */
 
-    const idx = files.indexOf(file); /* Original index in full array for viewFile() */
+    const idx = files.indexOf(file); 
 
     container.innerHTML += `
       <div class="file-card" onclick="viewFile(${idx})" title="${escapeHTML(file.name)}" role="button" tabindex="0" aria-label="Open ${escapeHTML(file.name)}">
 
         <!-- File type icon -->
         <div class="file-icon-wrap ${cls}">
-          <i class="fa ${icon}"></i>
+          <i class="${icon}"></i>
         </div>
 
         <!-- File name -->
@@ -281,26 +280,7 @@ function setCategory(name, btn) {
 /* ============================================================
    changeFilter() — legacy compatibility stub
    ============================================================ */
-function changeFilter() {
-  const sel = document.getElementById("filterCategory");
-  if (sel) { categoryFilter = sel.value; renderFiles(); }
-}
 
-function downloadFile(file) {
-
-    const mobile = sessionStorage.getItem("verifiedMobile") || "Unknown";
-
-window.open("/secure-files/" + file.name + "?mobile=" + mobile);
-
-    let downloadLogs = JSON.parse(localStorage.getItem("downloadLogs")) || [];
-
-    downloadLogs.push({
-        file: file.name,
-        date: new Date().toLocaleDateString()
-    });
-
-    localStorage.setItem("downloadLogs", JSON.stringify(downloadLogs));
-}
 
 /* ============================================================
    viewFile(index)
@@ -313,37 +293,30 @@ async function viewFile(index) {
     selectedFileIndex = index;
     selectedFileName  = files[index].name;
 
-    const mobile = sessionStorage.getItem("verifiedMobile") || currentMobile;
 
     /* Check if admin has blocked this user */
-    if (mobile) {
+const mobile = sessionStorage.getItem("verifiedMobile") || currentMobile;
 
-        const res  = await fetch("/api/users/check-block", {
-            method:  "POST",
-            headers: { "Content-Type": "application/json" },
-            body:    JSON.stringify({ mobile })
-        });
+if (mobile) {
+  const res = await fetch("/api/users/check-block", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ mobile })
+  });
 
-        const data = await res.json();
+  const data = await res.json();
 
-        if (data.blocked) {
+  if (data.blocked) {
+    document.getElementById("otpModal").classList.add("open");
+    showStep("resultStep");
 
-            /* Show styled error inside modal instead of browser alert */
-            document.getElementById("otpModal").classList.add("open");
-            showStep("resultStep");
+    document.getElementById("resultTitle").textContent = "Access Blocked";
+    document.getElementById("resultMessage").textContent =
+      "Your access has been blocked by admin.";
 
-            const icon = document.getElementById("resultIcon");
-            if (icon) icon.innerHTML = '<i class="fa fa-ban" style="color:#ef4444;font-size:40px;"></i>';
-
-            const title = document.getElementById("resultTitle");
-            if (title) title.textContent = "Access Blocked";
-
-            const msg = document.getElementById("resultMessage");
-            if (msg) msg.textContent = "Your access has been blocked by the admin. Please contact your college.";
-
-            return;
-        }
-    }
+    return;
+  }
+}
 
     /* If OTP session is still valid, open viewer directly */
     if (isOtpValid()) {
@@ -377,63 +350,62 @@ async function sendOtp() {
 
   const name = document.getElementById("userName")?.value.trim() || "";
 
-  if (name === "") {
+  if(name === ""){
     showMessage("Please enter your name.");
-    document.getElementById("userName")?.focus();
     return;
   }
 
-  const rawMobile = (document.getElementById("mobileInput")?.value || "").replace(/\D/g, "");
 
-  /* Accept 10-digit numbers (India) or up to 15 digits for international */
-  if (rawMobile.length < 7 || rawMobile.length > 15) {
-    showMessage("Please enter a valid mobile number.");
-    document.getElementById("mobileInput")?.focus();
+ let mobileInput = document.getElementById("mobileInput").value.trim();
+
+if (window.iti) {
+  currentMobile = window.iti.getNumber();
+} else {
+  currentMobile = mobileInput;
+}
+
+console.log("Mobile:", currentMobile);
+
+  console.log("International mobile:", currentMobile);
+
+  if(!currentMobile){
+    showMessage("Please enter a valid phone number.");
     return;
   }
 
-  /* Build E.164: country code (e.g. +91) + digits */
-  const countryCode = document.getElementById("countryCode")?.value || "+91";
-  currentMobile = countryCode + rawMobile;
-
-  /* Clear any previous error message */
   showMessage("");
 
-  try {
+  try{
 
-    const res  = await fetch("/api/send-otp", {
-      method:  "POST",
-      headers: { "Content-Type": "application/json" },
-      body:    JSON.stringify({ mobile: currentMobile })
+    const res = await fetch("/api/send-otp",{
+      method:"POST",
+      headers:{ "Content-Type":"application/json" },
+      body: JSON.stringify({ mobile: currentMobile })
     });
 
     const data = await res.json();
+    console.log("OTP API response:", data);
 
-    if (data.success) {
+    if (data.success || data.status === "pending") {
 
       showStep("otpStep");
       startOtpTimer();
 
-      /* Clear all digit boxes */
-      document.querySelectorAll(".otp-digit").forEach(i => i.value = "");
+      document.querySelectorAll(".otp-digit").forEach(i=>i.value="");
 
-      const verifyBtn = document.getElementById("verifyOtpBtn");
-      if (verifyBtn) verifyBtn.disabled = true;
+      document.querySelector(".otp-digit")?.focus();
 
-      /* Focus first digit box */
-      const firstBox = document.querySelector(".otp-digit");
-      if (firstBox) firstBox.focus();
-
-    } else {
-      showMessage(data.message || "Failed to send OTP. Please try again.");
+    }else{
+      showMessage(data.message || "Failed to send OTP.");
     }
 
-  } catch (err) {
-    showMessage("Network error. Please check your connection.");
+  }catch(err){
+
+    showMessage("Network error. Please try again.");
+
   }
 
 }
-
 /* ============================================================
    startOtpTimer()
    Starts a 2-minute countdown on the OTP screen.
@@ -448,9 +420,11 @@ function startOtpTimer() {
 
   /* Use #countdown (new HTML) falling back to #timer for compatibility */
   const timerEl = document.getElementById("countdown") || document.getElementById("timer");
-  const btn     = document.getElementById("verifyOtpBtn");
+  const btn = document.getElementById("verifyBtn");
 
-  if (btn) { btn.innerText = "Verify OTP"; btn.onclick = verifyOtp; btn.disabled = true; }
+  if (btn) { btn.innerText = "Verify OTP"; btn.onclick = verifyOtp; if (btn) {
+  btn.disabled = false; // allow click initially
+} }
   if (timerEl) timerEl.innerText = formatTimerDisplay(time);
 
   otpCountdown = setInterval(() => {
@@ -499,7 +473,7 @@ async function verifyOtp() {
         .forEach(i => otp += i.value);
 
     /* Require 6 digits */
-    if (otp.length < 4) {
+    if (otp.length < 6) {
       const errEl = document.getElementById("verifyError");
       if (errEl) errEl.textContent = "Please enter the full OTP.";
       return;
@@ -570,6 +544,8 @@ async function verifyOtp() {
         sessionStorage.setItem("otpVerified", "true");
         sessionStorage.setItem("otpTime",     Date.now());
         sessionStorage.setItem("verifiedMobile", currentMobile);
+        const token = btoa(currentMobile + ":" + Date.now());
+        sessionStorage.setItem("authToken", token);
 
         /* Show success result briefly, then open viewer */
         showStep("resultStep");
@@ -665,16 +641,6 @@ document.querySelector(".otp-boxes input").focus();
 
 }
 
-function closeOtp(){
-
- document.getElementById("otpModal").style.display = "none";
-
- clearInterval(otpCountdown);
-
-}
-
-
-
 function initPhoneInput(){
 
   const phoneInput = document.querySelector("#mobileInput");
@@ -697,51 +663,37 @@ function initPhoneInput(){
 async function loadPDF(url) {
 
   const pdfjsLib = window['pdfjs-dist/build/pdf'];
+  if (!pdfjsLib) return;
+
+  /* IMPORTANT: set worker */
   pdfjsLib.GlobalWorkerOptions.workerSrc =
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
 
   const loadingTask = pdfjsLib.getDocument(url);
   const pdf = await loadingTask.promise;
 
-  const container = document.getElementById("pdfContainer");
+  const container = document.getElementById("viewerContent");
+  if (!container) return;
+
   container.innerHTML = "";
-
-  const containerWidth = container.clientWidth;
-  const containerHeight = container.clientHeight;
-
-  const isLaptop = window.innerWidth > 900; // detect large screen
 
   for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
 
     const page = await pdf.getPage(pageNum);
-    const viewport = page.getViewport({ scale: 1 });
-
-    const scaleX = containerWidth / viewport.width;
-    const scaleY = containerHeight / viewport.height;
-
-    let scale = Math.min(scaleX, scaleY);
-
-    // 🔥 Increase size only for laptop
-    if (isLaptop) {
-      scale = scale * 1.15;   // increase 15%
-    }
-
-    const scaledViewport = page.getViewport({ scale });
+    const scale = window.innerWidth < 768 ? 1.2 : 1.5;
+    const viewport = page.getViewport({ scale });
 
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
 
-    canvas.width = scaledViewport.width;
-    canvas.height = scaledViewport.height;
-
-    canvas.style.display = "block";
-    canvas.style.margin = "20px auto";
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
 
     container.appendChild(canvas);
 
     await page.render({
       canvasContext: context,
-      viewport: scaledViewport
+      viewport: viewport
     }).promise;
   }
 }
@@ -760,115 +712,95 @@ function openViewer() {
 
   saveViewLog(file.name);
 
-  document.getElementById("viewerModal").style.display = "flex";
+  /* Use CSS class approach (matches user.css .viewer-overlay.open) */
+  document.getElementById("viewerModal").classList.add("open");
 
-  const container = document.getElementById("pdfContainer");
+  const container = document.getElementById("viewerContent");
+  if (!container) return;
   container.innerHTML = "";
 
-  const mobile = sessionStorage.getItem("verifiedMobile") || "Unknown";
-const fileUrl = "/secure-files/" + file.name + "?mobile=" + mobile;
+  /* Set file name in viewer header */
+  const fileNameEl = document.getElementById("viewerFileName");
+  if (fileNameEl) fileNameEl.textContent = file.name.replace(/\.[^.]+$/, "");
+
+const token = sessionStorage.getItem("authToken") || "";
+  if (!token) {
+  alert("Session expired. Please verify OTP again.");
+  return;
+}
+const fileUrl = `/secure-files/${file.name}?token=${token}`;
   const ext = file.name.split(".").pop().toLowerCase();
 
   const downloadBtn = document.getElementById("downloadBtn");
 
   /* CONTROL DOWNLOAD BUTTON */
-
-  if(file.importance === "important"){   // VIEW ONLY
-
-    downloadBtn.style.display = "none";
-
-  }else{                                 // VIEW + DOWNLOAD
-
-    downloadBtn.style.display = "block";
-
-    downloadBtn.onclick = function(){
-
-      const link = document.createElement("a");
-      link.href = fileUrl;
-      link.download = file.name;
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-
-      saveDownloadLog(file.name);
-    };
-
+  if (file.importance === "important") {
+    if (downloadBtn) downloadBtn.style.display = "none";
+  } else {
+    if (downloadBtn) {
+      downloadBtn.style.display = "flex";
+      downloadBtn.onclick = function() {
+        const link = document.createElement("a");
+        link.href = "/secure-files/download/" + file.name + "?token=" + token;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        saveDownloadLog(file.name);
+      };
+    }
   }
+
+  /* Show watermark */
+  const wm = document.getElementById("watermarkOverlay");
+  if (wm) wm.style.display = "block";
 
   /* FILE VIEWER */
-
   if (ext === "pdf") {
     loadPDF(fileUrl);
-  }
-
-  else if (["jpg","jpeg","png","webp"].includes(ext)) {
-
+  } else if (["jpg", "jpeg", "png", "webp"].includes(ext)) {
     const img = document.createElement("img");
     img.src = fileUrl;
     img.style.width = "100%";
     img.style.maxHeight = "85vh";
     img.style.objectFit = "contain";
-
     container.appendChild(img);
-  }
-
-  else if (["doc","docx"].includes(ext)) {
-
+  } else if (["doc", "docx"].includes(ext)) {
     const iframe = document.createElement("iframe");
-
     iframe.src =
       "https://view.officeapps.live.com/op/embed.aspx?src=" +
       encodeURIComponent(window.location.origin + fileUrl);
-
     iframe.style.width = "100%";
     iframe.style.height = "85vh";
     iframe.style.border = "none";
-
     container.appendChild(iframe);
   }
 }
 
-document.addEventListener("keydown", function(e){
-
- if (document.getElementById("viewerModal").style.display !== "flex") return;
-
- if(
-  (e.ctrlKey && e.key === "s") ||
-  (e.ctrlKey && e.key === "p") ||
-  (e.ctrlKey && e.key === "u")
- ){
-  e.preventDefault();
- }
-
- if(e.key==="PrintScreen"){
-  navigator.clipboard.writeText("Screenshot blocked");
-  alert("Screenshot disabled");
- }
-
-});
-
-document.addEventListener("keyup",function(e){
- if(e.key==="PrintScreen"){
-  alert("Screenshot disabled");
- }
-});
-
-
-function closeViewer() {
+document.addEventListener("keydown", function(e) {
 
   const viewer = document.getElementById("viewerModal");
-  const container = document.getElementById("pdfContainer");
+  if (!viewer || !viewer.classList.contains("open")) return;
 
-  if(viewer){
-    viewer.style.display = "none";
+  if (
+    (e.ctrlKey && e.key === "s") ||
+    (e.ctrlKey && e.key === "p") ||
+    (e.ctrlKey && e.key === "u")
+  ) {
+    e.preventDefault();
   }
 
-  if(container){
-    container.innerHTML = "";
+  if (e.key === "PrintScreen") {
+    navigator.clipboard.writeText("Screenshot blocked").catch(() => {});
   }
 
-}
+});
+
+document.addEventListener("keyup", function(e) {
+  if (e.key === "PrintScreen") {
+    /* Clear clipboard capture attempt */
+    navigator.clipboard.writeText("").catch(() => {});
+  }
+});
 /* ================= OTP SESSION ================= */
 function isOtpValid() {
     let t = sessionStorage.getItem("otpTime");
@@ -973,24 +905,12 @@ async function saveDownloadLog(fileName) {
   });
 }
 
-function getDeviceInfo() {
-    return navigator.userAgent;
-}
-
-function getDeviceId() {
-    let id = localStorage.getItem("deviceId");
-    if (!id) {
-        id = "DEV-" + Math.random().toString(36).substr(2, 9);
-        localStorage.setItem("deviceId", id);
-    }
-    return id;
-}
-
 /* ================= BLOCK RIGHT CLICK ================= */
 document.addEventListener("contextmenu", function(e) {
-    if (document.getElementById("viewerModal").style.display === "flex") {
-        e.preventDefault();
-    }
+  const viewer = document.getElementById("viewerModal");
+  if (viewer && viewer.classList.contains("open")) {
+    e.preventDefault();
+  }
 });
 
 
@@ -1024,24 +944,6 @@ function checkIfBlocked() {
     });
 }
 
-function showMessage(text,type="error"){
-
-const msg = document.getElementById("uiMessage") || document.getElementById("mobileMessage");
-
-if(!msg) return;
-  msg.innerText = text;
-  msg.className = "ui-message " + type;
-  msg.style.display = "block";
-
-  setTimeout(()=>{
-    msg.style.display="none";
-  },3000);
-}
-setInterval(() => {
-  let mobile = sessionStorage.getItem("verifiedMobile");
-  if (mobile) checkIfBlocked();
-}, 30000);
-
 /* Blur viewer when tab hidden */
 document.addEventListener("visibilitychange", function () {
 
@@ -1054,91 +956,56 @@ document.addEventListener("visibilitychange", function () {
     viewer.style.filter = "none";
   }
 });
-setInterval(() => {
 
-  let mobile = sessionStorage.getItem("verifiedMobile");
-  if(!mobile) return;
-
-  fetch("/api/users/heartbeat", {
-    method: "POST",
-    headers: { "Content-Type":"application/json" },
-    body: JSON.stringify({ mobile })
-  });
-
-}, 60000);
 /* ============================================================
    DOMContentLoaded — Initialize everything when page is ready
    ============================================================ */
 window.addEventListener("DOMContentLoaded", () => {
 
   loadFiles();
-  loadCategoriesToFilter();
   initPhoneInput();
 
-  document.getElementById("search").addEventListener("keyup", renderFiles);
-  document.getElementById("filterCategory").addEventListener("change", changeFilter);
-  document.getElementById("closeOtpBtn").onclick = closeOtp;
-  document.getElementById("sendOtpBtn").onclick = sendOtp;
-  document.getElementById("verifyOtpBtn").onclick = verifyOtp;
-  document.getElementById("resultButton").onclick = retryOtp;
-  document.getElementById("closeViewerBtn").onclick = closeViewer;
-  document.addEventListener("keydown",function(e){
-    if(e.ctrlKey && e.shiftKey && e.key==="C"){
-    e.preventDefault();
-    }
-    });
-      document.getElementById("mobileInput").addEventListener("keypress",(e)=>{
-    if(e.key==="Enter") sendOtp();
-    });
-
-const nameInput = document.getElementById("userName");
-
-if(nameInput){
-nameInput.addEventListener("keypress",(e)=>{
-if(e.key==="Enter") sendOtp();
-});
-}
-
-  document.addEventListener("click", function(e) {
-    if (e.target.classList.contains("viewBtn")) {
-      const index = e.target.dataset.index;
-      viewFile(index);
-    }
+  /* Keyboard shortcut block */
+  document.addEventListener("keydown", function(e) {
+    if (e.ctrlKey && e.shiftKey && e.key === "C") e.preventDefault();
   });
 
-  // OTP auto input
-  document.querySelectorAll(".otp-boxes input")
-.forEach((box, i, arr) => {
-
-  box.addEventListener("input", () => {
-
-    document.getElementById("otpError").style.display = "none";
-
-    if (box.value && arr[i + 1]) arr[i + 1].focus();
-
-    let otp="";
-    arr.forEach(input => otp += input.value);
-
-    const btn = document.getElementById("verifyOtpBtn");
-
-    if(otp.length === 4){
-      btn.disabled = false;
-      btn.focus();
-    }else{
-      btn.disabled = true;
-    }
-
+  /* Enter key submission for OTP form inputs */
+  const mobileInput = document.getElementById("mobileInput");
+  if (mobileInput) mobileInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendOtp();
   });
 
-  box.addEventListener("keydown",(e)=>{
-    if(e.key==="Backspace" && !box.value && arr[i-1]){
-      arr[i-1].focus();
-    }
+  const nameInput = document.getElementById("userName");
+  if (nameInput) nameInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendOtp();
+  });
+
+  /* OTP digit boxes — auto-advance and backspace support */
+  const otpBoxes = document.querySelectorAll(".otp-digit");
+  otpBoxes.forEach((box, i, arr) => {
+
+    box.addEventListener("input", () => {
+      if (box.value && arr[i + 1]) arr[i + 1].focus();
+
+      let otp = "";
+      arr.forEach(input => otp += input.value);
+
+      const btn = document.getElementById("verifyBtn");
+      if (btn) {
+        btn.disabled = otp.length < 6;
+      }
+    });
+
+    box.addEventListener("keydown", (e) => {
+      if (e.key === "Backspace" && !box.value && arr[i - 1]) {
+        arr[i - 1].focus();
+      }
+    });
+
   });
 
 });
-
-  });
 
 
 function escapeHTML(str) {
@@ -1153,4 +1020,3 @@ function escapeHTML(str) {
     }[tag])
   );
 }
-

@@ -199,10 +199,10 @@ body {
   padding: 24px;
 }
 
-.files-grid {
-  display:               grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap:                   20px;
+.files-grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+gap:20px;
 }
 
 /* Individual file card */
@@ -219,6 +219,7 @@ body {
   gap:           10px;
   position:      relative;
   overflow:      hidden;
+  height:        100%;   /* equal height cards in grid row */
 }
 
 /* Decorative gradient top border on hover */
@@ -330,6 +331,116 @@ body {
 /* Show modal by switching to flex */
 .modal-overlay.open {
   display: flex;
+}
+.mobile-input{
+height:44px;
+font-size:14px;
+border:1.5px solid var(--border);
+border-radius:10px;
+padding:10px;
+background:#fafafa;
+transition:all .25s;
+}
+
+.mobile-input:focus{
+border-color:var(--brand);
+box-shadow:0 0 0 3px rgba(99,102,241,.12);
+background:white;
+}
+.modal-box{
+max-width:420px;
+padding:32px 28px;
+}
+
+.input-group input{
+height:44px;
+width:100%;
+}
+
+.otp-btn{
+width:100%;
+height:44px;
+display:flex;
+align-items:center;
+justify-content:center;
+gap:8px;
+}
+.viewer-content{
+flex:1;
+overflow-y:auto;
+padding:20px;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:flex-start;
+background:#1e293b;
+}
+.viewer-content canvas{
+background:white;
+padding:10px;
+}
+.viewer-banner{
+width:100%;
+background:#0f172a;
+padding:8px;
+display:flex;
+justify-content:center;
+border-bottom:1px solid rgba(255,255,255,.08);
+}
+.viewer-header{
+display:flex;
+align-items:center;
+justify-content:space-between;
+padding:12px 20px;
+background:#0f172a;
+border-bottom:1px solid rgba(255,255,255,.08);
+gap:12px;
+flex-wrap:nowrap;
+}
+.viewer-file-name{
+flex:1;
+text-align:center;
+white-space:nowrap;
+overflow:hidden;
+text-overflow:ellipsis;
+}
+.viewer-left{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.viewer-logo{
+height:28px;
+}
+
+.viewer-college{
+font-size:13px;
+color:#cbd5f5;
+font-weight:500;
+}
+/* intl tel input fix */
+
+.iti{
+width:100%;
+}
+
+.iti input{
+width:100%;
+height:44px;
+padding-left:52px !important;
+border-radius:10px;
+border:1.5px solid var(--border);
+background:#fafafa;
+}
+
+.iti__flag-container{
+border-radius:10px 0 0 10px;
+}
+.viewer-banner img{
+height:40px;
+max-width:100%;
+object-fit:contain;
 }
 
 /* White modal card */
@@ -611,17 +722,33 @@ body {
    SECTION 10 — VIEWER HEADER & CONTROLS
    Dark header bar at the top of the file viewer
    ============================================================ */
-.viewer-header {
-  display:         flex;
-  align-items:     center;
-  justify-content: space-between;
-  padding:         12px 20px;
-  background:      #0f172a;
-  border-bottom:   1px solid rgba(255, 255, 255, 0.08);
-  flex-shrink:     0;
-  gap:             12px;
+
+/* ===== FIX INTL TEL INPUT OVERLAY ===== */
+
+.iti {
+  width: 100%;
+  position: relative;
 }
 
+.iti input {
+  width: 100%;
+  height: 44px;
+  padding-left: 95px !important; /* space for flag + code */
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: #fafafa;
+}
+
+/* flag container width */
+.iti__flag-container {
+  width: 80px;
+  padding-left: 10px;
+}
+
+/* flag alignment */
+.iti__selected-flag {
+  padding-left: 8px;
+}
 .viewer-file-name {
   font-size:     14px;
   font-weight:   600;
@@ -676,16 +803,7 @@ body {
   background: rgba(239, 68, 68, 0.25);
 }
 
-/* Scrollable content area where PDF/image renders */
-.viewer-content {
-  flex:       1;
-  overflow-y: auto;
-  padding:    20px;
-  display:    flex;
-  flex-direction: column;
-  align-items: center;
-  background: #1e293b;
-}
+
 
 /* Canvas pages rendered by PDF.js */
 .viewer-content canvas {
@@ -789,8 +907,28 @@ select {
    SECTION 14 — RESPONSIVE BREAKPOINTS
    ============================================================ */
 
+/* Laptop: force 4-column clean grid */
+@media (min-width: 1024px) {
+
+  .files-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+
+}
+
+/* Medium screens (769px–1023px): 3 columns */
+@media (min-width: 769px) and (max-width: 1023px) {
+
+  .files-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+}
+
 /* Tablet: tighter header, slightly narrower cards */
 @media (max-width: 768px) {
+
 
   .page-header {
     padding: 10px 16px;

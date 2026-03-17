@@ -10,6 +10,16 @@ let filePage = 1;
 let filesPerPage = 20;
 let bulkActionType = null;
 
+function escapeHTML(value){
+  if(value === null || value === undefined) return "";
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#39;");
+}
 const uploadBox = document.querySelector(".upload-box");
 const fileInput = document.getElementById("fileInput");
 const isAdminPage = window.location.pathname.includes("admin");
@@ -92,18 +102,18 @@ if(!mobile && isAdminPage){
 
 function getFileIcon(fileName){
 
-  if(!fileName) return "fa-file";
+  if(!fileName) return "fa-solid fa-file";
 
   let name = fileName.toLowerCase();
 
-  if(name.endsWith(".pdf")) return "fa-file-pdf";
-  if(name.endsWith(".doc") || name.endsWith(".docx")) return "fa-file-word";
-  if(name.endsWith(".xls") || name.endsWith(".xlsx")) return "fa-file-excel";
-  if(name.endsWith(".ppt") || name.endsWith(".pptx")) return "fa-file-powerpoint";
-  if(/\.(jpg|jpeg|png|gif|webp)$/.test(name)) return "fa-file-image";
-  if(/\.(zip|rar|7z)$/.test(name)) return "fa-file-archive";
+  if(name.endsWith(".pdf")) return "fa-solid fa-file-pdf";
+  if(name.endsWith(".doc") || name.endsWith(".docx")) return "fa-solid fa-file-word";
+  if(name.endsWith(".xls") || name.endsWith(".xlsx")) return "fa-solid fa-file-excel";
+  if(name.endsWith(".ppt") || name.endsWith(".pptx")) return "fa-solid fa-file-powerpoint";
+  if(/\.(jpg|jpeg|png|gif|webp)$/i.test(name)) return "fa-solid fa-file-image";
+  if(/\.(zip|rar|7z)$/i.test(name)) return "fa-solid fa-file-zipper";
 
-  return "fa-file";
+  return "fa-solid fa-file";
 }
 
 
@@ -279,7 +289,7 @@ onchange="updateBulkActions(); event.stopPropagation();">
 </td>
 
 <td data-label="File Name" class="file-name-cell">
-<i class="fa-regular ${getFileIcon(file.name)}"></i>
+<i class="${getFileIcon(file.name)}"></i>
 
 <span title="${escapeHTML(file.name)}">${escapeHTML(file.name)}</span>
 </td>
@@ -493,8 +503,12 @@ document.getElementById("editName").value =
   loadEditCategories(file.category);
 
   document.getElementById("editModal").style.display = "flex";
-  document.getElementById("editError").innerText = "";
-document.getElementById("editSuccess").innerText = "";
+
+  /* Always hide feedback boxes when re-opening */
+  const errBox = document.getElementById("editError");
+  const sucBox = document.getElementById("editSuccess");
+  if(errBox){ errBox.innerText = ""; errBox.style.display = "none"; }
+  if(sucBox){ sucBox.innerText = ""; sucBox.style.display = "none"; }
 
 }
 
@@ -512,11 +526,15 @@ function saveEdit() {
   let errorBox = document.getElementById("editError");
   let successBox = document.getElementById("editSuccess");
 
+  /* Reset both boxes */
   errorBox.innerText = "";
+  errorBox.style.display = "none";
   successBox.innerText = "";
+  successBox.style.display = "none";
 
   if(!newName){
     errorBox.innerText = "File name cannot be empty";
+    errorBox.style.display = "block";
     return;
   }
 
@@ -539,10 +557,12 @@ function saveEdit() {
 
     if(data.error){
       errorBox.innerText = data.error;
+      errorBox.style.display = "block";
       return;
     }
 
     successBox.innerText = "File updated successfully";
+    successBox.style.display = "block";
 
     setTimeout(()=>{
       closeEditModal();
@@ -552,6 +572,7 @@ function saveEdit() {
   })
   .catch(()=>{
     errorBox.innerText = "Something went wrong";
+    errorBox.style.display = "block";
   });
 }
 

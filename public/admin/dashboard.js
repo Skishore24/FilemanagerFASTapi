@@ -333,6 +333,14 @@ function drawDeviceChart(devices){
   const canvas = document.getElementById("deviceChart");
   if(!canvas) return;
 
+  /* Deduplicate entries with the same device label by summing totals */
+  const merged = {};
+  devices.forEach(d => {
+    const key = (d.device || "Other").trim();
+    merged[key] = (merged[key] || 0) + (d.total || 0);
+  });
+  devices = Object.entries(merged).map(([device, total]) => ({ device, total }));
+
   const ctx = canvas.getContext("2d");
 
   if(window.deviceChart && typeof window.deviceChart.destroy === "function"){
