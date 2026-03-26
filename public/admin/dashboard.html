@@ -1,255 +1,269 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-
-  <!-- ============================================================
+  <head>
+    <!-- ============================================================
        Meta & Character Set
        ============================================================ -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="MCET File Manager — Admin Dashboard with analytics and statistics">
-  <title>Dashboard | MCET File Manager</title>
-
-  <!-- ============================================================
-       Favicon
-       ============================================================ -->
-  <link rel="icon" href="images/logo.png" type="image/png">
-
-  <!-- ============================================================
-       External Fonts & Icons
-       ============================================================ -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-  <!-- ============================================================
-       Map library CSS (jsvectormap — world visitor map)
-       ============================================================ -->
-  <link href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css" rel="stylesheet">
-
-  <!-- ============================================================
-       Page Stylesheets
-       ============================================================ -->
-  <link rel="stylesheet" href="sidebar.css">
-  <link rel="stylesheet" href="dashboard.css">
-
-</head>
-<body>
-
-  <!-- ============================================================
-       SIDEBAR — Fixed left navigation (shared across all admin pages)
-       ============================================================ -->
-  <nav class="sidebar" role="navigation" aria-label="Admin Navigation">
-
-    <!-- College Logo -->
-    <div class="logo-box">
-      <img src="images/logo.png" alt="MCET College Logo">
-    </div>
-
-    <!-- Navigation Links -->
-    <div class="menu">
-
-      <a href="dashboard.html" class="active" aria-current="page">
-        <i class="fa fa-chart-line" aria-hidden="true"></i> Dashboard
-      </a>
-
-      <a href="manage.html">
-        <i class="fa fa-folder-open" aria-hidden="true"></i> Manage Files
-      </a>
-
-      <a href="views.html">
-        <i class="fa fa-eye" aria-hidden="true"></i> View Logs
-      </a>
-
-      <a href="userDetails.html">
-        <i class="fa fa-users" aria-hidden="true"></i> User Analytics
-      </a>
-
-    </div><!-- end .menu -->
-
-    <!-- Profile + Logout at bottom of sidebar -->
-    <div class="sidebar-bottom">
-
-      <div class="profile-box">
-        <img src="images/avatar.jpg" class="avatar" alt="Admin Avatar">
-        <div class="profile-info">
-          <!-- Email is populated by dashboard.js → loadUserInfo() -->
-          <span id="userEmail" title="Logged in user email"></span>
-        </div>
-      </div>
-
-      <button class="logout-btn" onclick="logoutUser()" aria-label="Logout">
-        <i class="fa fa-sign-out-alt" aria-hidden="true"></i> Logout
-      </button>
-
-    </div><!-- end .sidebar-bottom -->
-
-  </nav><!-- end .sidebar -->
-
-  <!-- Backdrop overlay — closes sidebar on mobile tap -->
-  <div class="overlay" onclick="closeMenu()" aria-hidden="true"></div>
-
-
-  <!-- ============================================================
-       MAIN CONTENT AREA
-       ============================================================ -->
-  <main class="main" role="main">
-
-    <!-- ---- Top Bar (hamburger + page title) ---- -->
-    <div class="topbar">
-      <button onclick="toggleMenu()" class="menu-toggle" aria-label="Toggle navigation">
-        <i class="fa fa-bars"></i>
-      </button>
-      <h1 class="page-title">Overview</h1>
-    </div>
-
-    <p class="subtitle">Real-time analytics and statistics</p>
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="MCET File Manager — Admin Dashboard with analytics and statistics"
+    />
+    <title>Dashboard</title>
 
     <!-- ============================================================
+       Favicon
+       ============================================================ -->
+    <link rel="icon" href="images/logo.png" type="image/png" />
+
+    <!-- ============================================================
+       External Fonts & Icons
+       ============================================================ -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- ============================================================
+       Map library CSS (jsvectormap — world visitor map)
+       ============================================================ -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/jsvectormap/dist/css/jsvectormap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- ============================================================
+       Page Stylesheets
+       ============================================================ -->
+    <link rel="stylesheet" href="sidebar.css?v=2.0" />
+    <link rel="stylesheet" href="dashboard.css?v=2.0" />
+  </head>
+  <body>
+    <!-- ============================================================
+       SIDEBAR — Fixed left navigation (shared across all admin pages)
+       ============================================================ -->
+    <nav class="sidebar" role="navigation" aria-label="Admin Navigation">
+      <!-- College Logo -->
+      <div class="logo-box">
+        <img src="images/logo.png" alt="MCET College Logo" />
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="menu">
+        <a href="dashboard.html" class="active" aria-current="page">
+          <i class="fa-solid fa-chart-line" aria-hidden="true"></i> Dashboard
+        </a>
+
+        <a href="manage.html">
+          <i class="fa-solid fa-folder-open" aria-hidden="true"></i> Manage
+          Files
+        </a>
+
+        <a href="views.html">
+          <i class="fa-solid fa-eye" aria-hidden="true"></i> View Logs
+        </a>
+
+        <a href="userDetails.html">
+          <i class="fa-solid fa-users" aria-hidden="true"></i> User Analytics
+        </a>
+      </div>
+      <!-- end .menu -->
+
+      <!-- Profile + Logout at bottom of sidebar -->
+      <div class="sidebar-bottom">
+        <div class="profile-box">
+          <img src="images/avatar.jpg" class="avatar" alt="Admin Avatar" />
+          <div class="profile-info">
+            <!-- Email is populated by dashboard.js → loadUserInfo() -->
+            <span id="userEmail" title="Logged in user email"></span>
+          </div>
+        </div>
+
+        <button class="logout-btn" onclick="logoutUser()" aria-label="Logout">
+          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+          Logout
+        </button>
+      </div>
+      <!-- end .sidebar-bottom -->
+    </nav>
+    <!-- end .sidebar -->
+
+    <!-- Backdrop overlay — closes sidebar on mobile tap -->
+    <div class="overlay" onclick="closeMenu()" aria-hidden="true"></div>
+
+    <!-- ============================================================
+       MAIN CONTENT AREA
+       ============================================================ -->
+    <main class="main" role="main">
+      <!-- ---- Top Bar (hamburger + page title) ---- -->
+      <div class="topbar">
+        <button
+          onclick="toggleMenu()"
+          class="menu-toggle"
+          aria-label="Toggle navigation"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <h1 class="page-title">Overview</h1>
+      </div>
+
+      <p class="subtitle">Real-time analytics and statistics</p>
+
+      <!-- ============================================================
          STAT CARDS — 5 summary counters at the top
          Populated by dashboard.js → updateDashboard()
          ============================================================ -->
-    <div class="stats-row" role="region" aria-label="Summary Statistics">
-
-      <!-- Total Files uploaded -->
-      <div class="stat-card purple">
-        <div>
-          <p>Total Files</p>
-          <h2 id="totalFiles">0</h2>
+      <div class="stats-row" role="region" aria-label="Summary Statistics">
+        <!-- Total Files uploaded -->
+        <div class="stat-card purple">
+          <div>
+            <p>Total Files</p>
+            <h2 id="totalFiles">0</h2>
+          </div>
+          <i class="fa-solid fa-folder" aria-hidden="true"></i>
         </div>
-        <i class="fa fa-folder" aria-hidden="true"></i>
-      </div>
 
-      <!-- Total file views logged -->
-      <div class="stat-card pink">
-        <div>
-          <p>Total Views</p>
-          <h2 id="totalViews">0</h2>
+        <!-- Total file views logged -->
+        <div class="stat-card pink">
+          <div>
+            <p>Total Views</p>
+            <h2 id="totalViews">0</h2>
+          </div>
+          <i class="fa-solid fa-eye" aria-hidden="true"></i>
         </div>
-        <i class="fa fa-eye" aria-hidden="true"></i>
-      </div>
 
-      <!-- Most-viewed file -->
-      <div class="stat-card green">
-        <div>
-          <p>Top File</p>
-          <h3 id="topFile">None</h3>
+        <!-- Most-viewed file -->
+        <div class="stat-card green">
+          <div>
+            <p>Top File</p>
+            <h3 id="topFile">None</h3>
+          </div>
+          <i class="fa-solid fa-file-lines" aria-hidden="true"></i>
         </div>
-        <i class="fa fa-file-alt" aria-hidden="true"></i>
-      </div>
 
-      <!-- Total categories -->
-      <div class="stat-card orange">
-        <div>
-          <p>Categories</p>
-          <h2 id="totalCategories">0</h2>
+        <!-- Total categories -->
+        <div class="stat-card orange">
+          <div>
+            <p>Categories</p>
+            <h2 id="totalCategories">0</h2>
+          </div>
+          <i class="fa-solid fa-layer-group" aria-hidden="true"></i>
         </div>
-        <i class="fa fa-layer-group" aria-hidden="true"></i>
-      </div>
 
-      <!-- Users currently online (heartbeat in last 30s) -->
-      <div class="stat-card blue">
-        <div>
-          <p>Active Users</p>
-          <h2 id="activeUsers">0</h2>
+        <!-- Users currently online (heartbeat in last 30s) -->
+        <div class="stat-card blue">
+          <div>
+            <p>Active Users</p>
+            <h2 id="activeUsers">0</h2>
+          </div>
+          <i class="fa-solid fa-users" aria-hidden="true"></i>
         </div>
-        <i class="fa fa-users" aria-hidden="true"></i>
       </div>
+      <!-- end .stats-row -->
 
-    </div><!-- end .stats-row -->
-
-
-    <!-- ============================================================
+      <!-- ============================================================
          CHART GRID — 2-column layout with various charts
          All charts are rendered by dashboard.js → loadCharts()
          ============================================================ -->
-    <div class="dashboard-grid" role="region" aria-label="Analytics Charts">
+      <div class="dashboard-grid" role="region" aria-label="Analytics Charts">
+        <!-- ROW 1: Performance line chart + World map -->
 
-      <!-- ROW 1: Performance line chart + World map -->
+        <!-- Monthly views vs downloads line chart -->
+        <div class="card">
+          <h3><i class="fa-solid fa-chart-line"></i> Performance</h3>
+          <p class="card-sub">Monthly views &amp; downloads</p>
+          <div class="chart-container">
+            <canvas
+              id="performanceChart"
+              aria-label="Performance chart"
+            ></canvas>
+          </div>
+        </div>
 
-      <!-- Monthly views vs downloads line chart -->
-      <div class="card">
-        <h3><i class="fa fa-chart-line"></i> Performance</h3>
-        <p class="card-sub">Monthly views &amp; downloads</p>
-        <div class="chart-container">
-          <canvas id="performanceChart" aria-label="Performance chart"></canvas>
+        <!-- World map: visitors by country -->
+        <div class="card">
+          <h3><i class="fa-solid fa-globe"></i> Visitors Worldwide</h3>
+          <p class="card-sub">Access locations by country</p>
+          <div id="worldMap" aria-label="World visitor map"></div>
+        </div>
+
+        <!-- ROW 2: Device doughnut chart + Top countries table -->
+
+        <!-- Mobile vs Desktop split -->
+        <div class="card">
+          <h3><i class="fa-solid fa-mobile-screen-button"></i> Devices</h3>
+          <p class="card-sub">Mobile, desktop, and other</p>
+          <div class="chart-container">
+            <canvas
+              id="deviceChart"
+              aria-label="Device breakdown chart"
+            ></canvas>
+          </div>
+        </div>
+
+        <!-- Top 10 countries by view count -->
+        <div class="card">
+          <h3><i class="fa-solid fa-flag"></i> Top Countries</h3>
+          <p class="card-sub">Most active visitor countries</p>
+          <table class="country-table" aria-label="Top countries by views">
+            <thead>
+              <tr>
+                <th>Country</th>
+                <th>Views</th>
+              </tr>
+            </thead>
+            <tbody id="topCountries"></tbody>
+          </table>
+        </div>
+
+        <!-- ROW 3: Monthly unique users bar chart (full width) -->
+
+        <div class="card full-width">
+          <h3><i class="fa-solid fa-user-group"></i> Total Users Visited</h3>
+          <p class="card-sub">Unique monthly visitor count</p>
+          <div class="chart-container">
+            <canvas id="usersChart" aria-label="Total users chart"></canvas>
+          </div>
+        </div>
+
+        <!-- ROW 4: Recent/top users table (full width) -->
+
+        <div class="card full-width">
+          <h3><i class="fa-solid fa-clock"></i> Recent Users</h3>
+          <p class="card-sub">Top 5 most active users</p>
+
+          <table class="users-table" aria-label="Recent users">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Mobile</th>
+                <th>Visits</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <!-- Rows are injected by dashboard.js → loadTopUsers() -->
+            <tbody id="recentUsers"></tbody>
+          </table>
         </div>
       </div>
+      <!-- end .dashboard-grid -->
+    </main>
+    <!-- end .main -->
 
-      <!-- World map: visitors by country -->
-      <div class="card">
-        <h3><i class="fa fa-globe"></i> Visitors Worldwide</h3>
-        <p class="card-sub">Access locations by country</p>
-        <div id="worldMap" aria-label="World visitor map"></div>
-      </div>
-
-      <!-- ROW 2: Device doughnut chart + Top countries table -->
-
-      <!-- Mobile vs Desktop split -->
-      <div class="card">
-        <h3><i class="fa fa-mobile-alt"></i> Devices</h3>
-        <p class="card-sub">Mobile, desktop, and other</p>
-        <div class="chart-container">
-          <canvas id="deviceChart" aria-label="Device breakdown chart"></canvas>
-        </div>
-      </div>
-
-      <!-- Top 10 countries by view count -->
-      <div class="card">
-        <h3><i class="fa fa-flag"></i> Top Countries</h3>
-        <p class="card-sub">Most active visitor countries</p>
-        <table class="country-table" aria-label="Top countries by views">
-          <tbody id="topCountries"></tbody>
-        </table>
-      </div>
-
-      <!-- ROW 3: Monthly unique users bar chart (full width) -->
-
-      <div class="card full-width">
-        <h3><i class="fa fa-user-friends"></i> Total Users Visited</h3>
-        <p class="card-sub">Unique monthly visitor count</p>
-        <div class="chart-container">
-          <canvas id="usersChart" aria-label="Total users chart"></canvas>
-        </div>
-      </div>
-
-      <!-- ROW 4: Recent/top users table (full width) -->
-
-      <div class="card full-width">
-
-        <h3><i class="fa fa-clock"></i> Recent Users</h3>
-        <p class="card-sub">Top 5 most active users</p>
-
-        <table class="users-table" aria-label="Recent users">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Mobile</th>
-              <th>Visits</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <!-- Rows are injected by dashboard.js → loadTopUsers() -->
-          <tbody id="recentUsers"></tbody>
-        </table>
-
-      </div>
-
-    </div><!-- end .dashboard-grid -->
-
-  </main><!-- end .main -->
-
-
-  <!-- ============================================================
+    <!-- ============================================================
        SCRIPTS — Loaded at bottom for best performance
        jsvectormap: world map rendering
        chart.js: all canvas chart rendering
        dashboard.js: data fetching and chart initialization
        ============================================================ -->
-  <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="dashboard.js"></script>
-
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="dashboard.js"></script>
+  </body>
 </html>

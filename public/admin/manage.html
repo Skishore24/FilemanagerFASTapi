@@ -1,464 +1,614 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-
-  <!-- ============================================================
+  <head>
+    <!-- ============================================================
        Meta & Character Set
        ============================================================ -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="MCET File Manager — Upload and manage documents">
-  <title>Manage Files | MCET File Manager</title>
-
-  <!-- ============================================================
-       Favicon
-       ============================================================ -->
-  <link rel="icon" href="images/logo.png" type="image/png">
-
-  <!-- ============================================================
-       External Fonts & Icons
-       ============================================================ -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-
-  <!-- ============================================================
-       Page Stylesheets
-       ============================================================ -->
-  <link rel="stylesheet" href="sidebar.css">
-  <link rel="stylesheet" href="manage.css">
-
-</head>
-<body>
-
-  <!-- ============================================================
-       SIDEBAR — Shared navigation component
-       ============================================================ -->
-  <nav class="sidebar" role="navigation" aria-label="Admin Navigation">
-
-    <!-- College Logo -->
-    <div class="logo-box">
-      <img src="images/logo.png" alt="MCET College Logo">
-    </div>
-
-    <!-- Navigation Menu -->
-    <div class="menu">
-
-      <a href="dashboard.html">
-        <i class="fa fa-chart-line" aria-hidden="true"></i> Dashboard
-      </a>
-
-      <a href="manage.html" class="active" aria-current="page">
-        <i class="fa-solid fa-folder-open" aria-hidden="true"></i> Manage Files
-      </a>
-
-      <a href="views.html">
-        <i class="fa-solid fa-eye" aria-hidden="true"></i> View Logs
-      </a>
-
-      <a href="userDetails.html">
-        <i class="fa-solid fa-users" aria-hidden="true"></i> User Analytics
-      </a>
-
-    </div><!-- end .menu -->
-
-    <!-- Profile + Logout -->
-    <div class="sidebar-bottom">
-
-      <div class="profile-box">
-        <img src="images/avatar.jpg" class="avatar" alt="Admin Avatar">
-        <div class="profile-info">
-          <span id="userEmail" title="Logged in user email"></span>
-        </div>
-      </div>
-
-      <button class="logout-btn" onclick="logoutUser()" aria-label="Logout">
-        <i class="fa-solid fa-sign-out-alt" aria-hidden="true"></i> Logout
-      </button>
-
-    </div>
-
-  </nav><!-- end .sidebar -->
-
-  <!-- Overlay backdrop for mobile sidebar -->
-  <div class="overlay" onclick="toggleMenu(event)" aria-hidden="true"></div>
-
-
-  <!-- ============================================================
-       MAIN CONTENT AREA
-       ============================================================ -->
-  <main class="main" role="main">
-
-    <!-- ---- Top Bar ---- -->
-    <div class="topbar">
-      <button class="menu-toggle" onclick="toggleMenu(event)" aria-label="Toggle navigation">
-        <i class="fa-solid fa-bars"></i>
-      </button>
-    </div>
-
-    <h1 class="page-title">Manage Files</h1>
-    <p class="subtitle">Upload, organise, and control document access</p>
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="MCET File Manager — Upload and manage documents"
+    />
+    <title>Manage Files</title>
 
     <!-- ============================================================
+       Favicon
+       ============================================================ -->
+    <link rel="icon" href="images/logo.png" type="image/png" />
+    <!-- ============================================================
+       External Fonts & Icons
+       ============================================================ -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- ============================================================
+       Page Stylesheets
+       ============================================================ -->
+    <link rel="stylesheet" href="sidebar.css?v=2.0" />
+    <link rel="stylesheet" href="manage.css?v=2.0" />
+  </head>
+  <body>
+    <!-- ============================================================
+       SIDEBAR — Shared navigation component
+       ============================================================ -->
+    <nav class="sidebar" role="navigation" aria-label="Admin Navigation">
+      <!-- College Logo -->
+      <div class="logo-box">
+        <img src="images/logo.png" alt="MCET College Logo" />
+      </div>
+
+      <!-- Navigation Menu -->
+      <div class="menu">
+        <a href="dashboard.html">
+          <i class="fa-solid fa-chart-line" aria-hidden="true"></i> Dashboard
+        </a>
+
+        <a href="manage.html" class="active" aria-current="page">
+          <i class="fa-solid fa-folder-open" aria-hidden="true"></i> Manage
+          Files
+        </a>
+
+        <a href="views.html">
+          <i class="fa-solid fa-eye" aria-hidden="true"></i> View Logs
+        </a>
+
+        <a href="userDetails.html">
+          <i class="fa-solid fa-users" aria-hidden="true"></i> User Analytics
+        </a>
+      </div>
+      <!-- end .menu -->
+
+      <!-- Profile + Logout -->
+      <div class="sidebar-bottom">
+        <div class="profile-box">
+          <img src="images/avatar.jpg" class="avatar" alt="Admin Avatar" />
+          <div class="profile-info">
+            <span id="userEmail" title="Logged in user email"></span>
+          </div>
+        </div>
+
+        <button class="logout-btn" onclick="logoutUser()" aria-label="Logout">
+          <i class="fa-solid fa-right-from-bracket" aria-hidden="true"></i>
+          Logout
+        </button>
+      </div>
+    </nav>
+    <!-- end .sidebar -->
+
+    <!-- Overlay backdrop for mobile sidebar -->
+    <div class="overlay" onclick="toggleMenu(event)" aria-hidden="true"></div>
+
+    <!-- ============================================================
+       MAIN CONTENT AREA
+       ============================================================ -->
+    <main class="main" role="main">
+      <!-- ---- Top Bar ---- -->
+      <div class="topbar">
+        <button
+          class="menu-toggle"
+          onclick="toggleMenu(event)"
+          aria-label="Toggle navigation"
+        >
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+
+      <h1 class="page-title">Manage Files</h1>
+      <p class="subtitle">Upload, organise, and control document access</p>
+
+      <!-- ============================================================
          UPLOAD DROP ZONE
          Clicking this box opens the hidden file input.
          manage.js handles drag-and-drop and file change events.
          ============================================================ -->
-    <div class="upload-box"
-         onclick="document.getElementById('fileInput').click()"
-         ondragover="event.preventDefault()"
-         ondrop="handleDrop(event)"
-         role="button"
-         tabindex="0"
-         aria-label="Click to upload a file"
-         title="Click or drag files here to upload">
+      <div
+        class="upload-box"
+        onclick="document.getElementById('fileInput').click()"
+        ondragover="event.preventDefault()"
+        ondrop="event.preventDefault()"
+        role="button"
+        tabindex="0"
+        aria-label="Click to upload a file"
+        title="Click or drag files here to upload"
+      >
+        <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+        <p>Click or drag files here to upload</p>
+        <small>PDF, DOC, JPG, PNG — max 10 MB</small>
+      </div>
 
-      <i class="fa fa-cloud-upload-alt" aria-hidden="true"></i>
-      <p>Click or drag files here to upload</p>
-      <small>PDF, DOC, JPG, PNG — max 10 MB</small>
+      <!-- Hidden file input — triggered by the upload box click -->
+      <input
+        type="file"
+        id="fileInput"
+        style="display: none"
+        multiple
+        accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+      />
 
-    </div>
-
-    <!-- Hidden file input — triggered by the upload box click -->
-    <input type="file" id="fileInput" style="display:none;" multiple accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
-
-
-    <!-- ============================================================
+      <!-- ============================================================
          FILES TABLE CARD
          Populated by manage.js → showFiles()
          ============================================================ -->
-    <div class="table-card">
+      <div class="table-card">
+        <!-- Card Header: title + search + action buttons -->
+        <div class="table-header">
+          <div>
+            <h3>
+              Uploaded Files
+              <span class="badge" id="fileCount">0</span>
+            </h3>
+            <p>Browse, search, and manage your documents.</p>
+          </div>
 
-      <!-- Card Header: title + search + action buttons -->
-      <div class="table-header">
+          <!-- Search and filter controls -->
+          <div class="table-actions">
+            <input
+              type="text"
+              id="searchManage"
+              placeholder="Search files..."
+              onkeyup="showFiles()"
+              aria-label="Search files"
+            />
 
-        <div>
-          <h3>
-            Uploaded Files
-            <span class="badge" id="fileCount">0</span>
-          </h3>
-          <p>Browse, search, and manage your documents.</p>
+            <button
+              class="btn-secondary"
+              onclick="openFilter()"
+              aria-label="Open filter options"
+            >
+              <i class="fa-solid fa-filter" aria-hidden="true"></i> Filter
+            </button>
+
+            <button
+              class="btn-secondary"
+              onclick="openCategoryModal()"
+              aria-label="Manage categories"
+            >
+              <i class="fa-solid fa-tags" aria-hidden="true"></i> Categories
+            </button>
+          </div>
+          <!-- end .table-actions -->
+        </div>
+        <!-- end .table-header -->
+
+        <!-- Bulk action buttons (shown when rows are selected) -->
+        <div
+          id="bulkActions"
+          style="display: none"
+          class="bulk-bar"
+          role="toolbar"
+          aria-label="Bulk actions"
+        >
+          <button class="btn-primary" onclick="markViewOnly()">
+            <i class="fa-solid fa-lock"></i> Mark View Only
+          </button>
+          <button class="btn-primary" onclick="markViewDownload()">
+            <i class="fa-solid fa-unlock"></i> Mark View &amp; Download
+          </button>
+          <button class="btn-danger" onclick="deleteSelected()">
+            <i class="fa-solid fa-trash"></i> Delete Selected
+          </button>
         </div>
 
-        <!-- Search and filter controls -->
-        <div class="table-actions">
+        <!-- File data table -->
+        <table class="file-table" aria-label="Uploaded files">
+          <thead>
+            <tr>
+              <!-- Select all checkbox -->
+              <th>
+                <input
+                  type="checkbox"
+                  id="selectAll"
+                  onclick="toggleSelectAll()"
+                  aria-label="Select all files"
+                />
+              </th>
+              <th>File Name</th>
+              <th>Category</th>
+              <th>Size</th>
+              <th>Uploaded</th>
+              <th>Access</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <!-- Rows are injected by manage.js → showFiles() -->
+          <tbody id="fileList"></tbody>
+        </table>
 
-          <input
-            type="text"
-            id="searchManage"
-            placeholder="Search files..."
-            onkeyup="showFiles()"
-            aria-label="Search files"
-          >
-
-          <button class="filter-btn" onclick="openFilter()" aria-label="Open filter options">
-            <i class="fa fa-filter" aria-hidden="true"></i> Filter
+        <!-- Pagination controls -->
+        <div class="pagination" role="navigation" aria-label="File pagination">
+          <button class="btn-secondary" onclick="prevFilePage()" aria-label="Previous page">
+            <i class="fa-solid fa-chevron-left"></i>Prev
           </button>
-
-          <button class="filter-btn" onclick="openCategoryModal()" aria-label="Manage categories">
-            <i class="fa fa-tags" aria-hidden="true"></i> Categories
+          <span id="filePageInfo" aria-live="polite"></span>
+          <button class="btn-secondary" onclick="nextFilePage()" aria-label="Next page">
+            Next <i class="fa-solid fa-chevron-right"></i>
           </button>
-
-        </div><!-- end .table-actions -->
-
-      </div><!-- end .table-header -->
-
-
-      <!-- Bulk action buttons (shown when rows are selected) -->
-      <div id="bulkActions" style="display:none;" class="bulk-bar" role="toolbar" aria-label="Bulk actions">
-        <button class="btn-edit" onclick="markViewOnly()">
-          <i class="fa fa-lock"></i> Mark View Only
-        </button>
-        <button class="btn-edit" onclick="markViewDownload()">
-          <i class="fa fa-unlock"></i> Mark View &amp; Download
-        </button>
-        <button class="btn-delete" onclick="deleteSelected()">
-          <i class="fa fa-trash"></i> Delete Selected
-        </button>
+        </div>
       </div>
+      <!-- end .table-card -->
+    </main>
+    <!-- end .main -->
 
-
-      <!-- File data table -->
-      <table class="file-table" aria-label="Uploaded files">
-        <thead>
-          <tr>
-            <!-- Select all checkbox -->
-            <th><input type="checkbox" id="selectAll" onclick="toggleSelectAll()" aria-label="Select all files"></th>
-            <th>File Name</th>
-            <th>Category</th>
-            <th>Size</th>
-            <th>Uploaded</th>
-            <th>Access</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <!-- Rows are injected by manage.js → showFiles() -->
-        <tbody id="fileList"></tbody>
-      </table>
-
-      <!-- Pagination controls -->
-      <div class="pagination" role="navigation" aria-label="File pagination">
-        <button onclick="prevFilePage()" aria-label="Previous page">
-          <i class="fa fa-chevron-left"></i> Prev
-        </button>
-        <span id="filePageInfo" aria-live="polite"></span>
-        <button onclick="nextFilePage()" aria-label="Next page">
-          Next <i class="fa fa-chevron-right"></i>
-        </button>
-      </div>
-
-    </div><!-- end .table-card -->
-
-  </main><!-- end .main -->
-
-
-  <!-- ============================================================
+    <!-- ============================================================
        MODALS
        All modals start hidden (display:none via .modal class).
        JS opens them by setting display:flex.
        ============================================================ -->
 
-  <!-- ---- Edit File Modal ---- -->
-  <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editModalTitle">
-    <div class="modal-content">
-      <span class="close" onclick="closeEditModal()" aria-label="Close">&times;</span>
-      <h3 id="editModalTitle"><i class="fa fa-edit"></i> Edit File</h3>
+    <!-- ---- Edit File Modal ---- -->
+    <div
+      id="editModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="editModalTitle"
+    >
+      <div class="modal-content">
+        <span class="close" onclick="closeEditModal()" aria-label="Close"
+          >&times;</span
+        >
+        <h3 id="editModalTitle"><i class="fa-solid fa-pen"></i> Edit File</h3>
 
-      <label for="editName">File Name</label>
-      <input type="text" id="editName" placeholder="Enter file name">
+        <label for="editName">File Name</label>
+        <input type="text" id="editName" placeholder="Enter file name" />
 
-      <label for="editImportance">Access Type</label>
-      <select id="editImportance">
-        <option value="less">View &amp; Download</option>
-        <option value="important">View Only</option>
-      </select>
+        <label for="editImportance">Access Type</label>
+        <select id="editImportance">
+          <option value="less">View &amp; Download</option>
+          <option value="important">View Only</option>
+        </select>
 
-      <label for="editCategory">Category</label>
-      <select id="editCategory"></select>
+        <label for="editCategory">Category</label>
+        <select id="editCategory"></select>
 
-      <label for="editFile">Replace File (optional)</label>
-      <input type="file" id="editFile">
+        <label for="editFile">Replace File (optional)</label>
+        <input type="file" id="editFile" />
 
-      <!-- Feedback messages -->
-      <p id="editError"   class="form-msg error"></p>
-      <p id="editSuccess" class="form-msg success"></p>
+        <!-- Feedback messages -->
+        <p id="editError" class="form-msg error"></p>
+        <p id="editSuccess" class="form-msg success"></p>
 
-      <button class="btn-add" onclick="saveEdit()">
-        <i class="fa fa-save"></i> Save Changes
-      </button>
-    </div>
-  </div>
-
-
-  <!-- ---- Filter Modal ---- -->
-  <div id="filterModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="filterModalTitle">
-    <div class="modal-content">
-      <span class="close" onclick="closeFilter()" aria-label="Close">&times;</span>
-      <h3 id="filterModalTitle"><i class="fa fa-filter"></i> Filter Files</h3>
-
-      <label for="filterCategory">Category</label>
-      <select id="filterCategory">
-        <option value="All">All Categories</option>
-      </select>
-
-      <label for="filterImportance">Access Type</label>
-      <select id="filterImportance">
-        <option value="All">All Types</option>
-        <option value="important">View Only</option>
-        <option value="less">View &amp; Download</option>
-      </select>
-
-      <label for="filterDate">Uploaded On</label>
-      <input type="date" id="filterDate">
-
-      <button class="btn-add" onclick="applyFilter()">
-        <i class="fa fa-check"></i> Apply Filter
-      </button>
-    </div>
-  </div>
-
-
-  <!-- ---- File Preview Viewer Modal ---- -->
-  <div id="viewerModal" class="modal" role="dialog" aria-modal="true" aria-label="File preview">
-    <div class="modal-preview">
-      <span class="close" onclick="closeViewer()" aria-label="Close viewer">✖</span>
-      <iframe id="viewerFrame" title="File preview" sandbox="allow-scripts"></iframe>
-    </div>
-  </div>
-
-
-  <!-- ---- Category Manager Modal ---- -->
-  <div id="categoryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="categoryModalTitle">
-    <div class="modal-content large-modal">
-      <span class="close" onclick="closeCategoryModal()" aria-label="Close">&times;</span>
-      <h3 id="categoryModalTitle"><i class="fa fa-tags"></i> Manage Categories</h3>
-
-      <!-- Add new category -->
-      <div class="cat-add-row">
-        <input type="text" id="newCategory" placeholder="New category name" aria-label="New category name">
-        <button onclick="addCategory()"><i class="fa fa-plus"></i> Add</button>
-      </div>
-
-      <!-- Search within categories -->
-      <input
-        type="text"
-        id="categorySearch"
-        placeholder="Search categories..."
-        onkeyup="showCategories()"
-        aria-label="Search categories"
-        style="margin-bottom:12px;"
-      >
-
-      <!-- Scrollable category list -->
-      <div class="table-wrapper">
-        <table class="category-table" aria-label="Categories">
-          <thead>
-            <tr>
-              <th>Category Name</th>
-              <th style="width:180px;">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="categoryList"></tbody>
-        </table>
-      </div>
-
-      <!-- Category pagination -->
-      <div class="pagination" role="navigation" aria-label="Category pagination">
-        <button onclick="prevPage()"><i class="fa fa-chevron-left"></i> Prev</button>
-        <span id="pageInfo" aria-live="polite"></span>
-        <button onclick="nextPage()">Next <i class="fa fa-chevron-right"></i></button>
-      </div>
-
-    </div>
-  </div>
-
-
-  <!-- ---- Delete Category Confirm Modal ---- -->
-  <div id="confirmModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmCatTitle">
-    <div class="modal-content confirm-modal">
-      <div class="confirm-icon danger"><i class="fa fa-trash"></i></div>
-      <h3 id="confirmCatTitle">Delete Category?</h3>
-      <p>This action cannot be undone.</p>
-      <div class="confirm-btns">
-        <button class="btn-delete" onclick="deleteCategory()">Yes, Delete</button>
-        <button class="btn-cancel" onclick="closeConfirm()">Cancel</button>
+        <div class="popup-actions" style="margin-top: 20px;">
+          <button class="btn-primary" onclick="saveEdit()" style="flex: 1">
+            <i class="fa-solid fa-floppy-disk"></i> Save Changes
+          </button>
+          <button class="btn-secondary" onclick="closeEditModal()" style="flex: 1">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
+    <!-- ---- Filter Modal ---- -->
+    <div
+      id="filterModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="filterModalTitle"
+    >
+      <div class="modal-content">
+        <span class="close" onclick="closeFilter()" aria-label="Close"
+          >&times;</span
+        >
+        <h3 id="filterModalTitle">
+          <i class="fa-solid fa-filter"></i>Filter Files
+        </h3>
 
-  <!-- ---- File Details Modal ---- -->
-  <div id="detailsModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="detailsTitle">
-    <div class="modal-content">
-      <span class="close" onclick="closeDetails()" aria-label="Close">&times;</span>
-      <h3 id="detailsTitle"><i class="fa fa-info-circle"></i> File Details</h3>
+        <label for="filterCategory">Category</label>
+        <select id="filterCategory">
+          <option value="All">All Categories</option>
+        </select>
 
-      <div class="detail-grid">
-        <p><b>Name:</b>     <span id="dName"></span></p>
-        <p><b>Category:</b> <span id="dCategory"></span></p>
-        <p><b>Size:</b>     <span id="dSize"></span></p>
-        <p><b>Date:</b>     <span id="dDate"></span></p>
-        <p><b>Access:</b>   <span id="dImportance"></span></p>
-      </div>
+        <label for="filterImportance">Access Type</label>
+        <select id="filterImportance">
+          <option value="All">All Types</option>
+          <option value="important">View Only</option>
+          <option value="less">View &amp; Download</option>
+        </select>
 
-      <!-- Action buttons in file details -->
-      <div class="detail-actions">
-        <button class="btn-view" onclick="viewFile(selectedIndex)">
-          <i class="fa fa-eye"></i> View
-        </button>
-        <button class="btn-copy" id="downloadBtn" onclick="downloadFile(selectedIndex)">
-          <i class="fa fa-download"></i> Download
-        </button>
-        <button class="btn-edit" onclick="editFromDetails()">
-          <i class="fa fa-edit"></i> Edit
-        </button>
-        <button class="btn-delete" onclick="confirmDeleteFile(selectedIndex)">
-          <i class="fa fa-trash"></i> Delete
-        </button>
-        <button class="btn-copy" onclick="copyLink()">
-          <i class="fa fa-link"></i> Copy Link
-        </button>
-      </div>
+        <label for="filterDate">Uploaded On</label>
+        <input type="date" id="filterDate" />
 
-    </div>
-  </div>
-
-
-  <!-- ---- Delete File Confirm Modal ---- -->
-  <div id="confirmFileModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="confirmFileTitle">
-    <div class="modal-content confirm-modal">
-      <div class="confirm-icon danger"><i class="fa fa-trash-alt"></i></div>
-      <h3 id="confirmFileTitle">Delete File?</h3>
-      <p>This action cannot be undone. The file will be permanently removed.</p>
-      <div class="confirm-btns">
-        <button class="btn-delete" onclick="deleteFileConfirmed()">Yes, Delete</button>
-        <button class="btn-cancel" onclick="closeFileConfirm()">Cancel</button>
+        <div class="popup-actions" style="margin-top: 20px;">
+          <button class="btn-primary" onclick="applyFilter()" style="flex: 1">
+            <i class="fa-solid fa-check"></i> Apply Filter
+          </button>
+          <button class="btn-secondary" onclick="closeFilter()" style="flex: 1">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-
-  <!-- ---- Edit Category Name Modal ---- -->
-  <div id="editCategoryModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editCatTitle">
-    <div class="modal-content">
-      <h3 id="editCatTitle"><i class="fa fa-edit"></i> Rename Category</h3>
-      <label for="editCategoryInput">New Name</label>
-      <input type="text" id="editCategoryInput" aria-label="New category name">
-      <div style="display:flex; gap:10px; margin-top:15px;">
-        <button onclick="saveCategoryEdit()"><i class="fa fa-check"></i> Save</button>
-        <button class="btn-cancel" onclick="closeEditCategory()">Cancel</button>
+    <!-- ---- File Preview Viewer Modal ---- -->
+    <div
+      id="viewerModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="File preview"
+    >
+      <div class="modal-preview">
+        <span class="close" onclick="closeViewer()" aria-label="Close viewer"
+          >✖</span
+        >
+        <iframe
+          id="viewerFrame"
+          src="about:blank"
+          srcdoc=" "
+          sandbox="allow-scripts allow-forms allow-modals allow-popups allow-presentation"
+          referrerpolicy="no-referrer"
+        >
+        </iframe>
       </div>
     </div>
-  </div>
 
+    <!-- ---- Category Manager Modal ---- -->
+    <div
+      id="categoryModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="categoryModalTitle"
+    >
+      <div class="modal-content large-modal">
+        <span class="close" onclick="closeCategoryModal()" aria-label="Close"
+          >&times;</span
+        >
+        <h3 id="categoryModalTitle">
+          <i class="fa-solid fa-tags"></i> Manage Categories
+        </h3>
 
-  <!-- ---- Bulk Action Confirm Modal ---- -->
-  <div id="bulkConfirmModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="bulkTitle">
-    <div class="modal-content confirm-modal">
-      <div class="confirm-icon info"><i class="fa fa-tasks"></i></div>
-      <h3 id="bulkTitle">Confirm Action</h3>
-      <p id="bulkMessage">Are you sure you want to apply this to all selected files?</p>
-      <div class="confirm-btns">
-        <button onclick="confirmBulkAction()">Confirm</button>
-        <button class="btn-cancel" onclick="closeBulkModal()">Cancel</button>
+        <!-- Add new category -->
+        <div class="cat-add-row">
+          <input
+            type="text"
+            id="newCategory"
+            placeholder="New category name"
+            aria-label="New category name"
+          />
+          <button class="btn-primary" onclick="addCategory()">
+            <i class="fa-solid fa-plus"></i> Add
+          </button>
+        </div>
+
+        <!-- Search within categories -->
+        <input
+          type="text"
+          id="categorySearch"
+          placeholder="Search categories..."
+          onkeyup="showCategories()"
+          aria-label="Search categories"
+          style="margin-bottom: 12px"
+        />
+
+        <!-- Scrollable category list -->
+        <div class="table-wrapper">
+          <table class="category-table" aria-label="Categories">
+            <thead>
+              <tr>
+                <th>Category Name</th>
+                <th style="width: 180px">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="categoryList"></tbody>
+          </table>
+        </div>
+
+        <!-- Category pagination -->
+        <div
+          class="pagination"
+          role="navigation"
+          aria-label="Category pagination"
+        >
+          <button class="btn-secondary" onclick="prevPage()">
+            <i class="fa-solid fa-chevron-left"></i> Prev
+          </button>
+          <span id="pageInfo" aria-live="polite"></span>
+          <button class="btn-secondary" onclick="nextPage()">
+            Next <i class="fa-solid fa-chevron-right"></i>
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
-
-  <!-- ---- Upload Settings Modal ---- -->
-  <div id="uploadModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="uploadTitle">
-    <div class="modal-content">
-      <h3 id="uploadTitle"><i class="fa fa-cloud-upload-alt"></i> Upload Settings</h3>
-
-      <label for="uploadCategory">Category</label>
-      <select id="uploadCategory"></select>
-
-      <label for="uploadImportance">Access Type</label>
-      <select id="uploadImportance">
-        <option value="less">View &amp; Download</option>
-        <option value="important">View Only</option>
-      </select>
-
-      <div style="display:flex; gap:10px; margin-top:20px;">
-        <button onclick="confirmUpload()"><i class="fa fa-upload"></i> Upload</button>
-        <button class="btn-cancel" onclick="closeUploadModal()">Cancel</button>
+    <!-- ---- Delete Category Confirm Modal ---- -->
+    <div
+      id="confirmModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirmCatTitle"
+    >
+      <div class="modal-content confirm-modal">
+        <div class="confirm-icon danger"><i class="fa-solid fa-trash"></i></div>
+        <h3 id="confirmCatTitle">Delete Category?</h3>
+        <p>This action cannot be undone.</p>
+        <div class="popup-actions" style="margin-top: 20px;">
+          <button class="btn-danger" onclick="deleteCategory()" style="flex: 1">
+            Yes, Delete
+          </button>
+          <button class="btn-secondary" onclick="closeConfirm()" style="flex: 1">
+            Cancel
+          </button>
+        </div>
       </div>
     </div>
-  </div>
 
+    <!-- ---- File Details Modal ---- -->
+    <div
+      id="detailsModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="detailsTitle"
+    >
+      <div class="modal-content">
+        <span class="close" onclick="closeDetails()" aria-label="Close"
+          >&times;</span
+        >
+        <h3 id="detailsTitle">
+          <i class="fa-solid fa-info-circle"></i> File Details
+        </h3>
 
-  <!-- ============================================================
+        <div class="detail-grid">
+          <p><b>Name:</b> <span id="dName"></span></p>
+          <p><b>Category:</b> <span id="dCategory"></span></p>
+          <p><b>Size:</b> <span id="dSize"></span></p>
+          <p><b>Date:</b> <span id="dDate"></span></p>
+          <p><b>Access:</b> <span id="dImportance"></span></p>
+        </div>
+
+        <!-- Action buttons in file details -->
+        <div class="detail-actions">
+          <button class="btn-view" onclick="viewFile(selectedIndex)">
+            <i class="fa-solid fa-eye"></i> View
+          </button>
+          <button
+            class="btn-copy"
+            id="downloadBtn"
+            onclick="downloadFile(selectedIndex)"
+          >
+            <i class="fa-solid fa-download"></i> Download
+          </button>
+          <button class="btn-edit" onclick="editFromDetails()">
+            <i class="fa-solid fa-pen"></i> Edit
+          </button>
+          <button class="btn-delete" onclick="confirmDeleteFile(selectedIndex)">
+            <i class="fa-solid fa-trash"></i> Delete
+          </button>
+          <button class="btn-copy" onclick="copyLink()">
+            <i class="fa-solid fa-link"></i> Copy Link
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- Delete File Confirm Modal ---- -->
+    <div
+      id="confirmFileModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="confirmFileTitle"
+    >
+      <div class="modal-content confirm-modal">
+        <div class="confirm-icon danger">
+          <i class="fa-solid fa-trash-alt"></i>
+        </div>
+        <h3 id="confirmFileTitle">Delete File?</h3>
+        <p>
+          This action cannot be undone. The file will be permanently removed.
+        </p>
+        <div class="confirm-btns">
+          <button class="btn-delete" onclick="deleteFileConfirmed()">
+            Yes, Delete
+          </button>
+          <button class="btn-cancel" onclick="closeFileConfirm()">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- Edit Category Name Modal ---- -->
+    <div
+      id="editCategoryModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="editCatTitle"
+    >
+      <div class="modal-content">
+        <h3 id="editCatTitle">
+          <i class="fa-solid fa-edit"></i> Rename Category
+        </h3>
+        <label for="editCategoryInput">New Name</label>
+        <input
+          type="text"
+          id="editCategoryInput"
+          aria-label="New category name"
+        />
+        <div class="popup-actions" style="margin-top: 15px;">
+          <button class="btn-primary" onclick="saveCategoryEdit()" style="flex: 1">
+            <i class="fa-solid fa-check"></i> Save
+          </button>
+          <button class="btn-secondary" onclick="closeEditCategory()" style="flex: 1">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- Bulk Action Confirm Modal ---- -->
+    <div
+      id="bulkConfirmModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="bulkTitle"
+    >
+      <div class="modal-content confirm-modal">
+        <div class="confirm-icon info"><i class="fa-solid fa-tasks"></i></div>
+        <h3 id="bulkTitle">Confirm Action</h3>
+        <p id="bulkMessage">
+          Are you sure you want to apply this to all selected files?
+        </p>
+        <div class="popup-actions" style="margin-top: 20px;">
+          <button class="btn-primary" onclick="confirmBulkAction()" style="flex: 1">Confirm</button>
+          <button class="btn-secondary" onclick="closeBulkModal()" style="flex: 1">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ---- Upload Settings Modal ---- -->
+    <div
+      id="uploadModal"
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="uploadTitle"
+    >
+      <div class="modal-content">
+        <h3 id="uploadTitle">Upload Settings</h3>
+
+        <label for="uploadCategory">Category</label>
+        <select id="uploadCategory"></select>
+
+        <label for="uploadImportance">Access Type</label>
+        <select id="uploadImportance">
+          <option value="less">View &amp; Download</option>
+          <option value="important">View Only</option>
+        </select>
+
+        <div class="popup-actions" style="margin-top: 20px;">
+          <button class="btn-primary" onclick="confirmUpload()" style="flex: 1">
+            <i class="fa-solid fa-upload"></i> Upload
+          </button>
+          <button class="btn-secondary" onclick="closeUploadModal()" style="flex: 1">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
        TOAST NOTIFICATION — Shown briefly for feedback messages
        Shown/hidden by manage.js → showToast()
        ============================================================ -->
-  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
-
-  <!-- ============================================================
+    <!-- ============================================================
        SCRIPTS — Loaded at bottom for performance
        ============================================================ -->
-  <script src="manage.js"></script>
-
-</body>
+    <script src="manage.js?v=2.1"></script>
+  </body>
 </html>

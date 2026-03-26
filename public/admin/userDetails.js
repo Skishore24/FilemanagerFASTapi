@@ -1,586 +1,547 @@
-let usersData = {};
-let currentPage = 1;
-let rowsPerPage = 5;
+/**
+ * ============================================================================
+ * public/admin/userDetails.js — Admin User Monitoring & Access Control
+ * ============================================================================
+ * Handles administrative oversight of users/students:
+ * - Real-time user listing and status tracking (Online/Offline)
+ * - Detailed user activity profiles (View/Download history)
+ * - Access control management (Block/Unblock users)
+ * - Geographic distribution tracking per user
+ * - Bulk user management (Bulk delete logs / Bulk block)
+ * ============================================================================
+ */
 
-let popupLogs = [];
-let popupPage = 1;
-let popupRows = 4;
-let token = localStorage.getItem("token");
-let blockedUsersList = [];
-let confirmType = "";
-let confirmMobile = "";
+/* ----------------------------------------------------------------------------
+   GLOBAL STATE & CONSTANTS
+   ---------------------------------------------------------------------------- */
+const token = localStorage.getItem("token");
 
-if(!token || token === "null"){
+/* Immediate session validation */
+if (!token || token === "null") {
   window.location.href = "/admin/login.html";
 }
-async function loadBlockedUsers(){
-  let res = await fetch("/api/users/blocked",{
-  headers:{
-    "Authorization":"Bearer " + token
-  }
+
+let usersData = {};          /* Grouped logs by mobile number */
+let blockedUsersList = [];   /* List of blocked mobile numbers */
+let currentPage = 1;         /* Main table pagination */
+const rowsPerPage = 10;
+
+let popupLogs = [];          /* Current user's logs in focus */
+let popupPage = 1;
+const popupRows = 5;
+
+let confirmType = "";        /* Active confirmation modal context */
+let confirmMobile = null;     /* Mobile(s) being acted upon */
+
+/**
+ * ============================================================
+ * SECTION 1 — INITIALIZATION & DATA REFRESH
+ * ============================================================
+ */
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadUsers();
+  initSidebarProfile();
+  
+  /* Periodic session verification */
+  setInterval(() => {
+    const token = localStorage.getItem("token");
+    if (!token || token === "null") logoutUser();
+  }, 5000);
+
+  /* Periodic refresh for status updates */
+  setInterval(loadUsers, 30000); 
 });
-  let data = await res.json();
-  blockedUsersList = data.map(u => u.mobile);
-}
 
-const avatarColors = [
-  "linear-gradient(135deg,#6366f1,#7c3aed)",
-  "linear-gradient(135deg,#22c55e,#16a34a)",
-  "linear-gradient(135deg,#f59e0b,#f97316)",
-  "linear-gradient(135deg,#06b6d4,#0ea5e9)",
-  "linear-gradient(135deg,#ef4444,#dc2626)"
-];
+async function loadUsers() {
+  try {
+    /* 1. Sync blocked status */
+    const blockRes = await fetch("/api/users/blocked", {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    if (blockRes.status === 401) return logoutUser();
+    blockedUsersList = (await blockRes.json()).map(u => u.mobile);
 
-function getAvatarColor(name){
-  let hash = 0;
-  for(let i=0;i<name.length;i++){
-    hash = name.charCodeAt(i) + ((hash<<5) - hash);
+    /* 2. Fetch activity logs (Master data for users) */
+    const res = await fetch("/api/logs?page=1&limit=1000", {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error();
+
+    const data = await res.json();
+    const logs = data.logs || [];
+
+    const grouped = {};
+
+    logs.forEach(log => {
+      const key = log.mobile && log.mobile !== "Unknown" ? log.mobile : "Unknown";
+        if (!grouped[key]) grouped[key] = [];
+          grouped[key].push(log);
+        });
+      usersData = grouped;
+    renderUserTable();
+  } catch (err) {
+    console.error("❌ [USERS] Refresh failed");
   }
-  return avatarColors[Math.abs(hash) % avatarColors.length];
 }
 
-/* LOAD USERS */
-async function loadUsers(){
+/**
+ * ============================================================
+ * SECTION 2 — USER TABLE RENDERING
+ * ============================================================
+ */
 
-  await loadBlockedUsers();   // add this line
+function renderUserTable() {
+  const table = document.getElementById("userTable");
+  const search = document.getElementById("searchUsers")?.value.toLowerCase().trim() || "";
+  if (!table) return;
 
-  let res = await fetch("/api/logs?page=1&limit=500",{
-    headers:{
-      "Authorization":"Bearer " + token
-    }
+  const mobiles = Object.keys(usersData).filter(m => {
+    const name = (usersData[m][0].name || "").toLowerCase();
+    return (name.includes(search) || m.includes(search)) && !blockedUsersList.includes(m);
   });
 
-  if (res.status === 401) {
-    /* Session expired — redirect without blocking alert */
-    localStorage.removeItem("token");
-    window.location.href = "/admin/login.html";
-    return;
-  }
-  let data = {};
-    try{
-      data = await res.json();
-    } catch(e) {
-      /* Silently handle parse error — usersData stays empty */
-      console.error("Invalid API response while loading users");
-    }
-  let logs = data.logs || [];
+  const start = (currentPage - 1) * rowsPerPage;
+  const pageItems = mobiles.slice(start, start + rowsPerPage);
 
-  usersData = {};
-  logs.forEach(log=>{
-let key = log.mobile && log.mobile !== "Unknown"
-          ? log.mobile
-          : "Unknown";
-if(!usersData[key])
-usersData[key]=[];
-usersData[key].push(log);
+  table.innerHTML = "";
+  pageItems.forEach(mobile => {
+    const logs = usersData[mobile];
+    const name = logs[0].name || "Unknown";
+    const status = getUserOnlineStatus(logs);
+    const location = getBestLocation(logs);
+
+    table.innerHTML += `
+      <tr>
+        <td data-label="Select"><input type="checkbox" class="userCheck" value="${mobile}" onchange="updateBulkPanel()"></td>
+        <td data-label="Name">
+          <div class="user-name">
+            <div class="user-avatar" style="background:${getAvatarColor(name)}">${name.charAt(0).toUpperCase()}</div>
+            <span>${escapeHTML(name)}</span>
+          </div>
+        </td>
+        <td data-label="Mobile">${escapeHTML(mobile)}</td>
+        <td data-label="Status"><span class="status ${status}"><span class="status-dot"></span>${status === 'online' ? 'Online' : 'Offline'}</span></td>
+        <td data-label="Location">${escapeHTML(location)}</td>
+        <td data-label="Visits">${logs.length}</td>
+        <td data-label="Action"><button class="view-btn" onclick="openUserDetails('${mobile}')">View Profile</button></td>
+      </tr>
+    `;
   });
 
-  renderUsers();
+  updatePaginationUI(mobiles.length);
 }
+function openUserDetails(mobile) {
+  const logs = usersData[mobile];
+  if (!logs || logs.length === 0) return;
 
+  const name = logs[0].name || "Unknown";
 
-/* RENDER TABLE */
-function renderUsers(){
+  document.getElementById("avatarCircle").innerText =
+    name.charAt(0).toUpperCase();
 
-let table = document.getElementById("userTable");
-let search = document.getElementById("searchUsers").value.toLowerCase();
-
-let blocked = blockedUsersList || [];
-
-let mobiles = Object.keys(usersData).filter(m=>{
-  let name = usersData[m][0].name || "";
-  return (
-    (name.toLowerCase().includes(search) || m.includes(search)) &&
-    !blocked.includes(m)
-  );
-});
-
-
-let start = (currentPage-1)*rowsPerPage;
-let pageUsers = mobiles.slice(start,start+rowsPerPage);
-
-table.innerHTML="";
-
-pageUsers.forEach(mobile=>{
-let logs = usersData[mobile];
-let name = logs[0].name || "Unknown";
-let visits = logs.length;
-let state = logs[0].state || "";
-let country = logs[0].country || "";
-let location = (state || country) ? state + ", " + country : "-";
-
-let status = getUserStatus(logs);
-
-table.innerHTML += `
-<tr>
-<td data-label="Select"><input type="checkbox" class="userCheck" onchange="updateBulkActions()"></td>
-<td data-label="Name">
-  <div class="user-name">
-    <div class="user-avatar"
-         style="background:${getAvatarColor(name)}">
-         ${escapeHTML(name).charAt(0).toUpperCase()}
-    </div>
-    <span>${escapeHTML(name)}</span>
-  </div>
-</td>
-
-<td data-label="Mobile">${escapeHTML(mobile)}</td>
-
-<td data-label="Status">
-  <span class="status ${status}">
-    <span class="status-dot"></span>
-    ${status === "online" ? "Online" : "Offline"}
-  </span>
-</td>
-<td data-label="Location">${escapeHTML(location)}</td>
-
-<td data-label="Visits">${visits}</td>
-
-<td data-label="Action">
-  <button class="view-btn" onclick="openUser('${escapeHTML(mobile)}')">View</button>
-</td>
-</tr>`;
-
-});
-
-let totalPages = Math.ceil(mobiles.length/rowsPerPage) || 1;
-if(currentPage > totalPages) currentPage = totalPages;
-
-document.getElementById("pageInfo").innerText =
-`Page ${currentPage} of ${totalPages}`;
-
-}
-function updateBulkActions(){
-  let checked = document.querySelectorAll(".userCheck:checked").length;
-  let panel = document.getElementById("bulkActions");
-
-  if(checked > 0){
-    panel.style.display = "flex";
-  }else{
-    panel.style.display = "none";
-  }
-}
-function toggleSelectAll(){
-
-  let master = document.getElementById("selectAllUsers");
-  let checks = document.querySelectorAll(".userCheck");
-
-  checks.forEach(cb => cb.checked = master.checked);
-
-  updateBulkActions();
-}
-
-/* POPUP */
-function openUser(mobile){
-
-  // FIRST assign logs
-  popupLogs = usersData[mobile];
-  popupPage = 1;
-
-  // Avatar initials
-  let name = popupLogs[0].name || "U";
-let initials = name ? name.charAt(0).toUpperCase() : "U";
-
-  document.getElementById("avatarCircle").innerText = initials;
-
-  // Status
-  let status = getUserStatus(popupLogs);
-  document.getElementById("uStatus").innerHTML =
-    `<span class="status ${status}">
-       <span class="status-dot"></span>
-       ${status === "online" ? "Online" : "Offline"}
-     </span>`;
-
-  // User details
   document.getElementById("uName").innerText = name;
   document.getElementById("uMobile").innerText = mobile;
-  document.getElementById("uVisits").innerText = popupLogs.length;
-let latestVisit = [...popupLogs]
-  .sort((a,b)=> new Date(b.viewed_at)-new Date(a.viewed_at))[0];
+  document.getElementById("uVisits").innerText = logs.length;
 
-document.getElementById("uLastVisit").innerText =
-  formatDateTime(latestVisit.viewed_at);
-  // Location (if available)
-  let state = popupLogs[0].state || "-";
-  let country = popupLogs[0].country || "-";
-  document.getElementById("uLocation").innerText = state + ", " + country;
+  const sortedLogs = [...logs].sort(
+    (a, b) => new Date(b.viewed_at) - new Date(a.viewed_at)
+  );
 
-  renderPopupFiles(popupLogs);
+  const lastVisit = sortedLogs[0]?.viewed_at;
+  document.getElementById("uLastVisit").innerText =
+    lastVisit ? new Date(lastVisit).toLocaleString() : "-";
 
+  document.getElementById("uLocation").innerText = getBestLocation(logs);
+
+  const status = getUserOnlineStatus(logs);
+  document.getElementById("uStatus").innerHTML = 
+    `<span class="status ${status}"><span class="status-dot"></span>${status === "online" ? "Online" : "Offline"}</span>`;
+
+  popupLogs = sortedLogs;
+  popupPage = 1;
+  renderPopupTable();
   document.getElementById("userModal").style.display = "flex";
 }
 
+function updatePaginationUI(totalItems) {
+  const pageInfo = document.getElementById("pageInfo");
+  if (!pageInfo) return;
 
-function renderPopupFiles(userLogs){
+  const totalPages = Math.ceil(totalItems / rowsPerPage) || 1;
+  pageInfo.innerText = `Page ${currentPage} of ${totalPages}`;
 
-  let table = document.getElementById("uFileTable");
-  let pagination = document.getElementById("popupPagination");
+  /* Update button states if needed */
+  const prevBtn = document.querySelector(".pagination button:first-child");
+  const nextBtn = document.querySelector(".pagination button:last-child");
+
+  if (prevBtn) prevBtn.disabled = (currentPage === 1);
+  if (nextBtn) nextBtn.disabled = (currentPage === totalPages);
+}
+
+function getBestLocation(logs) {
+  if (!logs || logs.length === 0) return "Not Available";
+  const sorted = [...logs].sort((a,b) => new Date(b.viewed_at) - new Date(a.viewed_at));
+  for (let log of sorted) {
+    const loc = formatLocation(log);
+    if (loc !== "Not Available") return loc;
+  }
+  return "Not Available";
+}
+
+function renderPopupTable() {
+  const table = document.getElementById("uFileTable");
+  if (!table) return;
+
+  const start = (popupPage - 1) * popupRows;
+  const pageLogs = popupLogs.slice(start, start + popupRows);
 
   table.innerHTML = "";
-  pagination.innerHTML = "";
+  if (pageLogs.length === 0) {
+    table.innerHTML = `<tr><td colspan="2" style="text-align:center; padding: 20px;">No activity found</td></tr>`;
+  } else {
+    pageLogs.forEach(log => {
+      table.innerHTML += `
+        <tr>
+          <td data-label="File">${escapeHTML(log.file || log.file_name || "Unknown File")}</td>
+          <td data-label="Viewed At">${log.viewed_at ? new Date(log.viewed_at).toLocaleString() : "-"}</td>
+        </tr>
+      `;
+    });
+  }
+  renderPopupPagination();
+}
 
-  let start = (popupPage-1)*popupRows;
-  let end = start + popupRows;
+function renderPopupPagination() {
+  const container = document.getElementById("popupPagination");
+  if (!container) return;
 
-  let pageLogs = userLogs.slice(start,end);
+  const totalPages = Math.ceil(popupLogs.length / popupRows);
+  if (totalPages <= 1) {
+    container.innerHTML = "";
+    return;
+  }
 
-pageLogs.forEach(log=>{
-table.innerHTML += `
-<tr>
-  <td data-label="File">${escapeHTML(log.file_name)}</td>
-  <td data-label="Viewed At">${formatDateTime(log.viewed_at)}</td>
-
-</tr>`;
-
-});
-
-
-
-let totalPages = Math.max(1, Math.ceil(userLogs.length / popupRows));
-
-  pagination.innerHTML = `
-    <button onclick="prevPopup()">Prev</button>
-    Page ${popupPage} of ${totalPages}
-    <button onclick="nextPopup(${totalPages})">Next</button>
+  container.innerHTML = `
+    <button onclick="changePopupPage(-1)" ${popupPage === 1 ? 'disabled' : ''}>Prev</button>
+    <span id="popupPageInfo">Page ${popupPage} of ${totalPages}</span>
+    <button onclick="changePopupPage(1)" ${popupPage === totalPages ? 'disabled' : ''}>Next</button>
   `;
 }
 
-function nextPopup(totalPages){
-  if(popupPage < totalPages){
-    popupPage++;
-    renderPopupFiles(popupLogs);
+function changePopupPage(dir) {
+  const totalPages = Math.ceil(popupLogs.length / popupRows);
+  const newPage = popupPage + dir;
+  if (newPage >= 1 && newPage <= totalPages) {
+    popupPage = newPage;
+    renderPopupTable();
   }
 }
 
-function prevPopup(){
-  if(popupPage>1){
-    popupPage--;
-    renderPopupFiles(popupLogs);
-  }
+
+function closeUserModal() {
+  document.getElementById("userModal").style.display = "none";
 }
 
-function closeUserModal(){
-document.getElementById("userModal").style.display="none";
-}
-function nextPage(){
-  let totalPages = Math.ceil(Object.keys(usersData).length / rowsPerPage);
-  if(currentPage < totalPages){
-    currentPage++;
-    renderUsers();
-  }
-}
-async function blockSelected() {
+/**
+ * ============================================================
+ * SECTION 3 — ACCESS CONTROL (Block/Unblock)
+ * ============================================================
+ */
 
-  const mobiles = getSelectedMobiles();
-
-  if (mobiles.length === 0) {
-    openSuccessPopup("⚠️ Please select at least one user first.");
-    return;
-  }
-
-  for (const mobile of mobiles) {
-    await fetch("/api/users/block", {
-      method:  "POST",
-      headers: {
-        "Content-Type":  "application/json",
-        "Authorization": "Bearer " + token
-      },
-      body: JSON.stringify({ mobile })
-    });
-  }
-
-  openSuccessPopup("✅ Selected users have been blocked.");
-  await loadBlockedUsers();
-  loadUsers();
-
-}
-async function deleteSelected() {
-
-  const mobiles = getSelectedMobiles();
-
-  if (mobiles.length === 0) {
-    openSuccessPopup("⚠️ Please select at least one user first.");
-    return;
-  }
-
-  confirmType   = "deleteSelected";
-  confirmMobile = mobiles;
-
-  document.getElementById("confirmTitle").innerText   = "Delete Users";
-  document.getElementById("confirmMessage").innerText = "Are you sure you want to delete all logs for selected users?";
-
-  document.getElementById("confirmModal").style.display = "flex";
-
-}
-
-function prevPage(){ if(currentPage>1){ currentPage--; renderUsers(); } }
-function blockUser(){
-  confirmType = "block";
-  confirmMobile = document.getElementById("uMobile").innerText;
-
-  document.getElementById("confirmTitle").innerText = "Block User";
-  document.getElementById("confirmMessage").innerText =
-    "Are you sure you want to block this user?";
-
-  document.getElementById("confirmModal").style.display = "flex";
-}
-
-function deleteUser(){
-  confirmType = "delete";
-  confirmMobile = document.getElementById("uMobile").innerText;
-
-  document.getElementById("confirmTitle").innerText = "Delete User";
-  document.getElementById("confirmMessage").innerText =
-    "This will permanently delete all logs of this user.";
-
-  document.getElementById("confirmModal").style.display = "flex";
-}
-
-
-function getSelectedMobiles(){
-  let checks = document.querySelectorAll(".userCheck:checked");
-  let mobiles = [];
-
-  checks.forEach(cb => {
-    let row = cb.closest("tr");
-    let mobile = row.children[2].innerText.trim();
-    mobiles.push(mobile);
-  });
-
-  return mobiles;
-}
-
-async function confirmAction(){
-
-  // BLOCK SINGLE USER
-  if(confirmType === "block"){
-    await fetch("/api/users/block", {
+async function blockUser(mobile) {
+  if (!mobile) return;
+  const targetMobile = mobile.trim();
+  try {
+    const res = await fetch("/api/users/block", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization":"Bearer " + token
-      },
-      body: JSON.stringify({ mobile: confirmMobile })
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ mobile: targetMobile })
     });
-  }
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "Failed to block");
 
-  // DELETE SINGLE USER
-  if(confirmType === "delete"){
+    await loadUsers(); /* Master refresh */
+    toggleModal("userModal", false);
+  } catch (err) {
+    console.error("❌ Block failed:", err);
+    openSuccessPopup("Error: " + err.message);
+  }
+}
+
+async function unblockUser(mobile) {
+  if (!mobile) return;
+  const targetMobile = mobile.trim();
+  try {
+    const res = await fetch("/api/users/unblock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ mobile: targetMobile })
+    });
+    
+    if (!res.ok) throw new Error("Failed to unblock");
+
+    await loadUsers(); 
+    openBlockedModal(); /* Refresh the blocked users table modal */
+  } catch (err) {
+    console.error("❌ Unblock failed:", err);
+  }
+}
+
+/**
+ * ============================================================
+ * SECTION 4 — LOG MANAGEMENT (Delete)
+ * ============================================================
+ */
+
+async function deleteUserLogs(mobile) {
+  if (!confirm("Are you sure? This will delete all activity history for this user.")) return;
+  try {
     await fetch("/api/users/delete-user-logs", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization":"Bearer " + token
-      },
-      body: JSON.stringify({ mobile: confirmMobile })
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ mobile })
     });
-  }
-
-  // DELETE MULTIPLE USERS
-  if(confirmType === "deleteSelected"){
-    for(let mobile of confirmMobile){
-      await fetch("/api/users/delete-user-logs", {
-        method:"POST",
-        headers:{
-          "Content-Type":"application/json",
-          "Authorization":"Bearer " + token
-        },
-        body: JSON.stringify({ mobile })
-      });
-    }
-  }
-  await loadBlockedUsers();
-  closeConfirm();
-  closeUserModal();
-  loadUsers();
+    loadUsers();
+    toggleModal("userModal", false);
+  } catch (e) {}
 }
 
-function closeConfirm(){
-  document.getElementById("confirmModal").style.display = "none";
+/**
+ * ============================================================
+ * SECTION 5 — UTILITIES & UI HELPERS
+ * ============================================================
+ */
+
+function getUserOnlineStatus(logs) {
+  const latest = logs.map(l => l.last_active || l.viewed_at).sort((a,b) => new Date(b) - new Date(a))[0];
+  if (!latest) return "offline";
+  return (Date.now() - new Date(latest).getTime()) <= 300000 ? "online" : "offline";
 }
 
-/* BLOCKED MODAL */
-async function openBlockedModal(){
-  try{
-    let res = await fetch("/api/users/blocked",{
-      headers:{
-        "Authorization":"Bearer " + token
-      }
-    });
-    let blocked = await res.json();
-
-    let table = document.getElementById("blockedTable");
-    table.innerHTML = "";
-
-    if(!blocked || blocked.length === 0){
-      table.innerHTML = "<tr><td colspan='2'>No blocked users</td></tr>";
-    }else{
-      blocked.forEach(user=>{
-        table.innerHTML += `
-          <tr>
-            <td>${user.mobile}</td>
-            <td>
-              <button class="view-btn" onclick="unblockUser('${user.mobile}')">
-                Unblock
-              </button>
-            </td>
-          </tr>`;
-      });
-    }
-
-    document.getElementById("blockedModal").style.display="flex";
-
-  } catch (err) {
-    console.error("Blocked modal error:", err);
-    openSuccessPopup("⚠️ Could not load blocked users. Please try again.");
-  }
+function getAvatarColor(name) {
+  const colors = ["#6366f1", "#10b981", "#f59e0b", "#0ea5e9", "#ef4444"];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  return colors[Math.abs(hash) % colors.length];
 }
 
-
-/* ============================================================
-   openSuccessPopup(message)
-   Shows a temporary success/info popup modal.
-   Works with the #successModal in userDetails.html.
-   Falls back to console if element is missing.
-   ============================================================ */
-function openSuccessPopup(message) {
-
-  const el = document.getElementById("successModal");
-
-  if (!el) {
-    console.info("[Popup]", message);
-    return;
-  }
-
-  const msgEl = document.getElementById("successMessage");
-  if (msgEl) msgEl.innerText = message;
-
-  el.style.display = "flex";
-
+function toggleModal(id, show) {
+  const el = document.getElementById(id);
+  if (el) el.style.display = show ? "flex" : "none";
 }
 
-function closeSuccessPopup() {
-  const el = document.getElementById("successModal");
-  if (el) el.style.display = "none";
+function formatLocation(log) {
+  if (!log) return "Not Available";
+
+  const state = log.state || "";
+  const country = log.country || "";
+
+  if (!state && !country) return "Not Available";
+
+  /* Remove redundency if state and country are same */
+  if (state === country) return country;
+
+  return [state, country].filter(Boolean).join(", ");
 }
 
-async function unblockUser(mobile){
-
-  await fetch("/api/users/unblock", {
-    method:"POST",
-    headers:{
-      "Content-Type":"application/json",
-      "Authorization":"Bearer " + token
-    },
-    body: JSON.stringify({ mobile })
-  });
-
-  openBlockedModal();
-  loadUsers();
+function escapeHTML(str) {
+  if (!str) return "";
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+  return String(str).replace(/[&<>"']/g, m => map[m]);
 }
 
-window.onclick = function(e){
-  let userModal = document.getElementById("userModal");
-  let blockedModal = document.getElementById("blockedModal");
-  let confirmModal = document.getElementById("confirmModal");
-
-  if(e.target === userModal) closeUserModal();
-  if(e.target === blockedModal) closeBlockedModal();
-  if(e.target === confirmModal) closeConfirm();
-};
-
-
-
-function closeBlockedModal(){
-document.getElementById("blockedModal").style.display="none";
-}
-
-function toggleMenu(){
-  document.querySelector(".sidebar").classList.toggle("active");
-  document.querySelector(".overlay").classList.toggle("active");
-}
-
-function getUserStatus(logs){
-
-  if(!logs || logs.length === 0)
-    return "offline";
-
-  let latestActive = logs
-    .map(l => l.last_active || l.viewed_at)
-    .sort((a,b)=> new Date(b) - new Date(a))[0];
-
-  if(!latestActive)
-    return "offline";
-
-  let lastTime = new Date(latestActive).getTime();
-  let now = Date.now();
-
-  return (now-lastTime <= 30000) ? "online" : "offline";
-}
-
-document.addEventListener("DOMContentLoaded", loadUsers);
-setInterval(loadUsers, 60000);
-
-setInterval(() => {
-
-  let mobile = sessionStorage.getItem("verifiedMobile");
-  if(!mobile) return;
-
-  fetch("/api/users/heartbeat", {
-  method:"POST",
-  headers:{
-    "Content-Type":"application/json",
-    "Authorization":"Bearer " + token
-  },
-  body: JSON.stringify({ mobile })
-});
-
-}, 5000);
-
-function logoutUser(){
-  localStorage.removeItem("token");
-  localStorage.removeItem("currentUser");
-  sessionStorage.clear();
+function logoutUser() {
+  localStorage.clear();
   window.location.href = "/admin/login.html";
 }
-function formatDateTime(dateString){
-  if(!dateString) return "-";
 
-  const date = new Date(dateString);
-
-  return date.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: true
-  });
+function initSidebarProfile() {
+  const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+  const el = document.getElementById("userEmail");
+  if (el) el.innerText = user.email || "Admin";
 }
 
-/* ===== Load Logged User Info ===== */
-let currentUser = JSON.parse(localStorage.getItem("currentUser"));
+/* Admin Heartbeat Removed */
 
-if(currentUser){
+/**
+ * ============================================================
+ * SECTION 6 — MISSING FUNCTIONS (Blocked, Bulk, Pagination, Modals)
+ * ============================================================
+ */
 
-  let nameEl = document.getElementById("userName");
-  let emailEl = document.getElementById("userEmail");
+/* Open blocked users modal */
+async function openBlockedModal() {
+  toggleModal("blockedModal", true);
+  try {
+    const res = await fetch("/api/users/blocked", {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    if (!res.ok) return;
+    const blocked = await res.json();
+    const table = document.getElementById("blockedTable");
+    if (!table) return;
 
-  if(nameEl)
-    nameEl.innerText = currentUser.name || "Admin";
-
-  if(emailEl)
-    emailEl.innerText = currentUser.email || "";
+    table.innerHTML = "";
+    if (blocked.length === 0) {
+      table.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:15px; color:#6b7280;">No blocked users</td></tr>';
+      return;
+    }
+    blocked.forEach(u => {
+      table.innerHTML += `
+        <tr>
+          <td data-label="Mobile">${escapeHTML(u.mobile)}</td>
+          <td data-label="Status"><span class="status-badge block">Blocked</span></td>
+          <td data-label="Action">
+            <button class="unblock-btn" onclick="unblockUser('${u.mobile}')" title="Unblock User">
+              <i class="fa-solid fa-unlock"></i> Unblock
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+  } catch (err) {
+    console.error("Failed to load blocked users:", err);
+  }
 }
-function escapeHTML(str) {
-  if (typeof str !== 'string') return '';
-  return str.replace(/[&<>'"]/g, 
-    tag => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      "'": '&#39;',
-      '"': '&quot;'
-    }[tag])
-  );
+
+/* Alias for backwards compatibility */
+function openBlockedList() {
+  openBlockedModal();
 }
+
+/* Close blocked modal */
+function closeBlockedModal() {
+  toggleModal("blockedModal", false);
+}
+
+/* Open success popup */
+function openSuccessPopup(message) {
+  const msg = document.getElementById("successMessage");
+  if (msg) msg.innerText = message;
+  const modal = document.getElementById("successModal");
+  if (modal) modal.style.display = "flex";
+}
+
+/* Close success popup */
+function closeSuccessPopup() {
+  const modal = document.getElementById("successModal");
+  if (modal) modal.style.display = "none";
+}
+
+/* Toggle select all user checkboxes */
+function toggleSelectAll() {
+  const master = document.getElementById("selectAllUsers");
+  const checks = document.querySelectorAll(".userCheck");
+  checks.forEach(c => c.checked = master.checked);
+  updateBulkPanel();
+}
+
+/* Show/hide bulk actions bar */
+function updateBulkPanel() {
+  const checked = document.querySelectorAll(".userCheck:checked");
+  const bar = document.getElementById("bulkActions");
+  if (bar) {
+    bar.style.display = checked.length > 0 ? "flex" : "none";
+  }
+}
+
+/* Block selected users */
+async function blockSelected() {
+  const checked = document.querySelectorAll(".userCheck:checked");
+  for (const c of checked) {
+    try {
+      await fetch("/api/users/block", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ mobile: c.value })
+      });
+    } catch (e) {}
+  }
+  openSuccessPopup(`${checked.length} user(s) blocked.`);
+  loadUsers();
+}
+
+/* Delete selected user logs */
+async function deleteSelected() {
+  const checked = document.querySelectorAll(".userCheck:checked");
+  for (const c of checked) {
+    try {
+      await fetch("/api/users/delete-user-logs", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ mobile: c.value })
+      });
+    } catch (e) {}
+  }
+  openSuccessPopup(`${checked.length} user(s) logs deleted.`);
+  loadUsers();
+}
+
+/* Block user from popup (no parameter — uses current popup mobile) */
+function blockUserFromPopup() {
+  const mobile = document.getElementById("uMobile")?.innerText;
+  if (!mobile) return;
+  confirmType = "block";
+  confirmMobile = mobile;
+  document.getElementById("confirmTitle").innerText = "Block User";
+  document.getElementById("confirmMessage").innerText = `Block mobile ${mobile}?`;
+  toggleModal("confirmModal", true);
+}
+
+/* Delete user logs from popup */
+function deleteUserFromPopup() {
+  const mobile = document.getElementById("uMobile")?.innerText;
+  if (!mobile) return;
+  confirmType = "delete";
+  confirmMobile = mobile;
+  document.getElementById("confirmTitle").innerText = "Delete User Data";
+  document.getElementById("confirmMessage").innerText = `Delete all logs for ${mobile}?`;
+  toggleModal("confirmModal", true);
+}
+
+/* Close confirm modal */
+function closeConfirm() {
+  toggleModal("confirmModal", false);
+}
+
+/* Execute confirmed action for userDetails */
+async function confirmAction() {
+  closeConfirm();
+
+  if (confirmType === "block" && confirmMobile) {
+    await blockUser(confirmMobile);
+    openSuccessPopup("User blocked successfully.");
+  } else if (confirmType === "delete" && confirmMobile) {
+    await deleteUserLogs(confirmMobile);
+    openSuccessPopup("User logs deleted.");
+  }
+}
+
+/* Previous page */
+function prevPage() {
+  const mobiles = Object.keys(usersData).filter(m => !blockedUsersList.includes(m));
+  const totalPages = Math.ceil(mobiles.length / rowsPerPage) || 1;
+  if (currentPage > 1) {
+    currentPage--;
+    renderUserTable();
+  }
+}
+
+/* Next page */
+function nextPage() {
+  const mobiles = Object.keys(usersData).filter(m => !blockedUsersList.includes(m));
+  const totalPages = Math.ceil(mobiles.length / rowsPerPage) || 1;
+  if (currentPage < totalPages) {
+    currentPage++;
+    renderUserTable();
+  }
+}
+
+/* Toggle mobile sidebar */
+function toggleMenu() {
+  document.querySelector(".sidebar")?.classList.toggle("active");
+  document.querySelector(".overlay")?.classList.toggle("active");
+}
+

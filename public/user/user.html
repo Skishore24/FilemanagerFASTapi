@@ -1,266 +1,343 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-
-  <!-- ============================================================
+  <head>
+    <!-- ============================================================
        Meta & Character Set
        ============================================================ -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="MCET File Manager — View and download college documents securely">
-  <title>MCET File Manager | Student Portal</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="MCET File Manager — View and download college documents securely"
+    />
+    <title>MCET File Manager</title>
 
-  <!-- ============================================================
+    <!-- ============================================================
        Favicon
        ============================================================ -->
-  <link rel="icon" href="../admin/images/logo.png" type="image/png">
+    <link rel="icon" href="../admin/images/logo.png" type="image/png" />
 
-  <!-- ============================================================
+    <!-- ============================================================
        External Fonts & Icons
        ============================================================ -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css">
-  <!-- ============================================================
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/css/intlTelInput.css"
+    />
+    <!-- ============================================================
        PDF.js — renders PDF files on HTML canvas elements
        ============================================================ -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
-  <!-- ============================================================
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+    <!-- ============================================================
        Page Stylesheet
        ============================================================ -->
-  <link rel="stylesheet" href="user.css">
-
-</head>
-<body>
-
-  <!-- ============================================================
+    <link rel="stylesheet" href="user.css" />
+  </head>
+  <body>
+    <!-- ============================================================
        PAGE HEADER — Logo, title, and search bar
        ============================================================ -->
-  <header class="page-header" role="banner">
-
-    <!-- Logo + Site Title -->
-    <div class="header-brand">
-      <img src="../admin/images/logo.png" alt="MCET Logo" class="header-logo">
-      <div>
-        <h1 class="header-title">MCET File Manager</h1>
-        <p class="header-sub">Student Document Portal</p>
+    <header class="page-header" role="banner">
+      <!-- Logo + Site Title -->
+      <div class="header-brand">
+        <img
+          src="../admin/images/logo.png"
+          alt="MCET Logo"
+          class="header-logo"
+        />
+        <div>
+          <h1 class="header-title">MCET File Manager</h1>
+          <p class="header-sub">Student Document Portal</p>
+        </div>
       </div>
-    </div>
 
-    <!-- Search Box -->
-    <div class="search-box">
-      <i class="fa-solid fa-search" aria-hidden="true"></i>
-      <input
-        type="text"
-        id="searchInput"
-        placeholder="Search documents..."
-        onkeyup="renderFiles()"
-        aria-label="Search documents"
-      >
-    </div>
+      <!-- Search Box -->
+      <div class="search-box">
+        <i class="fa-solid fa-search" aria-hidden="true"></i>
+        <input
+          type="text"
+          id="searchInput"
+          placeholder="Search documents..."
+          onkeyup="renderFiles()"
+          aria-label="Search documents"
+        />
+      </div>
+    </header>
 
-  </header>
-
-
-  <!-- ============================================================
+    <!-- ============================================================
        CATEGORY FILTER TABS
        Rendered dynamically by user.js → loadCategories()
        ============================================================ -->
-  <div class="category-bar" role="navigation" aria-label="Category filters">
-    <div class="category-tabs" id="categoryTabs">
-      <!-- Tab buttons are injected by user.js -->
+    <div class="category-bar" role="navigation" aria-label="Category filters">
+      <div class="category-tabs" id="categoryTabs">
+        <!-- Tab buttons are injected by user.js -->
+      </div>
     </div>
-  </div>
 
-
-  <!-- ============================================================
+    <!-- ============================================================
        FILES GRID
        File cards are injected by user.js → renderFiles()
        ============================================================ -->
-  <main class="files-section" role="main">
-    <div class="files-grid" id="files">
-      <!-- File cards are injected here by user.js -->
-    </div>
-  </main>
+    <main class="files-section" role="main">
+      <div class="files-grid" id="files">
+        <!-- File cards are injected here by user.js -->
+      </div>
+    </main>
 
-
-  <!-- ============================================================
+    <!-- ============================================================
        OTP MODAL — Shown when a user clicks a file card
        Multi-step flow:
          Step 1 (mobileStep): enter mobile number
          Step 2 (otpStep):    enter received OTP code
          Step 3 (resultStep): success or error message
        ============================================================ -->
-  <div id="otpModal" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="otpModalTitle">
-    <div class="modal-box">
-
-      <!-- Close button -->
-      <button class="modal-close" onclick="closeOtpModal()" aria-label="Close OTP verification">
-        <i class="fa-solid fa-times"></i>
-      </button>
-
-      <!-- ---- STEP 1: Mobile Number Entry ---- -->
-      <div id="mobileStep">
-
-        <div class="otp-icon">
-          <i class="fa-solid fa-mobile-alt"></i>
-        </div>
-
-        <h2 id="otpModalTitle">Verify Your Mobile</h2>
-        <p class="otp-sub">Enter your WhatsApp number to receive a verification code</p>
-
-        <!-- Name field -->
-        <div class="input-group">
-          <label for="userName">Your Name</label>
-          <input
-            type="text"
-            id="userName"
-            placeholder="e.g. John Doe"
-            aria-label="Your name"
-          >
-        </div>
-
-        <!-- Mobile field with country prefix -->
-        <div class="input-group">
-        <label for="mobileInput">WhatsApp Number</label>
-
-        <input 
-        type="tel"
-        id="mobileInput"
-        class="mobile-input"
-        placeholder="Enter WhatsApp number"
+    <div
+      id="otpModal"
+      class="modal-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="otpModalTitle"
+    >
+      <div class="modal-box">
+        <!-- Close button -->
+        <button
+          class="modal-close"
+          onclick="closeOtpModal()"
+          aria-label="Close OTP verification"
         >
-
-        </div>
-
-        <button class="otp-btn" onclick="sendOtp()" id="sendOtpBtn">
-          <i class="fa-solid fa-paper-plane"></i> Send OTP via WhatsApp
+          <i class="fa-solid fa-times"></i>
         </button>
 
-        <p id="sendError" class="otp-error" role="alert" aria-live="polite"></p>
+        <!-- ---- STEP 1: Mobile Number Entry ---- -->
+        <div id="mobileStep">
+          <div class="otp-icon">
+            <i class="fa-solid fa-mobile-alt"></i>
+          </div>
 
-      </div><!-- end #mobileStep -->
+          <h2 id="otpModalTitle">Verify Your Mobile</h2>
+          <p class="otp-sub">
+            Enter your WhatsApp number to receive a verification code
+          </p>
 
+          <!-- Name field -->
+          <div class="input-group">
+            <label for="userName">Your Name</label>
+            <input
+              type="text"
+              id="userName"
+              placeholder="e.g. John Doe"
+              aria-label="Your name"
+            />
+          </div>
 
-      <!-- ---- STEP 2: OTP Code Entry ---- -->
-      <div id="otpStep" style="display:none;">
+          <!-- Mobile field with country prefix -->
+          <div class="input-group">
+            <label for="mobileInput">WhatsApp Number</label>
 
-        <div class="otp-icon success">
-          <i class="fa-solid fa-comment-dots"></i>
-        </div>
+            <input
+              type="tel"
+              id="mobileInput"
+              class="mobile-input"
+              placeholder="Enter WhatsApp number"
+            />
+          </div>
 
-        <h2>Enter OTP</h2>
-        <p class="otp-sub" id="otpSentMsg">OTP sent to your WhatsApp number</p>
-
-        <!-- 6 single-digit OTP input boxes -->
-        <div class="otp-boxes" role="group" aria-label="OTP code input">
-          <input type="tel" maxlength="1" class="otp-digit" id="d1" aria-label="Digit 1">
-          <input type="tel" maxlength="1" class="otp-digit" id="d2" aria-label="Digit 2">
-          <input type="tel" maxlength="1" class="otp-digit" id="d3" aria-label="Digit 3">
-          <input type="tel" maxlength="1" class="otp-digit" id="d4" aria-label="Digit 4">
-          <input type="tel" maxlength="1" class="otp-digit" id="d5" aria-label="Digit 5">
-          <input type="tel" maxlength="1" class="otp-digit" id="d6" aria-label="Digit 6">
-        </div>
-
-        <!-- Countdown timer -->
-        <p class="otp-timer" id="otpTimer">OTP expires in <span id="countdown">2:00</span></p>
-
-        <div class="otp-action-row">
-          <button class="otp-btn" onclick="verifyOtp()" id="verifyBtn">
-            <i class="fa-solid fa-check-circle"></i> Verify OTP
+          <button class="otp-btn" onclick="sendOtp()" id="sendOtpBtn">
+            <i class="fa-solid fa-paper-plane"></i> Send OTP via WhatsApp
           </button>
-          <button class="otp-resend" onclick="sendOtp()" id="resendBtn" style="display:none;">
-            <i class="fa-solid fa-redo"></i> Resend OTP
+
+          <div id="mobileCountdown" style="display:none"></div> <!-- Renamed to avoid duplicate ID -->
+          <p id="sendError" class="otp-error" role="alert" aria-live="polite"></p>
+        </div>
+        <!-- end #mobileStep -->
+
+        <!-- ---- STEP 2: OTP Code Entry ---- -->
+        <div id="otpStep" style="display: none">
+          <div class="otp-icon success">
+            <i class="fa-solid fa-comment-dots"></i>
+          </div>
+
+          <h2>Enter OTP</h2>
+          <p class="otp-sub" id="otpSentMsg">
+            OTP sent to your WhatsApp number
+          </p>
+
+          <!-- 6 single-digit OTP input boxes -->
+          <div class="otp-boxes" role="group" aria-label="OTP code input">
+            <input
+              type="tel"
+              maxlength="1"
+              class="otp-digit"
+              id="d1"
+              aria-label="Digit 1"
+            />
+            <input
+              type="tel"
+              maxlength="1"
+              class="otp-digit"
+              id="d2"
+              aria-label="Digit 2"
+            />
+            <input
+              type="tel"
+              maxlength="1"
+              class="otp-digit"
+              id="d3"
+              aria-label="Digit 3"
+            />
+            <input
+              type="tel"
+              maxlength="1"
+              class="otp-digit"
+              id="d4"
+              aria-label="Digit 4"
+            />
+            <input
+              type="tel"
+              maxlength="1"
+              class="otp-digit"
+              id="d5"
+              aria-label="Digit 5"
+            />
+            <input
+              type="tel"
+              maxlength="1"
+              class="otp-digit"
+              id="d6"
+              aria-label="Digit 6"
+            />
+          </div>
+
+          <!-- Countdown timer -->
+          <p class="otp-timer" id="otpTimer">
+            OTP expires in <span id="countdown">2:00</span>
+          </p>
+
+          <div class="otp-action-row">
+            <button class="otp-btn" onclick="verifyOtp()" id="verifyBtn">
+              <i class="fa-solid fa-check-circle"></i> Verify OTP
+            </button>
+            <button class="otp-resend" onclick="sendOtp()" id="resendBtn" style="display: none">
+              <i class="fa-solid fa-redo"></i> Resend OTP
+            </button>
+          </div>
+
+          <button class="otp-back" onclick="backToMobile()" style="margin-top: 10px; background: none; border: none; color: #6366f1; cursor: pointer; font-size: 13px;">
+            <i class="fa-solid fa-arrow-left"></i> Change Number
+          </button>
+
+          <p
+            id="verifyError"
+            class="otp-error"
+            role="alert"
+            aria-live="polite"
+          ></p>
+        </div>
+        <!-- end #otpStep -->
+
+        <!-- ---- STEP 3: Result (success / error) ---- -->
+        <div id="resultStep" style="display: none">
+          <div class="result-icon" id="resultIcon">
+            <!-- Icon set dynamically by user.js -->
+          </div>
+
+          <h2 id="resultTitle"></h2>
+          <p id="resultMessage" class="otp-sub"></p>
+
+          <button
+            class="otp-btn"
+            onclick="closeOtpModal()"
+            style="margin-top: 20px"
+          >
+            <i class="fa-solid fa-times"></i> Close
           </button>
         </div>
+        <!-- end #resultStep -->
+      </div>
+      <!-- end .modal-box -->
+    </div>
+    <!-- end #otpModal -->
 
-        <p id="verifyError" class="otp-error" role="alert" aria-live="polite"></p>
-
-      </div><!-- end #otpStep -->
-
-
-      <!-- ---- STEP 3: Result (success / error) ---- -->
-      <div id="resultStep" style="display:none;">
-
-        <div class="result-icon" id="resultIcon">
-          <!-- Icon set dynamically by user.js -->
-        </div>
-
-        <h2 id="resultTitle"></h2>
-        <p id="resultMessage" class="otp-sub"></p>
-
-        <button class="otp-btn" onclick="closeOtpModal()" style="margin-top:20px;">
-          <i class="fa-solid fa-times"></i> Close
-        </button>
-
-      </div><!-- end #resultStep -->
-
-    </div><!-- end .modal-box -->
-  </div><!-- end #otpModal -->
-
-
-  <!-- ============================================================
+    <!-- ============================================================
        FILE VIEWER MODAL — Opens when user views a file
        Shows PDF (via canvas), images (<img>), or Word (iframe)
        ============================================================ -->
-  <div id="viewerModal" class="viewer-overlay" role="dialog" aria-modal="true" aria-label="File viewer">
-    <div class="viewer-box">
-      <!-- ---- Viewer Header ---- -->
-      <div class="viewer-header">
+    <div
+      id="viewerModal"
+      class="viewer-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-label="File viewer"
+    >
+      <div class="viewer-box">
+        <!-- ---- Viewer Header ---- -->
+        <div class="viewer-header">
+          <div class="viewer-left">
+            <img src="../admin/images/logo.png" class="viewer-logo" />
+            <span class="viewer-college">MCET College</span>
+          </div>
 
-        <div class="viewer-left">
-          <img src="../admin/images/logo.png" class="viewer-logo">
-          <span class="viewer-college">MCET College</span>
-        </div>
+          <span id="viewerFileName" class="viewer-file-name"></span>
 
-        <span id="viewerFileName" class="viewer-file-name"></span>
-
-        <div class="viewer-controls">
-
-          <!-- Download button (hidden for view-only files) -->
-          <button id="downloadBtn" class="viewer-btn download-btn">
-            <i class="fa-solid fa-download"></i> Download
+          <div class="viewer-controls">
+            <!-- Download button (hidden for view-only files) -->
+            <button id="downloadBtn" class="viewer-btn download-btn">
+              <i class="fa-solid fa-download"></i> Download
             </button>
 
-          <!-- Close viewer -->
-          <button class="viewer-btn close-btn" onclick="closeViewer()" aria-label="Close viewer">
-            <i class="fa-solid fa-times"></i>
-          </button>
-
+            <!-- Close viewer -->
+            <button
+              class="viewer-btn close-btn"
+              onclick="closeViewer()"
+              aria-label="Close viewer"
+            >
+              <i class="fa-solid fa-times"></i>
+            </button>
+          </div>
         </div>
+        <!-- end .viewer-header -->
 
-      </div><!-- end .viewer-header -->
+        <!-- ---- Viewer Content Area ---- -->
+        <div id="viewerContent" class="viewer-content"></div>
 
-      <!-- ---- Viewer Content Area ---- -->
-      <!-- user.js renders into this container -->
-      <div id="viewerContent" class="viewer-content"></div>
-
+        <!-- WATERMARK OVERLAY — Inside the viewer to ensure it stays on top -->
+        <div id="watermarkOverlay" class="watermark-overlay" aria-hidden="true"></div>
+      </div>
     </div>
-  </div><!-- end #viewerModal -->
 
-
-  <!-- ============================================================
-       WATERMARK OVERLAY — Shown on top of viewed files
-       Displays the user's mobile number as a semi-transparent watermark
-       Prevents screenshot attribution bypass
-       ============================================================ -->
-  <div id="watermarkOverlay" class="watermark-overlay" aria-hidden="true"></div>
-
-
-  <!-- ============================================================
+    <!-- ============================================================
        SCRIPTS — PDF.js worker and page logic
        ============================================================ -->
-  <!-- PDF.js requires a separate worker script for multi-threading -->
-  <script>
-    /* Point PDF.js to work in a compatible worker mode */
-    if (window['pdfjs-dist/build/pdf']) {
-      window['pdfjs-dist/build/pdf'].GlobalWorkerOptions.workerSrc =
-        'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js';
-    }
-  </script>
+    <!-- PDF.js requires a separate worker script for multi-threading -->
+    <script>
+      /* Point PDF.js to work in a compatible worker mode */
+      if (window["pdfjs-dist/build/pdf"]) {
+        window["pdfjs-dist/build/pdf"].GlobalWorkerOptions.workerSrc =
+          "https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/build/pdf.worker.min.js";
+      }
+    </script>
+    <script src="user.js?v=2.2"></script>
 
-  <script src="user.js"></script>
-
-</body>
+    <!-- ---- Blocked User Modal ---- -->
+    <div id="blockedModal" class="modal" role="dialog" aria-modal="true">
+      <div class="modal-content" style="text-align: center;">
+        <i class="fa-solid fa-user-slash" style="font-size: 50px; color: #ef4444; margin-bottom: 20px;"></i>
+        <h2 style="color: #111827; margin-bottom: 10px;">Access Restricted</h2>
+        <p style="color: #6b7280; line-height: 1.5; margin-bottom: 20px;">
+          Your mobile number has been restricted by the administrator. 
+          Please contact support if you believe this is an error.
+        </p>
+        <div style="font-weight: 600; color: #374151;" id="blockedNumberDisplay"></div>
+      </div>
+    </div>
+  </body>
 </html>

@@ -41,7 +41,6 @@ router.post("/send-otp", async (req, res) => {
 
   /* Validate mobile number is in E.164 format (e.g. +919876543210) */
   if (!mobile || !/^\+\d{8,15}$/.test(mobile)) {
-    console.log("Invalid mobile received:", mobile);
     return res.status(400).json({
       success: false,
       message: "Invalid mobile format. Use international format like +919876543210"
@@ -63,6 +62,8 @@ router.post("/send-otp", async (req, res) => {
 
   /* Record cooldown timestamp and store OTP with 5-minute expiry */
   lastOtpRequest[mobile] = Date.now();
+  delete otpAttempts[mobile]; /* Reset failed attempts for the new OTP session */
+  
   otpStore[mobile] = {
     otp,
     expires: Date.now() + 5 * 60 * 1000  /* 5 minutes */

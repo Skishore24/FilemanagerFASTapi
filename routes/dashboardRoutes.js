@@ -42,7 +42,7 @@ router.get("/dashboard", verifyAdmin, async (req, res) => {
     const [users] = await db.promise().query(`
       SELECT COUNT(DISTINCT mobile) AS totalUsers
       FROM view_logs
-      WHERE last_active >= NOW() - INTERVAL 30 SECOND
+      WHERE last_active >= NOW() - INTERVAL 120 SECOND
         AND mobile IS NOT NULL
         AND mobile <> ''
     `);

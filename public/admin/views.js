@@ -1,662 +1,489 @@
-let selectedMobile = "";
-let currentPage = 1;
-let rowsPerPage = 10;
-let selectedLogIndex = null;
-let confirmType = "";
-let logsTotalPages = 1;
-let previousModal = "";
-let sortOrder = "newest";
-let logsData = [];
+/**
+ * ============================================================================
+ * public/admin/views.js — Admin Activity Log & Audit Trail
+ * ============================================================================
+ * Provides deep-dive visibility into file access logs:
+ * - Paginated & Searchable activity history
+ * - Filtering by date, category, and user number
+ * - Detailed event inspection (IP, Device, Timestamp)
+ * - Bulk management (Delete logs, block suspicious users)
+ * - Export capabilities (Excel/XLSX)
+ * ============================================================================
+ */
 
-function sortLogs(order){
-  sortOrder = order;
-  showLogs();
-}
-let token = localStorage.getItem("token");
+/* ----------------------------------------------------------------------------
+   GLOBAL STATE & CONSTANTS
+   ---------------------------------------------------------------------------- */
+const token = localStorage.getItem("token");
 
-if(!token){
+if (!token) {
   window.location.href = "/admin/login.html";
 }
 
+let logsData = [];           /* Active page of logs */
+let currentPage = 1;         /* Current result page */
+let logsTotalPages = 1;      /* Total result pages */
+let sortOrder = "DESC";      /* Sort direction (newest first) */
 
-function getFileIcon(fileName) {
+let selectedLogIndex = null; /* Index of log currently in detail view */
+let selectedMobile = "";     /* Mobile associated with selected log */
+let unblockMobile = null;    /* Mobile being unblocked */
+let confirmType = "";        /* Active confirmation context (block/delete) */
 
-  if (!fileName) return "fa-file";
+/**
+ * ============================================================
+ * SECTION 1 — INITIALIZATION & DATA LOADING
+ * ============================================================
+ */
 
-  fileName = fileName.toLowerCase();
+document.addEventListener("DOMContentLoaded", () => {
+  loadCategories();
+  showLogs();
+  initSidebarProfile();
+});
 
-  if (fileName.endsWith(".pdf")) return "fa-file-pdf";
-  if (fileName.endsWith(".doc") || fileName.endsWith(".docx")) return "fa-file-word";
-  if (fileName.endsWith(".xls") || fileName.endsWith(".xlsx")) return "fa-file-excel";
-  if (fileName.endsWith(".ppt") || fileName.endsWith(".pptx")) return "fa-file-powerpoint";
-  if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".png")) return "fa-file-image";
-  if (fileName.endsWith(".zip") || fileName.endsWith(".rar")) return "fa-file-archive";
-
-  return "fa-file";
-}
-async function showLogs(){
-
-  const search   = document.getElementById("searchLogs").value || "";
+async function showLogs() {
+  const search   = document.getElementById("searchLogs")?.value || "";
   const date     = document.getElementById("filterDate")?.value || "";
   const category = document.getElementById("modalCategory")?.value || "All";
 
-  const res = await fetch(
-    `/api/logs?search=${search}&page=${currentPage}&sort=${sortOrder}&date=${date}&category=${category}`,
-    { headers: { "Authorization": "Bearer " + token } }
-  );
+  try {
+    const url = `/api/logs?search=${search}&page=${currentPage}&sort=${sortOrder}&date=${date}&category=${category}`;
+    const res = await fetch(url, {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
 
-  if (!res.ok) {
-    /* Show inline error in table instead of blocking alert() */
-    document.getElementById("logTable").innerHTML =
-      `<tr><td colspan="7" style="text-align:center;padding:30px;color:#ef4444;">
-        <i class="fa fa-exclamation-circle"></i> Failed to load logs. Please refresh the page.
-       </td></tr>`;
-    return;
+    if (res.status === 401 || res.status === 403) return logoutUser();
+    
+    if (!res.ok) throw new Error();
+
+    const data = await res.json();
+    logsData = data.logs || [];
+    logsTotalPages = data.totalPages || 1;
+
+    updatePaginationDisplay();
+    renderLogTable();
+  } catch (err) {
+    displayTableError();
   }
-
-let data = await res.json();
-
-logsData = data.logs;
-logsTotalPages = data.totalPages || 1;
-
-document.getElementById("pageInfo").innerText =
- "Page " + currentPage + " of " + logsTotalPages;
- 
-let table = document.getElementById("logTable");
-table.innerHTML="";
-
-logsData.forEach((log,index)=>{
-
-table.innerHTML += `
-
-<tr>
-
-<td data-label="Select">
-<input type="checkbox"
-class="logCheck"
-data-index="${index}"
-onchange="updateBulkLogActions()">
-</td>
-
-<td data-label="File">
-<div class="file-cell">
-<i class="fa-regular ${getFileIcon(log.file_name)}"></i>
-<span>${escapeHTML(log.file_name || "-")}</span>
-</div>
-</td>
-
-<td data-label="Name">
-${escapeHTML(log.name || "-")}
-</td>
-
-<td data-label="Number">
-${escapeHTML(log.mobile || "-")}
-</td>
-
-<td data-label="IP">
-${escapeHTML(log.ip || "-")}
-</td>
-
-<td data-label="Viewed At">
-${formatDateTime(log.viewed_at)}
-</td>
-
-<td data-label="Action">
-<button class="view-btn"
-onclick="openLogDetails(${index})">
-View
-</button>
-</td>
-
-</tr>
-`;
-
-});
-
 }
-function nextPage(){
-  if(currentPage < logsTotalPages){
+
+/**
+ * ============================================================
+ * SECTION 2 — TABLE RENDERING
+ * ============================================================
+ */
+
+function renderLogTable() {
+  const table = document.getElementById("logTable");
+  if (!table) return;
+  table.innerHTML = "";
+
+  logsData.forEach((log, index) => {
+    const { icon, color } = getFileIcon(log.file_name);
+    table.innerHTML += `
+      <tr>
+        <td data-label="Select"><input type="checkbox" class="logCheck" value="${index}" onchange="updateBulkPanel()"></td>
+        <td data-label="File">
+          <div class="file-cell">
+            <i class="${icon}" style="color: ${color}"></i>
+            <span>${escapeHTML(log.file_name || "-")}</span>
+          </div>
+        </td>
+        <td data-label="Name">${escapeHTML(log.name || "-")}</td>
+        <td data-label="Number">${escapeHTML(log.mobile || "-")}</td>
+        <td data-label="IP">${escapeHTML(log.ip || "-")}</td>
+        <td data-label="Viewed At">${formatDateTime(log.viewed_at)}</td>
+        <td data-label="Action"><button class="view-btn" onclick="inspectLog(${index})">Details</button></td>
+      </tr>
+    `;
+  });
+}
+
+/**
+ * ============================================================
+ * SECTION 3 — LOG ACTIONS (Details & Export)
+ * ============================================================
+ */
+
+function inspectLog(index) {
+  const log = logsData[index];
+  if (!log) return;
+
+  selectedLogIndex = index;
+  selectedMobile = log.mobile;
+
+  document.getElementById("detailFile").innerText = log.file_name;
+  document.getElementById("detailMobile").innerText = log.mobile;
+  document.getElementById("detailIP").innerText = log.ip || "-";
+  document.getElementById("detailTime").innerText = formatDateTime(log.viewed_at);
+  document.getElementById("detailMAC").innerText = log.device || "-";
+  
+  toggleModal("logModal", true);
+}
+
+async function exportLogs() {
+  try {
+    const res = await fetch("/api/logs/export", {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    if (!res.ok) throw new Error();
+
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `MCET_Logs_${new Date().toISOString().split('T')[0]}.xlsx`;
+    a.click();
+  } catch {
+    openSuccessPopup("⚠️ Export failed. Please try again.");
+  }
+}
+
+/**
+ * ============================================================
+ * SECTION 4 — UTILITIES & HELPERS
+ * ============================================================
+ */
+
+function getFileIcon(name) {
+  const ext = (name || "").toLowerCase().split(".").pop();
+  const map = {
+    pdf:  { icon: "fa-solid fa-file-pdf", color: "#ef4444" },
+    doc:  { icon: "fa-solid fa-file-word", color: "#2563eb" },
+    docx: { icon: "fa-solid fa-file-word", color: "#2563eb" },
+    xls:  { icon: "fa-solid fa-file-excel", color: "#16a34a" },
+    xlsx: { icon: "fa-solid fa-file-excel", color: "#16a34a" }
+  };
+  return map[ext] || { icon: "fa-solid fa-file", color: "#6b7280" };
+}
+
+function formatDateTime(iso) {
+  if (!iso) return "-";
+  return new Date(iso).toLocaleString("en-IN", {
+    day: "2-digit", month: "short", year: "numeric", 
+    hour: "2-digit", minute: "2-digit", hour12: true
+  });
+}
+
+function escapeHTML(str) {
+  if (!str) return "";
+  const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  return String(str).replace(/[&<>"']/g, m => map[m]);
+}
+
+function toggleModal(id, show) {
+  const el = document.getElementById(id);
+  if (el) {
+    if (show) el.classList.add("show");
+    else el.classList.remove("show");
+  }
+}
+
+function logoutUser() {
+  localStorage.clear();
+  window.location.href = "/admin/login.html";
+}
+
+function initSidebarProfile() {
+  const user = JSON.parse(localStorage.getItem("currentUser") || "{}");
+  const el = document.getElementById("userEmail");
+  if (el) el.innerText = user.email || "Admin";
+}
+
+/**
+ * ============================================================
+ * SECTION 5 — MISSING FUNCTIONS (Categories, Pagination, Modals, Bulk Actions)
+ * ============================================================
+ */
+
+/* Load categories into the filter dropdown */
+async function loadCategories() {
+  try {
+    const res = await fetch("/api/categories");
+    if (!res.ok) return;
+    const categories = await res.json();
+
+    const select = document.getElementById("modalCategory");
+    if (!select) return;
+
+    /* Keep the "All" option, add categories */
+    select.innerHTML = '<option value="All">All</option>';
+    categories.forEach(cat => {
+      select.innerHTML += `<option value="${escapeHTML(cat.name)}">${escapeHTML(cat.name)}</option>`;
+    });
+  } catch (err) {
+    console.error("Failed to load categories:", err);
+  }
+}
+
+/* Display error message in the table when fetch fails */
+function displayTableError() {
+  const table = document.getElementById("logTable");
+  if (table) {
+    table.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center; padding:20px; color:#ef4444;">
+          <i class="fa-solid fa-circle-exclamation"></i>
+          Failed to load logs. Please refresh the page.
+        </td>
+      </tr>
+    `;
+  }
+}
+
+/* Update pagination display */
+function updatePaginationDisplay() {
+  const pageInfo = document.getElementById("pageInfo");
+  if (pageInfo) {
+    pageInfo.innerText = `Page ${currentPage} of ${logsTotalPages}`;
+  }
+}
+
+/* Previous page */
+function prevPage() {
+  if (currentPage > 1) {
+    currentPage--;
+    showLogs();
+  }
+}
+
+/* Next page */
+function nextPage() {
+  if (currentPage < logsTotalPages) {
     currentPage++;
     showLogs();
   }
 }
 
-
-function prevPage(){
-  if(currentPage>1){
-    currentPage--;
-    showLogs();
-  }
-}
-document.getElementById("searchLogs").addEventListener("keyup", ()=>{
+/* Sort logs by date */
+function sortLogs(value) {
+  sortOrder = value === "oldest" ? "ASC" : "DESC";
   currentPage = 1;
   showLogs();
-});
-
-
-function updateBulkLogActions() {
-
-    let checked = document.querySelectorAll(".logCheck:checked").length;
-    let panel = document.getElementById("bulkActionsLogs");
-
-    if (checked > 0) {
-        panel.style.display = "block";
-    } else {
-        panel.style.display = "none";
-    }
 }
 
-
-
-function toggleSelectAllLogs() {
-  let master = document.getElementById("selectAllLogs");
-  let checks = document.querySelectorAll("#logTable .logCheck");
-
-  checks.forEach(cb => {
-    cb.checked = master.checked;
-  });
-
-  updateBulkLogActions();
+/* Open filter modal */
+function openFilterModal() {
+  toggleModal("filterModal", true);
 }
 
-
-
-
-
-/* Log Details */
-function openLogDetails(index) {
-
-  let log = logsData[index];
-  if (!log) return;
-
-  selectedMobile = log.mobile;
-  selectedLogIndex = index;
-
-  document.getElementById("detailFile").innerText = log.file_name;
-  document.getElementById("detailMobile").innerText = log.mobile;
-  document.getElementById("detailIP").innerText = log.ip || "-";
-document.getElementById("detailTime").innerText = formatDateTime(log.viewed_at);
-  document.getElementById("detailMAC").innerText = log.device || "-";
-document.getElementById("logModal").classList.add("show");
-
+/* Close filter modal */
+function closeFilterModal() {
+  toggleModal("filterModal", false);
 }
 
-
-
-function closeLogModal() {
-document.getElementById("logModal").classList.remove("show");
-}
-
-
-async function deleteLog() {
-
-  if (selectedLogIndex === null) return;
-
-  let log = logsData[selectedLogIndex];
-  if (!log) return;
-
- await fetch(`/api/logs/${log.id}`, {
-  method: "DELETE",
-  headers:{
-    "Authorization":"Bearer " + token
-  }
-});
-
-  closeLogModal();
+/* Apply filters and reload */
+function applyFilters() {
+  currentPage = 1;
+  closeFilterModal();
   showLogs();
-  openSuccessPopup("Log deleted successfully");
 }
 
-async function blockSelectedUsers(){
+/* Close log detail modal */
+function closeLogModal() {
+  toggleModal("logModal", false);
+}
 
-  const selected = getSelectedLogs();
-
-  if (selected.length === 0) {
-    /* No alert — show feedback in the bulk-actions bar itself */
-    openSuccessPopup("⚠️ Please select at least one log first.");
-    return;
-  }
-
-  for (let i of selected){
-
-    let mobile = logsData[i].mobile;
-
-    if(!mobile) continue;
-
-    await fetch("/api/users/block", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization":"Bearer " + token
-      },
-      body: JSON.stringify({ mobile })
+/* Open blocked users list */
+async function openBlockedModal() {
+  toggleModal("blockedModal", true);
+  try {
+    const res = await fetch("/api/users/blocked", {
+      headers: { "Authorization": `Bearer ${token}` }
     });
-  }
+    if (!res.ok) return;
+    const blocked = await res.json();
+    const table = document.getElementById("blockedTable");
+    if (!table) return;
 
- await showLogs();
-
-document.getElementById("selectAllLogs").checked=false;
-document.getElementById("bulkActionsLogs").style.display="none";
-
-openSuccessPopup("Users blocked successfully");
-}
-
-async function blockSingleUser(){
-
-  if(!selectedMobile) return;
-
-  await fetch("/api/users/block", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-    "Authorization":"Bearer " + token
-  },
-  body: JSON.stringify({ mobile: selectedMobile })
-});
-  closeLogModal();
-  openSuccessPopup("User blocked successfully");
-}
-
-
-
-function closeBlockConfirm() {
-    document.getElementById("blockConfirmModal").style.display = "none";
-}
-
-/* Blocked Users */
-function openBlockedModal() {
-document.getElementById("blockedModal").classList.add("show");
-    showBlockedUsers();
-}
-
-function closeBlockedModal() {
-document.getElementById("blockedModal").classList.remove("show");
-}
-
-async function showBlockedUsers(){
-
-  let res = await fetch("/api/users/blocked",{
-    headers:{
-      "Authorization":"Bearer " + token
-    }
-  });
-
-  let blockedUsers = await res.json();
-
-  let table = document.getElementById("blockedTable");
-  table.innerHTML = "";
-
-  if(blockedUsers.length === 0){
-    table.innerHTML = "<tr><td colspan='2'>No blocked users</td></tr>";
-    return;
-  }
-
-  blockedUsers.forEach(user=>{
-    table.innerHTML += `
-      <tr>
-        <td>${user.mobile}</td>
-        <td>
-          <button class="view-btn" onclick="confirmUnblock('${user.mobile}')">
-            Unblock
-          </button>
-        </td>
-      </tr>
-    `;
-  });
-
-}
-
-function getSelectedLogs(){
-  let checks = document.querySelectorAll(".logCheck:checked");
-  let selected = [];
-
-  checks.forEach(cb => {
-    selected.push(parseInt(cb.dataset.index));
-  });
-
-  return selected;
-}
-
-
-function unblockUser(index) {
-
-    /* This function is called from the blocked users list (not used in new flow) */
-    /* Real unblock is handled via confirmUnblock() → confirmAction() */
-    if (typeof index === "string") {
-      /* Called with mobile string directly */
-      unblockMobile = index;
-      confirmType = "unblock";
-      document.getElementById("confirmActionModal").classList.add("show");
+    table.innerHTML = "";
+    if (blocked.length === 0) {
+      table.innerHTML = '<tr><td colspan="3" style="text-align:center; padding:15px; color:#6b7280;">No blocked users</td></tr>';
       return;
     }
-
-    const blockedUsers = JSON.parse(localStorage.getItem("blockedUsers")) || [];
-    const mobile = blockedUsers[index];
-
-    /* Fixed: use /api/users/unblock instead of /unblock-user */
-    fetch("/api/users/unblock", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({ mobile })
-    })
-    .then(() => {
-        openSuccessPopup("User unblocked successfully");
-        openBlockedModal();
+    blocked.forEach(u => {
+      table.innerHTML += `
+        <tr>
+          <td data-label="Mobile">${escapeHTML(u.mobile)}</td>
+          <td data-label="Status"><span class="status-badge block">Blocked</span></td>
+          <td data-label="Action">
+            <button class="unblock-btn" onclick="unblockUser('${u.mobile}')" title="Unblock User">
+              <i class="fa-solid fa-unlock"></i> Unblock
+            </button>
+          </td>
+        </tr>
+      `;
     });
-
-}
-
-
-/* Filter Modal */
-function openFilterModal() {
-document.getElementById("filterModal").classList.add("show");
-}
-
-function closeFilterModal() {
-document.getElementById("filterModal").classList.remove("show");
-}
-
-function applyFilters(){
-
-  currentPage = 1;
-
-  showLogs();  
-
-  closeFilterModal();
-
-}
-function renderFilteredLogs(data){
-
-  let table = document.getElementById("logTable");
-  table.innerHTML = "";
-
- data.forEach((log,index)=>{
-  table.innerHTML += `
-    <tr>
-      <td>
-        <input type="checkbox" class="logCheck" data-index="${index}" onchange="updateBulkLogActions()">
-      </td>
-<td>
-  <div class="file-cell">
-    <i class="fa-regular ${getFileIcon(log.file_name)}"></i>
-    <span>${escapeHTML(log.file_name || "-")}</span>
-  </div>
-</td>
-
-
-
-   <td data-label="Name">${escapeHTML(log.name)}</td>
-<td data-label="Number">${escapeHTML(log.mobile)}</td>
-<td data-label="IP">${escapeHTML(log.ip)}</td>
-<td data-label="Viewed At">${formatDateTime(log.viewed_at)}</td>
-
-
-      <td>
-        <button class="view-btn" onclick="openLogDetails(${index})">
-          View
-        </button>
-      </td>
-    </tr>
-  `;
-});
-
-}
-
-/* Categories */
-/* Fixed: fetch from /api/categories instead of reading broken localStorage */
-async function loadCategories() {
-
-    try {
-
-        const res        = await fetch("/api/categories", {
-            headers: { "Authorization": "Bearer " + token }
-        });
-        const categories = await res.json();
-        const select     = document.getElementById("modalCategory");
-
-        if (!select) return;
-
-        select.innerHTML = `<option value="All">All Categories</option>`;
-
-        categories.forEach(cat => {
-            const opt       = document.createElement("option");
-            opt.value       = cat.name;
-            opt.textContent = cat.name;
-            select.appendChild(opt);
-        });
-
-    } catch (err) {
-        console.error("Failed to load categories for filter:", err);
-    }
-
-}
-
-/* Export CSV */
-async function exportCSV(){
-
-  let res = await fetch("/api/logs/export",{
-    headers:{
-      "Authorization":"Bearer " + token
-    }
-  });
-
-  if (!res.ok) {
-    openSuccessPopup("⚠️ Export failed. Please try again.");
-    return;
+  } catch (err) {
+    console.error("Failed to load blocked users:", err);
   }
-
-  let blob = await res.blob();
-  let url = window.URL.createObjectURL(blob);
-
-  let a = document.createElement("a");
-  a.href = url;
-  a.download = "logs.xlsx";
-  a.click();
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadCategories();
+/* Close blocked modal */
+function closeBlockedModal() {
+  toggleModal("blockedModal", false);
+}
+
+/* Unblock a user */
+async function unblockUser(mobile) {
+  if (!mobile) return;
+  const targetMobile = mobile.trim();
+  try {
+    const res = await fetch("/api/users/unblock", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+      body: JSON.stringify({ mobile: targetMobile })
+    });
+    
+    if (!res.ok) throw new Error("Failed to unblock");
+    
+    await openBlockedModal(); /* Refresh list */
     showLogs();
-});
-
-function toggleMenu() {
-    document.querySelector(".sidebar").classList.toggle("active");
-    document.querySelector(".overlay").classList.toggle("active");
+  } catch (err) {
+    console.error("❌ Unblock failed:", err);
+  }
 }
 
-
+/* Open confirmation modal */
 function openConfirm(type) {
-
   confirmType = type;
-if (document.getElementById("logModal").classList.contains("show")) {
-
-    previousModal = "logModal";
-    closeLogModal();
-  } else {
-    previousModal = "";
-  }
-
-  let title = document.getElementById("confirmTitle");
-  let msg = document.getElementById("confirmMessage");
+  const title = document.getElementById("confirmTitle");
+  const msg = document.getElementById("confirmMessage");
 
   if (type === "block") {
-    title.innerText = "Block Users";
-    msg.innerText = "Are you sure you want to block this user?";
+    if (title) title.innerText = "Block User";
+    if (msg) msg.innerText = `Block mobile ${selectedMobile}?`;
+  } else if (type === "delete") {
+    if (title) title.innerText = "Delete Log";
+    if (msg) msg.innerText = "Are you sure you want to delete this log?";
   }
-
-  if (type === "delete") {
-    title.innerText = "Delete Log";
-    msg.innerText = "This log will be permanently deleted.";
-  }
-document.getElementById("confirmActionModal").classList.add("show");
-
-  }
-async function deleteSingleLog(){
-
-  if(selectedLogIndex === null) return;
-
-  let log = logsData[selectedLogIndex];
-  if(!log) return;
-
-  await fetch(`/api/logs/${log.id}`, {
-  method: "DELETE",
-  headers:{
-    "Authorization":"Bearer " + token
-  }
-});
-
-  closeLogModal();
-  showLogs();
-  openSuccessPopup("Log deleted successfully");
+  toggleModal("confirmActionModal", true);
 }
 
-async function confirmAction(){
-
-  if(confirmType === "block"){
-    await blockSingleUser();
-  }
-
-  if(confirmType === "delete"){
-    await deleteSingleLog();
-  }
-
-  if(confirmType === "unblock"){
-    await fetch("/api/users/unblock", {
-  method:"POST",
-  headers:{
-    "Content-Type":"application/json",
-    "Authorization":"Bearer " + token
-  },
-  body: JSON.stringify({ mobile: unblockMobile })
-});
-    showBlockedUsers();
-    showLogs();
-    openSuccessPopup("User unblocked successfully");
-  }
-
-document.getElementById("confirmActionModal").classList.remove("show");
-
-}
-
-
-
-
+/* Close confirm modal */
 function closeConfirmAction() {
-document.getElementById("confirmActionModal").classList.remove("show");
+  toggleModal("confirmActionModal", false);
+}
 
-    // return to previous popup if needed
-    if (previousModal === "logModal") {
-       document.getElementById("logModal").classList.add("show");
+/* Execute confirmed action */
+async function confirmAction() {
+  closeConfirmAction();
 
+  if (confirmType === "block" && selectedMobile) {
+    const targetMobile = selectedMobile.trim();
+    try {
+      const res = await fetch("/api/users/block", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ mobile: targetMobile })
+      });
+      
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to block");
+
+      closeLogModal();
+      openSuccessPopup("User has been blocked successfully.");
+      showLogs();
+    } catch (err) {
+      console.error("❌ Block failed:", err);
+      openSuccessPopup("Error: " + err.message);
     }
+  } else if (confirmType === "delete" && selectedLogIndex !== null) {
+    const log = logsData[selectedLogIndex];
+    if (!log) return;
+    try {
+      await fetch(`/api/logs/${log.id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      closeLogModal();
+      openSuccessPopup("Log deleted successfully.");
+      showLogs();
+    } catch (e) {}
+  }
 }
 
-
-
-async function deleteSelectedLogs(){
-
-  let selected = getSelectedLogs();
-
-  if(selected.length === 0){
-    alert("Select logs first");
-    return;
-  }
-
-  for(let index of selected){
-
-    let log = logsData[index];
-    if(!log) continue;
-
-await fetch(`/api/logs/${log.id}`, {
-  method: "DELETE",
-  headers:{
-    "Authorization":"Bearer " + token
-  }
-});
-
-  }
-
-  // Reload logs
-  await showLogs();
-
-  // Reset checkboxes
-  document.getElementById("selectAllLogs").checked = false;
-
-  // Hide bulk actions
-  document.getElementById("bulkActionsLogs").style.display = "none";
-
-  openSuccessPopup("Logs deleted successfully");
+/* Close block confirmation modal */
+function closeBlockConfirm() {
+  toggleModal("blockConfirmModal", false);
 }
 
+/* Open success popup */
 function openSuccessPopup(message) {
-    document.getElementById("successMessage").innerText = message;
-document.getElementById("successModal").classList.add("show");
+  const msg = document.getElementById("successMessage");
+  if (msg) msg.innerText = message;
+  toggleModal("successModal", true);
 }
 
+/* Close success popup */
 function closeSuccessPopup() {
-document.getElementById("successModal").classList.remove("show");
+  toggleModal("successModal", false);
 }
 
-let unblockMobile = null;
-
-function confirmUnblock(mobile){
-  unblockMobile = mobile;
-  confirmType = "unblock";
-
-document.getElementById("confirmActionModal").classList.add("show");
+/* Export logs as Excel */
+function exportCSV() {
+  exportLogs();
 }
 
+/* Select/deselect all log checkboxes */
+function toggleSelectAllLogs() {
+  const master = document.getElementById("selectAllLogs");
+  const checks = document.querySelectorAll(".logCheck");
+  checks.forEach(c => c.checked = master.checked);
+  updateBulkPanel();
+}
 
+/* Show/hide bulk actions bar */
+function updateBulkPanel() {
+  const checked = document.querySelectorAll(".logCheck:checked");
+  const bar = document.getElementById("bulkActionsLogs");
+  if (bar) {
+    bar.style.display = checked.length > 0 ? "flex" : "none";
+  }
+}
 
-
-function formatDateTime(dateString) {
-  if(!dateString) return "-";
-
-  const date = new Date(dateString);
-
-  return date.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
+/* Block selected users */
+async function blockSelectedUsers() {
+  const checked = document.querySelectorAll(".logCheck:checked");
+  const mobiles = new Set();
+  checked.forEach(c => {
+    const log = logsData[c.value];
+    if (log && log.mobile) mobiles.add(log.mobile);
   });
+
+  for (const mobile of mobiles) {
+    try {
+      await fetch("/api/users/block", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+        body: JSON.stringify({ mobile })
+      });
+    } catch (e) {}
+  }
+  openSuccessPopup(`${mobiles.size} user(s) blocked.`);
+  showLogs();
 }
 
-function logoutUser(){
-  localStorage.removeItem("token");
-  localStorage.removeItem("currentUser");
-  sessionStorage.clear();
-  window.location.href = "/admin/login.html";
+/* Delete selected logs */
+async function deleteSelectedLogs() {
+  const checked = document.querySelectorAll(".logCheck:checked");
+  for (const c of checked) {
+    const log = logsData[c.value];
+    if (!log) continue;
+    try {
+      await fetch(`/api/logs/${log.id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+    } catch (e) {}
+  }
+  openSuccessPopup(`${checked.length} log(s) deleted.`);
+  showLogs();
 }
 
-
-/* ===== Load Logged User Info ===== */
-let currentUser = JSON.parse(localStorage.getItem("currentUser"));
-
-if(currentUser){
-
-  let nameEl = document.getElementById("userName");
-  let emailEl = document.getElementById("userEmail");
-
-  if(nameEl)
-    nameEl.innerText = currentUser.name || "Admin";
-
-  if(emailEl)
-    emailEl.innerText = currentUser.email || "";
-}
-function escapeHTML(str) {
-  if (typeof str !== 'string') return '';
-  return str.replace(/[&<>'"]/g, 
-    tag => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      "'": '&#39;',
-      '"': '&quot;'
-    }[tag])
-  );
+/* Toggle mobile sidebar */
+function toggleMenu() {
+  document.querySelector(".sidebar")?.classList.toggle("active");
+  document.querySelector(".overlay")?.classList.toggle("active");
 }

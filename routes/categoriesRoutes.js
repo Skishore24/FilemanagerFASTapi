@@ -17,13 +17,14 @@ const verifyAdmin = require("../middleware/verifyAdmin");
    Returns all categories. Public — no auth needed.
    Used by user page to populate the category filter dropdown.
    ============================================================ */
-router.get("/", (req, res) => {
-
-  db.query("SELECT * FROM categories", (err, result) => {
-    if (err) return res.status(500).json({ error: "Failed to load categories" });
+router.get("/", async (req, res) => {
+  try {
+    const [result] = await db.promise().query("SELECT * FROM categories");
     res.json(result);
-  });
-
+  } catch (err) {
+    console.error("❌ [CATEGORIES] Fetch error:", err.message);
+    res.status(500).json({ error: "Failed to load categories" });
+  }
 });
 
 
@@ -32,8 +33,7 @@ router.get("/", (req, res) => {
    Creates a new category.
    Name must be at least 2 characters long.
    ============================================================ */
-router.post("/", verifyAdmin, (req, res) => {
-
+router.post("/", verifyAdmin, async (req, res) => {
   const { name } = req.body;
 
   /* Validate: name must exist and be at least 2 characters */
@@ -41,15 +41,16 @@ router.post("/", verifyAdmin, (req, res) => {
     return res.status(400).json({ error: "Category name must be at least 2 characters" });
   }
 
-  db.query(
-    "INSERT INTO categories (name) VALUES (?)",
-    [name.trim()],
-    (err) => {
-      if (err) return res.status(500).json({ error: "Failed to create category" });
-      res.json({ success: true });
-    }
-  );
-
+  try {
+    await db.promise().query(
+      "INSERT INTO categories (name) VALUES (?)",
+      [name.trim()]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ [CATEGORIES] Create error:", err.message);
+    res.status(500).json({ error: "Failed to create category" });
+  }
 });
 
 
@@ -58,27 +59,24 @@ router.post("/", verifyAdmin, (req, res) => {
    Deletes a category by ID.
    Returns 404 if the category does not exist.
    ============================================================ */
-router.delete("/:id", verifyAdmin, (req, res) => {
-
+router.delete("/:id", verifyAdmin, async (req, res) => {
   const id = req.params.id;
 
-  /* Check the category exists before attempting to delete */
-  db.query("SELECT id FROM categories WHERE id = ?", [id], (err, rows) => {
-
-    if (err) return res.status(500).json({ error: "Database error" });
+  try {
+    /* Check the category exists before attempting to delete */
+    const [rows] = await db.promise().query("SELECT id FROM categories WHERE id = ?", [id]);
 
     if (!rows || rows.length === 0) {
       return res.status(404).json({ error: "Category not found" });
     }
 
     /* Category exists — go ahead and delete */
-    db.query("DELETE FROM categories WHERE id = ?", [id], (delErr) => {
-      if (delErr) return res.status(500).json({ error: "Failed to delete category" });
-      res.json({ success: true });
-    });
-
-  });
-
+    await db.promise().query("DELETE FROM categories WHERE id = ?", [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ [CATEGORIES] Delete error:", err.message);
+    res.status(500).json({ error: "Database error" });
+  }
 });
 
 
@@ -87,8 +85,7 @@ router.delete("/:id", verifyAdmin, (req, res) => {
    Renames an existing category.
    Name must be at least 2 characters.
    ============================================================ */
-router.put("/:id", verifyAdmin, (req, res) => {
-
+router.put("/:id", verifyAdmin, async (req, res) => {
   const { name } = req.body;
 
   /* Validate new name */
@@ -96,15 +93,16 @@ router.put("/:id", verifyAdmin, (req, res) => {
     return res.status(400).json({ error: "Category name must be at least 2 characters" });
   }
 
-  db.query(
-    "UPDATE categories SET name = ? WHERE id = ?",
-    [name.trim(), req.params.id],
-    (err) => {
-      if (err) return res.status(500).json({ error: "Failed to update category" });
-      res.json({ success: true });
-    }
-  );
-
+  try {
+    await db.promise().query(
+      "UPDATE categories SET name = ? WHERE id = ?",
+      [name.trim(), req.params.id]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ [CATEGORIES] Update error:", err.message);
+    res.status(500).json({ error: "Failed to update category" });
+  }
 });
 
 module.exports = router;

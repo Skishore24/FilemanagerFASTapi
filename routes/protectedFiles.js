@@ -18,9 +18,15 @@ function verifyToken(req) {
 
   try {
     const decoded = Buffer.from(token, "base64").toString();
-    const mobile = decoded.split(":")[0];
+    const parts = decoded.split(":");
+    const mobile = parts[0];
+    const timestamp = parts[1];
 
-    if (!mobile || !mobile.startsWith("+")) return null;
+    /* Basic sanity check: mobile must exist, start with + and timestamp shouldn't be too old */
+    if (!mobile || !timestamp) return null;
+    
+    /* Session expiry check (10 minutes) */
+    if (Date.now() - parseInt(timestamp) > 10 * 60 * 1000) return null;
 
     return decodeURIComponent(mobile).trim();
   } catch {
@@ -57,13 +63,6 @@ router.get("/download/:filename", async (req, res) => {
       return res.status(400).send("File too large");
     }
 
-    /* LOG DOWNLOAD */
-    await db.promise().query(
-      `INSERT INTO view_logs (file_name, mobile, device, action, viewed_at)
-       VALUES (?, ?, ?, 'download', NOW())`,
-      [filename, mobile, req.headers["user-agent"] || "Unknown"]
-    );
-
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("Cache-Control", "no-store");
 
@@ -85,15 +84,11 @@ router.get("/:filename", async (req, res) => {
   try {
     const filename = path.basename(req.params.filename);
 
-    console.log("Requested file:", filename);
-
     const mobile = verifyToken(req);
 
     if (!mobile) {
       return res.status(403).send("Unauthorized access");
     }
-
-    console.log("Mobile:", mobile);
 
     /* CHECK FILE EXISTS IN DB */
     const [rows] = await db.promise().query(

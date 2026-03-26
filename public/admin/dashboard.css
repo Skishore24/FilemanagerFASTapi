@@ -1,3 +1,10 @@
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: "Poppins", sans-serif;
+}
 /* ============================================================
    dashboard.css — Admin Dashboard Page Styles
    Sections:
@@ -20,49 +27,46 @@
    17. Responsive Breakpoints
    ============================================================ */
 
-
 /* ============================================================
    SECTION 1 — GLOBAL RESET & BASE
    ============================================================ */
 
 * {
-  margin:      0;
-  padding:     0;
-  box-sizing:  border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   font-family: "Poppins", sans-serif;
 }
 
-html, body {
+html,
+body {
   overflow-x: hidden;
 }
 
 body {
   background: linear-gradient(135deg, #f8fafc, #eef2ff);
-  color:      #1e293b;
+  color: #1e293b;
   min-height: 100vh;
   overflow-x: hidden;
 }
-
 
 /* ============================================================
    SECTION 2 — CUSTOM SCROLLBAR
    Purple thumb matches brand color
    ============================================================ */
 
-
-::-webkit-scrollbar{
-width:8px;
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-::-webkit-scrollbar-track{
-background:#f1f5f9;
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
 }
 
-::-webkit-scrollbar-thumb{
-background:#6366f1;
-border-radius:10px;
+::-webkit-scrollbar-thumb {
+  background: #6366f1;
+  border-radius: 10px;
 }
-
 
 /* ============================================================
    SECTION 3 — MAIN CONTENT AREA
@@ -71,123 +75,117 @@ border-radius:10px;
    ============================================================ */
 
 .main {
-  flex:       1;
-  padding:    20px 20px 60px 20px;
-  animation:  fadePage .5s ease;
-  width:      100%;
-  max-width:  100%;
+  flex: 1;
+  padding: 20px 20px 60px 20px;
+  animation: fadePage 0.5s ease;
+  width: 100%;
+  max-width: 100%;
 }
-
 
 /* ============================================================
    SECTION 4 — OVERLAY (Mobile sidebar backdrop)
    ============================================================ */
 
-
-.overlay{
-position:fixed;
-inset:0;
-background:rgba(0,0,0,0.35);
-display:none;
-z-index:1500;
-backdrop-filter:blur(4px);
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: none;
+  z-index: 1500;
+  backdrop-filter: blur(4px);
 }
 
-.overlay.active{
-display:block;
+.overlay.active {
+  display: block;
 }
-
 
 /* ============================================================
    SECTION 5 — TOP BAR & PAGE TITLE
    ============================================================ */
 
 .topbar {
-  display:       flex;
-  align-items:   center;
-  gap:           12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   margin-bottom: 12px;
 }
 
 .page-title {
-  font-size:      22px;
-  font-weight:    600;
-  letter-spacing: .2px;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
 }
-
 
 /* ============================================================
    SECTION 6 — SUBTITLE TEXT
    ============================================================ */
 
-
-.subtitle{
-color:#64748b;
-margin-bottom:20px;
-font-size:13px;
+.subtitle {
+  color: #64748b;
+  margin-bottom: 20px;
+  font-size: 13px;
 }
 
 /* ===========================
 STATS CARDS
 =========================== */
 
-.stats-row{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
-gap:14px;
-width:100%;
-margin-bottom:18px;
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 14px;
+  width: 100%;
+  margin-bottom: 18px;
 }
 
-.stat-card{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:18px 20px;
-border-radius:16px;
-color:white;
-box-shadow:0 8px 24px rgba(0,0,0,0.12);
-transition:all .25s ease;
-position:relative;
-overflow:hidden;
+.stat-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 20px;
+  border-radius: 16px;
+  color: white;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
 }
 
-.stat-card::after{
-content:"";
-position:absolute;
-width:120px;
-height:120px;
-background:rgba(255,255,255,0.12);
-border-radius:50%;
-top:-30px;
-right:-30px;
+.stat-card::after {
+  content: "";
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  top: -30px;
+  right: -30px;
 }
 
-.stat-card:hover{
-transform:translateY(-6px);
-box-shadow:0 18px 40px rgba(0,0,0,0.2);
+.stat-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.2);
 }
 
-.stat-card p{
-font-size:13px;
-opacity:.9;
-margin-bottom:4px;
+.stat-card p {
+  font-size: 13px;
+  opacity: 0.9;
+  margin-bottom: 4px;
 }
 
-.stat-card h2{
-font-size:22px;
-font-weight:600;
+.stat-card h2 {
+  font-size: 22px;
+  font-weight: 600;
 }
 
-.stat-card h3{
-font-size:15px;
+.stat-card h3 {
+  font-size: 15px;
 }
 
-.stat-card i{
-font-size:22px;
-opacity:.9;
+.stat-card i {
+  font-size: 22px;
+  opacity: 0.9;
 }
-
 
 /* ============================================================
    SECTION 8 — STAT CARD COLORS
@@ -195,20 +193,35 @@ opacity:.9;
    ============================================================ */
 
 /* Purple — Files */
-.purple { background: linear-gradient(135deg, #7c3aed, #6366f1); }
+.purple {
+  background: linear-gradient(135deg, #7c3aed, #6366f1);
+}
+.main {
+  transition: margin-left 0.3s ease;
+}
 
+.sidebar.active ~ .main {
+  margin-left: 250px;
+}
 /* Pink — Views */
-.pink   { background: linear-gradient(135deg, #ec4899, #f43f5e); }
+.pink {
+  background: linear-gradient(135deg, #ec4899, #f43f5e);
+}
 
 /* Green — Top File */
-.green  { background: linear-gradient(135deg, #10b981, #14b8a6); }
+.green {
+  background: linear-gradient(135deg, #10b981, #14b8a6);
+}
 
 /* Orange — Categories */
-.orange { background: linear-gradient(135deg, #f59e0b, #fb923c); }
+.orange {
+  background: linear-gradient(135deg, #f59e0b, #fb923c);
+}
 
 /* Blue — Active Users */
-.blue   { background: linear-gradient(135deg, #3b82f6, #6366f1); }
-
+.blue {
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+}
 
 /* ============================================================
    SECTION 9 — DASHBOARD GRID & CARD PANELS
@@ -216,49 +229,48 @@ opacity:.9;
    .full-width spans both columns.
    ============================================================ */
 
-
-.dashboard-grid{
-display:grid;
-grid-template-columns:repeat(2,minmax(0,1fr));
-gap:20px;
-width:100%;
-max-width:100%;
-margin-bottom:40px;
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  margin-bottom: 40px;
 }
 
-.full-width{
-grid-column:1 / -1;
+.full-width {
+  grid-column: 1 / -1;
 }
 
 /* ===========================
 CARDS
 =========================== */
 
-.card{
-background:white;
-border-radius:16px;
-padding:18px;
-box-shadow:0 8px 22px rgba(0,0,0,0.06);
-transition:all .25s ease;
-position:relative;
-width:100%;
-max-width:100%;
-overflow:hidden;
-margin-bottom:6px;
+.card {
+  background: white;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+  transition: all 0.25s ease;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden; /* Hide scrollbars, we will make content fit */
+  margin-bottom: 6px;
 }
 
-.card:hover{
-transform:translateY(-4px);
-box-shadow:
-0 16px 40px rgba(0,0,0,0.12),
-0 0 0 1px rgba(99,102,241,0.05);
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.12),
+    0 0 0 1px rgba(99, 102, 241, 0.05);
 }
 
-.card h3{
-font-size:15px;
-font-weight:600;
-margin-bottom:16px;
-color:#334155;
+.card h3 {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: #334155;
 }
 
 /* ============================================================
@@ -266,10 +278,10 @@ color:#334155;
    ============================================================ */
 
 .chart-container {
-  position:      relative;
-  width:         100%;
-  max-width:     100%;
-  height:        260px;
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  height: 260px;
   margin-bottom: 8px;
 }
 
@@ -278,61 +290,74 @@ canvas {
   max-width: 100% !important;
 }
 
-
 /* ============================================================
    SECTION 11 — WORLD MAP (jsvectormap)
    ============================================================ */
 
-
-#worldMap{
-width:100%;
-height:230px;
-max-width:100%;
+#worldMap {
+  width: 100%;
+  height: 230px;
+  max-width: 100%;
 }
-
 
 /* ============================================================
    SECTION 12 — COUNTRY TABLE
    ============================================================ */
 
 .country-table {
-  width:           100%;
+  width: 100%;
   border-collapse: collapse;
 }
 
+.country-table th,
 .country-table td {
-  padding:       10px;
+  padding: 10px 8px;
   border-bottom: 1px solid #e5e7eb;
-  font-size:     13px;
-  transition:    .2s;
+  font-size: 13px;
+  transition: 0.2s;
+  vertical-align: middle;
+  text-align: left;
+}
+
+.country-table th {
+  background: #f9fafb;
+  font-weight: 600;
+  color: #334155;
+}
+
+.country-table td:last-child {
+  text-align: right;
+  font-weight: 600;
+  white-space: nowrap;
+  padding-left: 12px;
+  width: 50px;
 }
 
 .country-table tr:hover {
   background: #f8fafc;
 }
 
-
 /* ============================================================
    SECTION 13 — RECENT USERS TABLE
    ============================================================ */
 
 .users-table {
-  width:           100%;
+  width: 100%;
   border-collapse: collapse;
 }
 
 .users-table th,
 .users-table td {
-  padding:       10px 12px;
-  font-size:     12px;
+  padding: 10px 12px;
+  font-size: 12px;
   border-bottom: 1px solid #f1f5f9;
-  text-align:    left;
+  text-align: left;
 }
 
 .users-table th {
   font-weight: 600;
-  color:       #334155;
-  background:  #f9fafb;
+  color: #334155;
+  background: #f9fafb;
 }
 
 .users-table tbody tr:hover {
@@ -341,71 +366,55 @@ max-width:100%;
 
 /* User name with avatar circle */
 .user-info {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         10px;
-  overflow:    hidden;   /* prevent table overflow */
-  min-width:   0;
+  gap: 10px;
+  overflow: hidden; /* prevent table overflow */
+  min-width: 0;
 }
 
 /* Colored initials circle */
 .avatar-circle {
-  width:         30px;
-  height:        30px;
-  min-width:     30px;   /* don't shrink avatar */
+  width: 30px;
+  height: 30px;
+  min-width: 30px; /* don't shrink avatar */
   border-radius: 50%;
-  background:    linear-gradient(135deg, #6366f1, #7c3aed);
-  color:         white;
-  display:       flex;
-  align-items:   center;
+  background: linear-gradient(135deg, #6366f1, #7c3aed);
+  color: white;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  font-size:     12px;
-  font-weight:   600;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .user-info span {
-  font-weight:   500;
-  font-size:     13px;
-  overflow:      hidden;
+  font-weight: 500;
+  font-size: 13px;
+  overflow: hidden;
   text-overflow: ellipsis;
-  white-space:   nowrap;
-  max-width:     140px;
+  white-space: nowrap;
+  max-width: 140px;
 }
-
 
 /* ============================================================
    SECTION 14 — ONLINE / OFFLINE STATUS BADGES
    ============================================================ */
 
+/* Card/Table Container responsiveness globalised in sidebar.css */
 
-.badge-online{
-background:#dcfce7;
-color:#166534;
-padding:4px 10px;
-border-radius:8px;
-font-size:11px;
-}
-
-.badge-offline{
-background:#fee2e2;
-color:#991b1b;
-padding:4px 10px;
-border-radius:8px;
-font-size:11px;
-}
-
+/* Local status styles removed - using global in sidebar.css */
 
 /* ============================================================
    SECTION 15 — CARD SUB-HEADING
    Descriptive subtitle below each chart card's h3
    ============================================================ */
 .card-sub {
-  font-size:     12px;
-  color:         #94a3b8;
-  margin-top:    -10px;
+  font-size: 12px;
+  color: #94a3b8;
+  margin-top: -10px;
   margin-bottom: 14px;
 }
-
 
 /* ============================================================
    SECTION 16 — ANIMATIONS
@@ -415,19 +424,28 @@ font-size:11px;
 
 .card,
 .stat-card {
-  animation: fadeUp .45s ease;
+  animation: fadeUp 0.45s ease;
 }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(12px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes fadePage {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-
 
 /* ============================================================
    SECTION 17 — RESPONSIVE BREAKPOINTS
@@ -435,22 +453,19 @@ font-size:11px;
 
 /* Desktop: body becomes flex, main gets left margin for sidebar */
 @media (min-width: 901px) {
-
   body {
     display: flex;
   }
 
   .main {
     margin-left: 250px;
-    width:       calc(100% - 250px);
-    max-width:   calc(100% - 250px);
+    width: calc(100% - 250px);
+    max-width: calc(100% - 250px);
   }
-
 }
 
 /* Tablet: single-column grid, shorter chart containers */
 @media (max-width: 900px) {
-
   .main {
     padding: 18px;
   }
@@ -463,12 +478,10 @@ font-size:11px;
   .chart-container {
     height: 200px;
   }
-
 }
 
 /* Mobile: 2-column stat grid, compressed cards */
 @media (max-width: 480px) {
-
   .main {
     padding: 16px;
   }
@@ -506,7 +519,234 @@ font-size:11px;
   .users-table th,
   .users-table td {
     font-size: 10px;
-    padding:   6px;
+    padding: 6px;
+  }
+}
+
+/* =========================
+   UNIVERSAL MOBILE RESPONSIVE FIX
+========================= */
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0 !important;
+    padding: 15px !important;
+    width: 100% !important;
+  }
+  .sidebar {
+    transform: translateX(-100%);
+    transition: 0.3s ease;
+  }
+  .sidebar.active {
+    transform: translateX(0);
+  }
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .table-actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+  .table-actions input {
+    flex: 1;
+    min-width: 100%;
   }
 
+  /* Transform all file-tables to responsive block cards */
+  .file-table thead {
+    display: none;
+  }
+  .file-table,
+  .file-table tbody,
+  .category-table,
+  .category-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .file-table tr,
+  .category-table tr {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    margin-bottom: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eee;
+  }
+  .file-table td,
+  .category-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f9fafb;
+    padding: 8px 0;
+    text-align: right;
+  }
+  .file-table td:last-child,
+  .category-table td:last-child {
+    border-bottom: none;
+    justify-content: center;
+    gap: 10px;
+    padding-top: 12px;
+  }
+  .file-table td::before,
+  .category-table td::before {
+    content: attr(data-label);
+    font-size: 13px;
+    font-weight: 600;
+    color: #6b7280;
+    text-align: left;
+    flex: 1;
+  }
+  .file-name-cell {
+    flex-direction: column;
+    align-items: flex-end;
+  }
+  .btn-view,
+  .btn-edit,
+  .btn-delete,
+  .btn-copy,
+  .btn-add {
+    flex: 1;
+    text-align: center;
+  }
+
+  .users-table th, .users-table td, .country-table th, .country-table td {
+    padding: 6px 4px !important;
+    font-size: 11px !important;
+  }
+
+  .user-info {
+    gap: 4px !important;
+  }
+
+  .avatar-circle {
+    width: 24px !important;
+    height: 24px !important;
+    font-size: 10px !important;
+  }
+
+  .status {
+    padding: 2px 6px !important;
+    font-size: 10px !important;
+  }
+
+  .progress-bar-wrap {
+    width: 40px !important;
+  }
+
+  .upload-box {
+    padding: 20px;
+  }
+}
+/* =========================
+   UNIVERSAL MOBILE RESPONSIVE FIX
+========================= */
+@media (max-width: 768px) {
+  .main {
+    margin-left: 0 !important;
+    padding: 10px !important;
+    width: auto !important;
+    max-width: 100vw !important;
+    overflow-x: hidden !important;
+  }
+  .sidebar {
+    transform: translateX(-100%);
+    transition: 0.3s ease;
+  }
+  .sidebar.active {
+    transform: translateX(0);
+  }
+  .table-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .table-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .table-actions input, .table-actions button, .table-actions select {
+    width: 100%;
+  }
+
+  /* Transform only file, category and logs tables to cards (Dashboard tables stay as tables) */
+  .users-table, .country-table {
+    display: table !important;
+    width: 100% !important;
+    table-layout: auto !important;
+  }
+
+  .file-table thead, .category-table thead, .logs-table thead {
+    display: none !important;
+  }
+  
+  .file-table, .category-table, .logs-table {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .file-table tbody, .category-table tbody, .logs-table tbody {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+    width: 100% !important;
+  }
+
+  .file-table tr, .category-table tr, .logs-table tr {
+    display: flex !important;
+    flex-direction: column !important;
+    background: #fff;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid #eee;
+    margin: 0 !important;
+    min-height: 160px;
+  }
+  
+  .file-table td, .category-table td, .logs-table td {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    border-bottom: none !important;
+    padding: 4px 0 !important;
+    text-align: left !important;
+    font-size: 13px !important;
+  }
+  
+  .file-table td:last-child, .category-table td:last-child, .logs-table td:last-child {
+    margin-top: auto !important;
+    padding-top: 10px !important;
+  }
+  
+  .file-table td::before, .category-table td::before, .logs-table td::before {
+    content: attr(data-label) !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    color: #6b7280 !important;
+    text-align: left !important;
+    margin-bottom: 2px !important;
+    display: block !important;
+  }
+  
+  .file-name-cell {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+  }
+  
+  .btn-view, .btn-edit, .btn-delete, .btn-copy, .btn-add {
+    width: 100% !important;
+    text-align: center !important;
+    padding: 8px !important;
+    border-radius: 8px !important;
+  }
+  
+  .upload-box {
+    padding: 20px;
+  }
 }

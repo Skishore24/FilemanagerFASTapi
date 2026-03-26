@@ -12,6 +12,7 @@ const express     = require("express");
 const router      = express.Router();
 const db          = require("../db");
 const verifyAdmin = require("../middleware/verifyAdmin");
+const axios       = require("axios");
 const ExcelJS     = require("exceljs");
 
 
@@ -21,14 +22,65 @@ const ExcelJS     = require("exceljs");
    Note: body IP is user-provided and can be spoofed.
    ============================================================ */
 function getClientIp(req, bodyIp) {
+  const ipFromBody = (bodyIp && bodyIp !== "Unknown") ? bodyIp : null;
+  const forwardedFor = req.headers["x-forwarded-for"];
+  const remoteIp = forwardedFor ? forwardedFor.split(",")[0].trim() : req.ip;
+  
   return (
-    bodyIp ||
-    req.headers["x-forwarded-for"]?.split(",")[0].trim() ||
+    ipFromBody ||
+    remoteIp ||
+    req.headers["x-real-ip"] ||
     req.socket?.remoteAddress ||
-    req.ip ||
     "Unknown"
-  );
+  ).replace(/^.*:f{4}:/, ""); /* Strip IPv6 prefix for IPv4 addresses */
 }
+
+
+/* ============================================================
+   GET /api/location
+   Determines the client's geographic location (country, region/state, IP).
+   Used by the student portal for activity logging.
+   ============================================================ */
+router.get("/location", async (req, res) => {
+  const forwardedFor = req.headers["x-forwarded-for"];
+  const ip = (forwardedFor ? forwardedFor.split(",")[0].trim() : req.ip).replace(/^.*:f{4}:/, "");
+
+  /* Skip lookup for local addresses */
+  if (ip === "::1" || ip === "127.0.0.1" || ip.includes("localhost")) {
+    return res.json({
+      ip:      ip,
+      country: "India",
+      state:   "MCET Campus, Pollachi",
+      success: true
+    });
+  }
+
+  try {
+    /* Request geolocation from a server-side API (e.g., ip-api.com) */
+    const response = await axios.get(`http://ip-api.com/json/${ip}`, { timeout: 4000 });
+    const data     = response.data;
+
+    if (data && data.status === "success") {
+      res.json({
+        ip:      data.query || ip,
+        country: data.country || "Unknown",
+        state:   data.regionName || "Unknown",
+        success: true
+      });
+    } else {
+      throw new Error("Geolocation service returned error status");
+    }
+  } catch (err) {
+    console.warn("🌐 [LOCATION] Geolocation fetch failed:", err.message);
+    /* Fallback to campus or global if service is unavailable */
+    res.json({ 
+      ip, 
+      country: "Global", 
+      state: "Access Zone", 
+      success: false 
+    });
+  }
+});
 
 
 /* ============================================================
@@ -36,8 +88,7 @@ function getClientIp(req, bodyIp) {
    Logs that a user opened/viewed a file.
    Called by the user page immediately when a file is opened.
    ============================================================ */
-router.post("/save-view", (req, res) => {
-
+router.post("/save-view", async (req, res) => {
   const { file, name, mobile, country, state, device, ip: bodyIp } = req.body;
 
   /* Both file and mobile are required to create a meaningful log */
@@ -47,18 +98,21 @@ router.post("/save-view", (req, res) => {
 
   const ip = getClientIp(req, bodyIp);
 
-  db.query(
-    "INSERT INTO view_logs (file_name, name, mobile, ip, country, state, device, action) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-    [file, name, mobile, ip, country, state, device, "view"],
-    (err) => {
-      if (err) {
-        console.error("Save view log error:", err.message);
-        return res.json({ success: false });
-      }
-      res.json({ success: true });
-    }
-  );
+  try {
+    const isLocal = ip === "::1" || ip === "127.0.0.1" || ip.includes("localhost");
+    const finalCountry = (country && country !== "Unknown") ? country : (isLocal ? "India" : null);
+    const finalState   = (state   && state   !== "Unknown") ? state   : (isLocal ? "MCET Campus, Pollachi" : null);
+    const finalName    = (name    && name    !== "Unknown") ? name    : "Student";
 
+    await db.promise().query(
+      "INSERT INTO view_logs (file_name, name, mobile, ip, country, state, device, action) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [file, finalName, mobile, ip, finalCountry, finalState, device, "view"]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ [LOGS] Save view error:", err.message);
+    res.json({ success: false });
+  }
 });
 
 
@@ -67,8 +121,7 @@ router.post("/save-view", (req, res) => {
    Logs that a user downloaded a file.
    Called by the user page when the download button is clicked.
    ============================================================ */
-router.post("/save-download", (req, res) => {
-
+router.post("/save-download", async (req, res) => {
   const { file, name, mobile, country, state, device, ip: bodyIp } = req.body;
 
   /* Both file and mobile are required */
@@ -78,18 +131,21 @@ router.post("/save-download", (req, res) => {
 
   const ip = getClientIp(req, bodyIp);
 
-  db.query(
-    "INSERT INTO view_logs (file_name, name, mobile, ip, country, state, device, action) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-    [file, name, mobile, ip, country, state, device, "download"],
-    (err) => {
-      if (err) {
-        console.error("Save download log error:", err.message);
-        return res.json({ success: false });
-      }
-      res.json({ success: true });
-    }
-  );
+  try {
+    const isLocal = ip === "::1" || ip === "127.0.0.1" || ip.includes("localhost");
+    const finalCountry = (country && country !== "Unknown") ? country : (isLocal ? "India" : null);
+    const finalState   = (state   && state   !== "Unknown") ? state   : (isLocal ? "MCET Campus, Pollachi" : null);
+    const finalName    = (name    && name    !== "Unknown") ? name    : "Student";
 
+    await db.promise().query(
+      "INSERT INTO view_logs (file_name, name, mobile, ip, country, state, device, action) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [file, finalName, mobile, ip, finalCountry, finalState, device, "download"]
+    );
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ [LOGS] Save download error:", err.message);
+    res.json({ success: false });
+  }
 });
 
 
@@ -105,8 +161,7 @@ router.post("/save-download", (req, res) => {
    - page     : page number (default 1)
    - limit    : rows per page (default 10)
    ============================================================ */
-router.get("/logs", verifyAdmin, (req, res) => {
-
+router.get("/logs", verifyAdmin, async (req, res) => {
   const search   = req.query.search   || "";
   const date     = req.query.date     || "";
   const category = req.query.category || "All";
@@ -135,33 +190,23 @@ router.get("/logs", verifyAdmin, (req, res) => {
     params.push("%" + category + "%");
   }
 
-  /* Get total row count first for pagination calculation */
-  const countQuery = `SELECT COUNT(*) AS total FROM view_logs ${where}`;
-  const dataQuery  = `SELECT * FROM view_logs ${where} ORDER BY viewed_at ${sort} LIMIT ? OFFSET ?`;
-
-  db.query(countQuery, params, (err, countResult) => {
-
-    if (err) {
-      console.error("Log count error:", err.message);
-      return res.status(500).json({ error: "Failed to query logs" });
-    }
+  try {
+    /* Get total row count first for pagination calculation */
+    const countQuery = `SELECT COUNT(*) AS total FROM view_logs ${where}`;
+    const [countResult] = await db.promise().query(countQuery, params);
 
     const totalRows  = countResult[0].total;
     const totalPages = Math.ceil(totalRows / limit);
 
     /* Fetch the page of data */
-    db.query(dataQuery, [...params, limit, offset], (dataErr, result) => {
+    const dataQuery  = `SELECT * FROM view_logs ${where} ORDER BY viewed_at ${sort} LIMIT ? OFFSET ?`;
+    const [result] = await db.promise().query(dataQuery, [...params, limit, offset]);
 
-      if (dataErr) {
-        console.error("Log fetch error:", dataErr.message);
-        return res.status(500).json({ error: "Failed to fetch logs" });
-      }
-
-      res.json({ logs: result, totalPages });
-    });
-
-  });
-
+    res.json({ logs: result, totalPages });
+  } catch (err) {
+    console.error("❌ [LOGS] Fetch error:", err.message);
+    res.status(500).json({ error: "Failed to query logs" });
+  }
 });
 
 
@@ -171,12 +216,8 @@ router.get("/logs", verifyAdmin, (req, res) => {
    Used by admin to save/share log data offline.
    ============================================================ */
 router.get("/logs/export", verifyAdmin, async (req, res) => {
-
-  db.query("SELECT * FROM view_logs ORDER BY viewed_at DESC", async (err, rows) => {
-
-    if (err) {
-      return res.status(500).json({ error: "Failed to fetch logs for export" });
-    }
+  try {
+    const [rows] = await db.promise().query("SELECT * FROM view_logs ORDER BY viewed_at DESC");
 
     /* Build Excel workbook with ExcelJS */
     const workbook = new ExcelJS.Workbook();
@@ -207,9 +248,10 @@ router.get("/logs/export", verifyAdmin, async (req, res) => {
     /* Stream workbook directly to response */
     await workbook.xlsx.write(res);
     res.end();
-
-  });
-
+  } catch (err) {
+    console.error("❌ [LOGS] Export error:", err.message);
+    res.status(500).json({ error: "Failed to export logs" });
+  }
 });
 
 
@@ -217,19 +259,16 @@ router.get("/logs/export", verifyAdmin, async (req, res) => {
    DELETE /api/logs/:id
    Deletes a single log entry by its ID.
    ============================================================ */
-router.delete("/logs/:id", verifyAdmin, (req, res) => {
-
+router.delete("/logs/:id", verifyAdmin, async (req, res) => {
   const id = req.params.id;
 
-  db.query(
-    "DELETE FROM view_logs WHERE id = ?",
-    [id],
-    (err) => {
-      if (err) return res.json({ success: false });
-      res.json({ success: true });
-    }
-  );
-
+  try {
+    await db.promise().query("DELETE FROM view_logs WHERE id = ?", [id]);
+    res.json({ success: true });
+  } catch (err) {
+    console.error("❌ [LOGS] Delete error:", err.message);
+    res.json({ success: false });
+  }
 });
 
 
@@ -238,10 +277,8 @@ router.delete("/logs/:id", verifyAdmin, (req, res) => {
    Deletes ALL logs for a specific mobile number.
    Pass mobile = "Unknown" to delete entries with no mobile.
    ============================================================ */
-router.post("/users/delete-user-logs", verifyAdmin, (req, res) => {
-
+router.post("/users/delete-user-logs", verifyAdmin, async (req, res) => {
   const { mobile } = req.body;
-
   let query, params;
 
   if (mobile === "Unknown") {
@@ -254,14 +291,14 @@ router.post("/users/delete-user-logs", verifyAdmin, (req, res) => {
     params = [mobile];
   }
 
-  db.query(query, params, (err) => {
-    if (err) {
-      console.error("Delete user logs error:", err.message);
-      return res.json({ success: false });
-    }
+  try {
+    await db.promise().query(query, params);
     res.json({ success: true });
-  });
-
+  } catch (err) {
+    console.error("❌ [LOGS] Delete user logs error:", err.message);
+    res.json({ success: false });
+  }
 });
+
 
 module.exports = router;

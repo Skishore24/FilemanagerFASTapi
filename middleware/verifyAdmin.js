@@ -35,7 +35,7 @@ function verifyAdmin(req, res, next) {
 
   /* Step 4 — Verify and decode the JWT */
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "mcet_secret_key_2024");
 
     /* Step 5 — Ensure the user has admin role */
     if (decoded.role !== "admin") {

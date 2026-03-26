@@ -1,105 +1,110 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-
-  <!-- ============================================================
+  <head>
+    <!-- ============================================================
        Meta & Character Set
        ============================================================ -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="MCET File Manager — Admin Login">
-  <title>Admin Login | MCET File Manager</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="MCET File Manager — Admin Login" />
+    <title>Admin Login</title>
 
-  <!-- ============================================================
+    <!-- ============================================================
        Favicon
        ============================================================ -->
-  <link rel="icon" href="images/logo.png" type="image/png">
+    <link rel="icon" href="images/logo.png" type="image/png" />
 
-  <!-- ============================================================
+    <!-- ============================================================
        External Fonts & Icons
        ============================================================ -->
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+      rel="stylesheet"
+    />
 
-  <!-- ============================================================
+    <!-- ============================================================
        Page Stylesheet
        ============================================================ -->
-  <link rel="stylesheet" href="login.css">
-
-</head>
-<body>
-
-  <!-- ============================================================
+    <link rel="stylesheet" href="login.css?v=1.1" />
+  </head>
+  <body>
+    <!-- ============================================================
        LOGIN CARD — Split layout (form left, image right)
        ============================================================ -->
-  <div class="login-container" role="main">
+    <div class="login-container" role="main">
+      <!-- ---- LEFT PANEL: Login Form ---- -->
+      <div class="login-left">
+        <h1>Welcome Back</h1>
+        <p class="subtitle">Sign in to your admin account to continue</p>
 
-    <!-- ---- LEFT PANEL: Login Form ---- -->
-    <div class="login-left">
+        <!-- Message box: shows success/error feedback -->
+        <p
+          id="loginMessage"
+          class="login-message"
+          role="alert"
+          aria-live="polite"
+        ></p>
 
-      <h1>Welcome Back 👋</h1>
-      <p class="subtitle">Sign in to your admin account to continue</p>
-
-      <!-- Message box: shows success/error feedback -->
-      <p id="loginMessage" class="login-message" role="alert" aria-live="polite"></p>
-
-      <!-- Login form -->
-      <form id="loginForm" novalidate>
-
-        <!-- Email / Username -->
-        <input
-          type="text"
-          id="email"
-          name="email"
-          placeholder="Username or Email"
-          autocomplete="username"
-          aria-label="Username or Email"
-          required
-        >
-
-        <!-- Password with visibility toggle -->
-        <div class="password-wrapper">
+        <!-- Login form -->
+        <form id="loginForm" novalidate>
+          <!-- Email / Username -->
           <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="Password"
-            autocomplete="current-password"
-            aria-label="Password"
+            type="text"
+            id="email"
+            name="email"
+            placeholder="Username or Email"
+            autocomplete="username"
+            aria-label="Username or Email"
             required
-          >
-          <!-- Eye icon toggles between show/hide password -->
-          <i class="fa fa-eye toggle-password" id="togglePassword" aria-label="Toggle password visibility"></i>
-        </div>
+          />
 
-        <!-- Remember me / Forgot password row -->
-        <div class="row">
-          <label>
-            <input type="checkbox" id="rememberMe"> Remember me
-          </label>
-          <a href="#">Forgot password?</a>
-        </div>
+          <!-- Password with visibility toggle -->
+          <div class="password-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              placeholder="Password"
+              autocomplete="current-password"
+              aria-label="Password"
+              required
+            />
+            <!-- Eye icon toggles between show/hide password -->
+            <i
+              class="fa-solid fa-eye toggle-password"
+              id="togglePassword"
+              aria-label="Toggle password visibility"
+            ></i>
+          </div>
 
-        <!-- Submit button -->
-        <button type="submit" id="loginBtn">
-          <i class="fa fa-sign-in-alt"></i> Sign In
-        </button>
+          <!-- Forgot password row -->
+          <div class="row" style="justify-content: flex-end">
+            <a href="#">Forgot password?</a>
+          </div>
 
-      </form>
+          <!-- Submit button -->
+          <button type="submit" id="loginBtn">
+            Sign In
+            <i class="fa-solid fa-arrow-right" style="margin-left: 6px"></i>
+          </button>
+        </form>
+      </div>
+      <!-- end .login-left -->
 
-    </div><!-- end .login-left -->
-
-    <!-- ---- RIGHT PANEL: Decorative college image ---- -->
-    <div class="login-right" aria-hidden="true">
-      <img src="images/College.jpg" alt="MCET College Building">
+      <!-- ---- RIGHT PANEL: Decorative college image ---- -->
+      <div class="login-right" aria-hidden="true">
+        <img src="images/College.jpg" alt="MCET College Building" />
+      </div>
     </div>
+    <!-- end .login-container -->
 
-  </div><!-- end .login-container -->
-
-  <!-- ============================================================
+    <!-- ============================================================
        Scripts — loaded at bottom for performance
        ============================================================ -->
-  <script src="login.js"></script>
-
-</body>
+    <script src="login.js"></script>
+  </body>
 </html>

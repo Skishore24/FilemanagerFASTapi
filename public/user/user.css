@@ -1,3 +1,10 @@
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: "Poppins", sans-serif;
+}
 /* ============================================================
    user.css — Student File Viewer Portal Styles
    Sections:
@@ -17,24 +24,22 @@
    14. Responsive Breakpoints
    ============================================================ */
 
-
 /* ============================================================
    SECTION 1 — CSS CUSTOM PROPERTIES (Design Tokens)
    Change these to retheme the entire user portal at once
    ============================================================ */
 :root {
-  --brand:        #6366f1;          /* Primary brand purple/indigo */
-  --brand-dark:   #4f46e5;          /* Darker brand for hover states */
-  --brand-alt:    #ec4899;          /* Accent pink                  */
-  --text-primary: #111827;          /* Near-black body text         */
-  --text-muted:   #6b7280;          /* Grey helper text             */
-  --bg-page:      #f6f8fc;          /* Page background              */
-  --card-bg:      #ffffff;          /* File card background         */
-  --border:       #e5e7eb;          /* Input / card borders         */
-  --radius:       14px;             /* Standard border-radius       */
-  --shadow-card:  0 4px 18px rgba(99, 102, 241, 0.08);
+  --brand: #6366f1; /* Primary brand purple/indigo */
+  --brand-dark: #4f46e5; /* Darker brand for hover states */
+  --brand-alt: #ec4899; /* Accent pink                  */
+  --text-primary: #111827; /* Near-black body text         */
+  --text-muted: #6b7280; /* Grey helper text             */
+  --bg-page: #f6f8fc; /* Page background              */
+  --card-bg: #ffffff; /* File card background         */
+  --border: #e5e7eb; /* Input / card borders         */
+  --radius: 14px; /* Standard border-radius       */
+  --shadow-card: 0 4px 18px rgba(99, 102, 241, 0.08);
 }
-
 
 /* ============================================================
    SECTION 2 — RESET & BASE
@@ -42,118 +47,123 @@
 *,
 *::before,
 *::after {
-  margin:     0;
-  padding:    0;
+  margin: 0;
+  padding: 0;
   box-sizing: border-box;
 }
 
 body {
   font-family: "Poppins", sans-serif;
-  background:  var(--bg-page);
-  color:       var(--text-primary);
-  min-height:  100vh;
-  overflow-x:  hidden;
+  background: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /* Custom scrollbar — matches brand color */
-::-webkit-scrollbar       { width: 7px; }
-::-webkit-scrollbar-track { background: #f1f5f9; }
-::-webkit-scrollbar-thumb { background: var(--brand); border-radius: 10px; }
-
+::-webkit-scrollbar {
+  width: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--brand);
+  border-radius: 10px;
+}
 
 /* ============================================================
    SECTION 3 — PAGE HEADER
    Sticky header with logo, title, and search box
    ============================================================ */
 .page-header {
-  position:        sticky;
-  top:             0;
-  z-index:         100;
-  background:      rgba(255, 255, 255, 0.9);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
-  border-bottom:   1px solid var(--border);
-  display:         flex;
-  align-items:     center;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
   justify-content: space-between;
-  padding:         14px 24px;
-  gap:             16px;
-  flex-wrap:       wrap;
+  padding: 14px 24px;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 
 /* Logo + college name */
 .header-brand {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         12px;
+  gap: 12px;
 }
 
 .header-logo {
-  width:  44px;
+  width: 44px;
   height: 44px;
   object-fit: contain;
 }
 
 .header-title {
-  font-size:   20px;
+  font-size: 20px;
   font-weight: 700;
-  color:       var(--text-primary);
+  color: var(--text-primary);
   line-height: 1.2;
 }
 
 .header-sub {
   font-size: 12px;
-  color:     var(--text-muted);
+  color: var(--text-muted);
 }
 
 /* Search box */
 .search-box {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         10px;
-  background:  #f9fafb;
-  border:      1.5px solid var(--border);
+  gap: 10px;
+  background: #f9fafb;
+  border: 1.5px solid var(--border);
   border-radius: 10px;
-  padding:     9px 14px;
-  flex:        1;
-  max-width:   360px;
+  padding: 9px 14px;
+  flex: 1;
+  max-width: 360px;
 }
 
 .search-box i {
-  color:     var(--text-muted);
+  color: var(--text-muted);
   font-size: 14px;
   flex-shrink: 0;
 }
 
 .search-box input {
-  border:     none;
-  outline:    none;
+  border: none;
+  outline: none;
   background: transparent;
-  font-size:  14px;
-  color:      var(--text-primary);
-  width:      100%;
+  font-size: 14px;
+  color: var(--text-primary);
+  width: 100%;
   font-family: "Poppins", sans-serif;
 }
-
 
 /* ============================================================
    SECTION 4 — CATEGORY FILTER BAR
    Horizontal scroll bar of category pill buttons
    ============================================================ */
 .category-bar {
-  position:   sticky;
-  top:        73px;  /* Below the header */
-  z-index:    90;
+  position: sticky;
+  top: 73px; /* Below the header */
+  z-index: 90;
   background: rgba(246, 248, 252, 0.95);
   border-bottom: 1px solid rgba(229, 231, 235, 0.6);
-  padding:    10px 24px;
+  padding: 10px 24px;
 }
 
 .category-tabs {
-  display:          flex;
-  gap:              8px;
-  overflow-x:       auto;
-  padding-bottom:   4px;
-  scrollbar-width:  none; /* Firefox: hide scrollbar */
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: none; /* Firefox: hide scrollbar */
 }
 
 .category-tabs::-webkit-scrollbar {
@@ -162,34 +172,33 @@ body {
 
 /* Each category pill button */
 .cat-tab {
-  flex-shrink:   0;
-  padding:       7px 16px;
-  border:        1.5px solid var(--border);
+  flex-shrink: 0;
+  padding: 7px 16px;
+  border: 1.5px solid var(--border);
   border-radius: 20px;
-  background:    white;
-  font-family:   "Poppins", sans-serif;
-  font-size:     13px;
-  font-weight:   500;
-  color:         var(--text-muted);
-  cursor:        pointer;
-  white-space:   nowrap;
-  transition:    all 0.2s;
+  background: white;
+  font-family: "Poppins", sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
 }
 
 .cat-tab:hover {
   border-color: var(--brand);
-  color:        var(--brand);
-  background:   rgba(99, 102, 241, 0.05);
+  color: var(--brand);
+  background: rgba(99, 102, 241, 0.05);
 }
 
 /* Active/selected tab */
 .cat-tab.active {
-  background:   var(--brand);
+  background: var(--brand);
   border-color: var(--brand);
-  color:        white;
-  box-shadow:   0 4px 12px rgba(99, 102, 241, 0.3);
+  color: white;
+  box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
 }
-
 
 /* ============================================================
    SECTION 5 — FILES GRID & FILE CARDS
@@ -199,41 +208,43 @@ body {
   padding: 24px;
 }
 
-.files-grid{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
-gap:20px;
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Better fill */
+  gap: 20px;
+  align-items: stretch; /* Ensure cards in a row have equal height */
 }
 
 /* Individual file card */
 .file-card {
-  background:    var(--card-bg);
+  background: var(--card-bg);
   border-radius: var(--radius);
-  padding:       20px;
-  cursor:        pointer;
-  border:        1.5px solid transparent;
-  box-shadow:    var(--shadow-card);
-  transition:    all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  display:       flex;
+  padding: 20px;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  box-shadow: var(--shadow-card);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
   flex-direction: column;
-  gap:           10px;
-  position:      relative;
-  overflow:      hidden;
-  height:        100%;   /* equal height cards in grid row */
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  height: 100%;
 }
+
 
 /* Decorative gradient top border on hover */
 .file-card::before {
-  content:     "";
-  position:    absolute;
-  top:         0;
-  left:        0;
-  right:       0;
-  height:      3px;
-  background:  linear-gradient(90deg, var(--brand), var(--brand-alt));
-  transform:   scaleX(0);
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--brand), var(--brand-alt));
+  transform: scaleX(0);
   transform-origin: left;
-  transition:  transform 0.3s ease;
+  transition: transform 0.3s ease;
 }
 
 .file-card:hover::before {
@@ -242,46 +253,57 @@ gap:20px;
 
 /* File icon (large, in the card center top) */
 .file-icon-wrap {
-  width:           52px;
-  height:          52px;
-  border-radius:   12px;
-  display:         flex;
-  align-items:     center;
+  width: 52px;
+  height: 52px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  font-size:       22px;
+  font-size: 22px;
 }
 
 /* Icon background tints by file type */
-.file-icon-wrap.pdf   { background: #fff1f2; color: #ef4444; }
-.file-icon-wrap.doc   { background: #eff6ff; color: #2563eb; }
-.file-icon-wrap.image { background: #faf5ff; color: #9333ea; }
-.file-icon-wrap.other { background: #f0fdf4; color: #16a34a; }
+.file-icon-wrap.pdf {
+  background: #fff1f2;
+  color: #ef4444;
+}
+.file-icon-wrap.doc {
+  background: #eff6ff;
+  color: #2563eb;
+}
+.file-icon-wrap.image {
+  background: #faf5ff;
+  color: #9333ea;
+}
+.file-icon-wrap.other {
+  background: #f0fdf4;
+  color: #16a34a;
+}
 
 /* File card title */
 .file-card-name {
-  font-size:     14px;
-  font-weight:   600;
-  color:         var(--text-primary);
-  overflow:      hidden;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
   text-overflow: ellipsis;
-  white-space:   nowrap;
-  flex:          1;
+  white-space: nowrap;
+  flex: 1;
 }
 
 /* File card meta (category, size, date) */
 .file-card-meta {
   font-size: 12px;
-  color:     var(--text-muted);
+  color: var(--text-muted);
 }
-
 
 /* ============================================================
    SECTION 6 — CARD HOVER EFFECT & ACCESS BADGE
    ============================================================ */
 .file-card:hover {
-  transform:    translateY(-5px);
+  transform: translateY(-5px);
   border-color: var(--brand);
-  box-shadow:   0 12px 30px rgba(99, 102, 241, 0.15);
+  box-shadow: 0 12px 30px rgba(99, 102, 241, 0.15);
 }
 
 .file-card:active {
@@ -290,26 +312,25 @@ gap:20px;
 
 /* View-only or View+Download badge on each card */
 .file-access-badge {
-  display:       inline-flex;
-  align-items:   center;
-  gap:           5px;
-  font-size:     11px;
-  font-weight:   500;
-  padding:       4px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 4px 10px;
   border-radius: 20px;
-  margin-top:    auto; /* Push to bottom of card */
+  margin-top: auto; /* Push to bottom of card */
 }
 
 .badge-view-only {
   background: #fff7ed;
-  color:      #c2410c;
+  color: #c2410c;
 }
 
 .badge-view-download {
   background: #ecfdf5;
-  color:      #047857;
+  color: #047857;
 }
-
 
 /* ============================================================
    SECTION 7 — OTP MODAL OVERLAY & BOX
@@ -317,210 +338,230 @@ gap:20px;
 
 /* Dark semi-transparent backdrop */
 .modal-overlay {
-  display:         none;
-  position:        fixed;
-  inset:           0;
-  background:      rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(6px);
-  z-index:         1000;
-  align-items:     center;
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.1) !important; /* light dim, no blur */
+  z-index: 1000;
+  align-items: center;
   justify-content: center;
-  padding:         20px;
+  padding: 20px;
+  backdrop-filter: none !important;
 }
 
 /* Show modal by switching to flex */
-.modal-overlay.open {
+.modal-overlay.open, .modal.open {
+  display: flex !important;
+}
+
+/* Custom Block Modal (non-closable overlay) */
+#blockedModal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  background: rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(10px) !important; /* Keep blur for block modal to emphasize restriction */
+  z-index: 9999 !important;
+  align-items: center;
+  justify-content: center;
+}
+.mobile-input {
+  height: 44px;
+  font-size: 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 10px;
+  background: #fafafa;
+  transition: all 0.25s;
+}
+
+.mobile-input:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  background: white;
+}
+.modal-box {
+  max-width: 420px;
+  padding: 32px 28px;
+}
+
+.input-group input {
+  height: 44px;
+  width: 100%;
+}
+
+.otp-btn {
+  width: 100%;
+  height: 44px;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
-.mobile-input{
-height:44px;
-font-size:14px;
-border:1.5px solid var(--border);
-border-radius:10px;
-padding:10px;
-background:#fafafa;
-transition:all .25s;
+.viewer-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: #1e293b;
 }
-
-.mobile-input:focus{
-border-color:var(--brand);
-box-shadow:0 0 0 3px rgba(99,102,241,.12);
-background:white;
+.viewer-content canvas {
+  background: white;
+  padding: 10px;
 }
-.modal-box{
-max-width:420px;
-padding:32px 28px;
+.viewer-banner {
+  width: 100%;
+  background: #0f172a;
+  padding: 8px;
+  display: flex;
+  justify-content: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
-
-.input-group input{
-height:44px;
-width:100%;
+.viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 12px;
+  flex-wrap: nowrap;
 }
-
-.otp-btn{
-width:100%;
-height:44px;
-display:flex;
-align-items:center;
-justify-content:center;
-gap:8px;
+.viewer-file-name {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.viewer-content{
-flex:1;
-overflow-y:auto;
-padding:20px;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:flex-start;
-background:#1e293b;
-}
-.viewer-content canvas{
-background:white;
-padding:10px;
-}
-.viewer-banner{
-width:100%;
-background:#0f172a;
-padding:8px;
-display:flex;
-justify-content:center;
-border-bottom:1px solid rgba(255,255,255,.08);
-}
-.viewer-header{
-display:flex;
-align-items:center;
-justify-content:space-between;
-padding:12px 20px;
-background:#0f172a;
-border-bottom:1px solid rgba(255,255,255,.08);
-gap:12px;
-flex-wrap:nowrap;
-}
-.viewer-file-name{
-flex:1;
-text-align:center;
-white-space:nowrap;
-overflow:hidden;
-text-overflow:ellipsis;
-}
-.viewer-left{
-display:flex;
-align-items:center;
-gap:10px;
+.viewer-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.viewer-logo{
-height:28px;
+.viewer-logo {
+  height: 28px;
 }
 
-.viewer-college{
-font-size:13px;
-color:#cbd5f5;
-font-weight:500;
+.viewer-college {
+  font-size: 13px;
+  color: #cbd5f5;
+  font-weight: 500;
 }
 /* intl tel input fix */
 
-.iti{
-width:100%;
+.iti {
+  width: 100%;
 }
 
-.iti input{
-width:100%;
-height:44px;
-padding-left:52px !important;
-border-radius:10px;
-border:1.5px solid var(--border);
-background:#fafafa;
+.iti input {
+  width: 100%;
+  height: 44px;
+  padding-left: 52px !important;
+  border-radius: 10px;
+  border: 1.5px solid var(--border);
+  background: #fafafa;
 }
 
-.iti__flag-container{
-border-radius:10px 0 0 10px;
+.iti__flag-container {
+  border-radius: 10px 0 0 10px;
 }
-.viewer-banner img{
-height:40px;
-max-width:100%;
-object-fit:contain;
+.viewer-banner img {
+  height: 40px;
+  max-width: 100%;
+  object-fit: contain;
 }
 
 /* White modal card */
-.modal-box {
-  background:    white;
+.modal-box, .modal-content {
+  background: white;
   border-radius: 20px;
-  padding:       36px 32px;
-  width:         100%;
-  max-width:     440px;
-  position:      relative;
-  box-shadow:    0 25px 60px rgba(0, 0, 0, 0.2);
-  animation:     modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
-  text-align:    center;
+  padding: 30px;
+  width: 92%;
+  max-width: 440px;
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2);
+  animation: modalSlideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
 /* Modal slide-in animation */
 @keyframes modalSlideIn {
-  from { opacity: 0; transform: scale(0.92) translateY(20px); }
-  to   { opacity: 1; transform: scale(1)    translateY(0);    }
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 /* Close ✕ button in top-right corner */
 .modal-close {
-  position:    absolute;
-  top:         14px;
-  right:       14px;
-  background:  #f3f4f6;
-  border:      none;
-  width:       32px;
-  height:      32px;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  background: #f3f4f6;
+  border: none;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  cursor:      pointer;
-  display:     flex;
+  cursor: pointer;
+  display: flex;
   align-items: center;
   justify-content: center;
-  color:       #6b7280;
-  font-size:   14px;
-  transition:  background 0.2s;
+  color: #6b7280;
+  font-size: 14px;
+  transition: background 0.2s;
 }
 
 .modal-close:hover {
   background: #fee2e2;
-  color:      #dc2626;
+  color: #dc2626;
 }
 
 /* Large icon at top of OTP modal */
 .otp-icon {
-  width:           60px;
-  height:          60px;
-  border-radius:   50%;
-  background:      rgba(99, 102, 241, 0.1);
-  color:           var(--brand);
-  font-size:       24px;
-  display:         flex;
-  align-items:     center;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(99, 102, 241, 0.1);
+  color: var(--brand);
+  font-size: 24px;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  margin:          0 auto 16px auto;
+  margin: 0 auto 16px auto;
 }
 
 .otp-icon.success {
   background: rgba(16, 185, 129, 0.1);
-  color:      #10b981;
+  color: #10b981;
 }
 
 /* Modal title */
 .modal-box h2 {
-  font-size:     20px;
-  font-weight:   700;
-  color:         var(--text-primary);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
   margin-bottom: 8px;
 }
 
 /* Subtitle / helper text under title */
 .otp-sub {
-  font-size:     13px;
-  color:         var(--text-muted);
+  font-size: 13px;
+  color: var(--text-muted);
   margin-bottom: 22px;
-  line-height:   1.5;
+  line-height: 1.5;
 }
-
 
 /* ============================================================
    SECTION 8 — OTP STEP UI
@@ -528,35 +569,35 @@ object-fit:contain;
 
 /* Labelled input group */
 .input-group {
-  text-align:    left;
+  text-align: left;
   margin-bottom: 16px;
 }
 
 .input-group label {
-  display:       block;
-  font-size:     13px;
-  font-weight:   600;
-  color:         var(--text-primary);
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
   margin-bottom: 6px;
 }
 
 /* Mobile number row: country code select + number input */
 .phone-row {
   display: flex;
-  gap:     8px;
+  gap: 8px;
 }
 
 .phone-row select {
-  border:        1.5px solid var(--border);
+  border: 1.5px solid var(--border);
   border-radius: 10px;
-  padding:       11px 10px;
-  font-size:     14px;
-  font-family:   "Poppins", sans-serif;
-  background:    #fafafa;
-  outline:       none;
-  cursor:        pointer;
-  flex-shrink:   0;
-  transition:    border-color 0.2s;
+  padding: 11px 10px;
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+  background: #fafafa;
+  outline: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: border-color 0.2s;
 }
 
 .phone-row select:focus {
@@ -566,82 +607,99 @@ object-fit:contain;
 .input-group input[type="text"],
 .input-group input[type="tel"],
 .phone-row input {
-  width:         100%;
-  padding:       11px 14px;
-  border:        1.5px solid var(--border);
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
   border-radius: 10px;
-  font-size:     14px;
-  font-family:   "Poppins", sans-serif;
-  background:    #fafafa;
-  color:         var(--text-primary);
-  outline:       none;
-  transition:    border-color 0.25s, box-shadow 0.25s;
+  font-size: 14px;
+  font-family: "Poppins", sans-serif;
+  background: #fafafa;
+  color: var(--text-primary);
+  outline: none;
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s;
 }
 
 .input-group input:focus,
 .phone-row input:focus {
   border-color: var(--brand);
-  box-shadow:   0 0 0 3px rgba(99, 102, 241, 0.12);
-  background:   white;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  background: white;
 }
 
 /* Main action button in OTP modal */
 .otp-btn {
-  width:         100%;
-  padding:       13px;
-  border:        none;
+  width: 100%;
+  padding: 13px;
+  border: none;
   border-radius: 12px;
-  background:    linear-gradient(135deg, var(--brand), #7c3aed);
-  color:         white;
-  font-size:     15px;
-  font-weight:   600;
-  font-family:   "Poppins", sans-serif;
-  cursor:        pointer;
-  transition:    transform 0.2s, box-shadow 0.2s;
-  margin-top:    4px;
+  background: linear-gradient(135deg, var(--brand), #7c3aed);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  margin-top: 4px;
 }
 
 .otp-btn:hover {
-  transform:  translateY(-2px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
 }
 
 /* 6 individual digit boxes for OTP code */
 .otp-boxes {
-  display:         flex;
-  gap:             8px;
+  display: flex;
+  gap: 8px;
   justify-content: center;
-  margin:          16px 0;
+  margin: 16px 0;
 }
 
 .otp-digit {
-  width:         44px;
-  height:        52px;
-  border:        2px solid var(--border);
+  width: 44px;
+  height: 52px;
+  border: 2px solid var(--border);
   border-radius: 10px;
-  text-align:    center;
-  font-size:     22px;
-  font-weight:   700;
-  font-family:   "Poppins", sans-serif;
-  color:         var(--text-primary);
-  outline:       none;
-  transition:    border-color 0.2s, box-shadow 0.2s;
-  background:    #fafafa;
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  font-family: "Poppins", sans-serif;
+  color: var(--text-primary);
+  outline: none;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  background: #fafafa;
 }
 
 .otp-digit:focus {
   border-color: var(--brand);
-  box-shadow:   0 0 0 3px rgba(99, 102, 241, 0.15);
-  background:   white;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+  background: white;
 }
 
 /* Shake animation for invalid OTP */
 @keyframes shake {
-  0%, 100% { transform: translateX(0);    }
-  20%      { transform: translateX(-8px); }
-  40%      { transform: translateX(8px);  }
-  60%      { transform: translateX(-5px); }
-  80%      { transform: translateX(5px);  }
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
 }
 
 .otp-boxes.shake {
@@ -650,31 +708,31 @@ object-fit:contain;
 
 /* Countdown timer text */
 .otp-timer {
-  font-size:  13px;
-  color:      var(--text-muted);
+  font-size: 13px;
+  color: var(--text-muted);
   margin-top: -6px;
 }
 
 /* Row with verify + resend buttons side by side */
 .otp-action-row {
-  display:   flex;
-  gap:       10px;
+  display: flex;
+  gap: 10px;
   flex-wrap: wrap;
 }
 
 /* Resend button — lighter style */
 .otp-resend {
-  flex:          1;
-  padding:       12px;
-  border:        1.5px solid var(--brand);
+  flex: 1;
+  padding: 12px;
+  border: 1.5px solid var(--brand);
   border-radius: 12px;
-  background:    white;
-  color:         var(--brand);
-  font-size:     14px;
-  font-weight:   600;
-  font-family:   "Poppins", sans-serif;
-  cursor:        pointer;
-  transition:    background 0.2s;
+  background: white;
+  color: var(--brand);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: "Poppins", sans-serif;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
 .otp-resend:hover {
@@ -683,23 +741,22 @@ object-fit:contain;
 
 /* Error message below OTP inputs */
 .otp-error {
-  font-size:  13px;
-  color:      #ef4444;
+  font-size: 13px;
+  color: #ef4444;
   margin-top: 10px;
   min-height: 18px;
 }
-
 
 /* ============================================================
    SECTION 9 — FILE VIEWER MODAL
    Full-screen overlay for in-browser file reading
    ============================================================ */
 .viewer-overlay {
-  display:    none;
-  position:   fixed;
-  inset:      0;
+  display: none;
+  position: fixed;
+  inset: 0;
   background: rgba(0, 0, 0, 0.92);
-  z-index:    2000;
+  z-index: 2000;
   flex-direction: column;
 }
 
@@ -709,14 +766,14 @@ object-fit:contain;
 }
 
 .viewer-box {
-  display:        flex;
+  display: flex;
   flex-direction: column;
-  width:          100%;
-  height:         100%;
-  max-width:      1100px;
-  margin:         0 auto;
+  width: 100%;
+  height: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  position: relative;
 }
-
 
 /* ============================================================
    SECTION 10 — VIEWER HEADER & CONTROLS
@@ -750,84 +807,96 @@ object-fit:contain;
   padding-left: 8px;
 }
 .viewer-file-name {
-  font-size:     14px;
-  font-weight:   600;
-  color:         white;
-  overflow:      hidden;
+  font-size: 14px;
+  font-weight: 600;
+  color: white;
+  overflow: hidden;
   text-overflow: ellipsis;
-  white-space:   nowrap;
-  flex:          1;
+  white-space: nowrap;
+  flex: 1;
 }
 
 .viewer-controls {
-  display:     flex;
+  display: flex;
   align-items: center;
-  gap:         10px;
+  gap: 10px;
   flex-shrink: 0;
 }
 
 /* Shared viewer button base */
 .viewer-btn {
-  display:       flex;
-  align-items:   center;
-  gap:           6px;
-  padding:       8px 14px;
-  border:        none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
   border-radius: 8px;
-  font-size:     13px;
-  font-family:   "Poppins", sans-serif;
-  font-weight:   600;
-  cursor:        pointer;
-  transition:    transform 0.2s, box-shadow 0.2s;
+  font-size: 13px;
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 /* Download button — green gradient */
 .download-btn {
   background: linear-gradient(135deg, #10b981, #059669);
-  color:      white;
+  color: white;
 }
 
 .download-btn:hover {
-  transform:  translateY(-1px);
+  transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
 }
 
 /* Close button — subtle red */
 .close-btn {
   background: rgba(239, 68, 68, 0.15);
-  color:      #ef4444;
-  border:     1px solid rgba(239, 68, 68, 0.3);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .close-btn:hover {
   background: rgba(239, 68, 68, 0.25);
 }
 
-
-
 /* Canvas pages rendered by PDF.js */
 .viewer-content canvas {
-  max-width:     100%;
+  max-width: 100%;
   border-radius: 4px;
-  box-shadow:    0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
   margin-bottom: 12px;
 }
 
 /* Full-size image in viewer */
 .viewer-content img {
-  max-width:     100%;
+  max-width: 100%;
   border-radius: 8px;
-  box-shadow:    0 4px 20px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
 }
 
 /* Word/Office files shown in iframe */
 .viewer-content iframe {
-  width:   100%;
-  height:  80vh;
-  border:  none;
+  width: 100%;
+  height: 80vh;
+  border: none;
   border-radius: 8px;
 }
 
+.viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  background: #0f172a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  gap: 12px;
+  flex-wrap: nowrap;
+  position: relative;
+  z-index: 10;
+}
 
 /* ============================================================
    SECTION 11 — WATERMARK OVERLAY
@@ -835,14 +904,13 @@ object-fit:contain;
    Displays the user's mobile number as a deterrent to sharing.
    ============================================================ */
 .watermark-overlay {
-  display:        none;
-  position:       fixed;
-  inset:          0;
-  z-index:        1999; /* Below viewer header, above content */
+  display: none;
+  position: absolute;
+  inset: 0;
+  z-index: 5;
   pointer-events: none; /* Allow clicks through to content */
-  overflow:       hidden;
+  overflow: hidden;
 }
-
 
 /* ============================================================
    SECTION 12 — SECURITY RESTRICTIONS
@@ -852,8 +920,8 @@ object-fit:contain;
 /* Disable text selection on the entire document */
 body {
   -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  -moz-user-select: none;
+  user-select: none;
 }
 
 /* Allow text selection only in form inputs */
@@ -861,8 +929,8 @@ input,
 textarea,
 select {
   -webkit-user-select: text;
-     -moz-user-select: text;
-          user-select: text;
+  -moz-user-select: text;
+  user-select: text;
 }
 
 /* Hide content when printing (blocks print-to-PDF) */
@@ -872,15 +940,20 @@ select {
   }
 }
 
-
 /* ============================================================
    SECTION 13 — ANIMATIONS & TRANSITIONS
    ============================================================ */
 
 /* Card grid entrance animation (staggered per card) */
 @keyframes cardFadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .file-card {
@@ -889,19 +962,20 @@ select {
 
 /* Loading spinner for async operations */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .spinner {
-  width:         32px;
-  height:        32px;
-  border:        3px solid rgba(99, 102, 241, 0.2);
-  border-top:    3px solid var(--brand);
+  width: 32px;
+  height: 32px;
+  border: 3px solid rgba(99, 102, 241, 0.2);
+  border-top: 3px solid var(--brand);
   border-radius: 50%;
-  animation:     spin 0.7s linear infinite;
-  margin:        40px auto;
+  animation: spin 0.7s linear infinite;
+  margin: 40px auto;
 }
-
 
 /* ============================================================
    SECTION 14 — RESPONSIVE BREAKPOINTS
@@ -909,30 +983,24 @@ select {
 
 /* Laptop: force 4-column clean grid */
 @media (min-width: 1024px) {
-
   .files-grid {
     grid-template-columns: repeat(4, 1fr);
     gap: 20px;
   }
-
 }
 
 /* Medium screens (769px–1023px): 3 columns */
 @media (min-width: 769px) and (max-width: 1023px) {
-
   .files-grid {
     grid-template-columns: repeat(3, 1fr);
   }
-
 }
 
 /* Tablet: tighter header, slightly narrower cards */
 @media (max-width: 768px) {
-
-
   .page-header {
     padding: 10px 16px;
-    gap:     10px;
+    gap: 10px;
   }
 
   .header-title {
@@ -948,7 +1016,7 @@ select {
   }
 
   .files-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
     gap: 14px;
   }
 
@@ -957,19 +1025,17 @@ select {
   }
 
   .otp-digit {
-    width:  38px;
+    width: 38px;
     height: 46px;
     font-size: 18px;
   }
-
 }
 
 /* Mobile: single-column category bar scrolls, 2-up cards */
 @media (max-width: 480px) {
-
   .category-bar {
     padding: 8px 12px;
-    top:     65px;
+    top: 65px;
   }
 
   .files-section {
@@ -995,14 +1061,44 @@ select {
   }
 
   .otp-digit {
-    width:     34px;
-    height:    42px;
+    width: 34px;
+    height: 42px;
     font-size: 16px;
-    gap:       4px;
+    gap: 4px;
   }
 
   .otp-boxes {
     gap: 6px;
   }
+}
 
+/* New: Polished Back Button Styling */
+.otp-back {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 16px auto 0 !important;
+  background: none;
+  border: none;
+  color: #6366f1;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  opacity: 0.8;
+  padding: 8px 12px;
+  border-radius: 8px;
+}
+
+.otp-back:hover {
+  opacity: 1;
+  background: rgba(99, 102, 241, 0.05);
+  transform: translateX(-3px);
+}
+
+.otp-digit:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
+  outline: none;
 }

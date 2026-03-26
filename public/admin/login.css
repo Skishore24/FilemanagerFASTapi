@@ -1,3 +1,10 @@
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: "Poppins", sans-serif;
+}
 /* ============================================================
    login.css — Admin Login Page Styles
    Sections:
@@ -10,88 +17,80 @@
    7. Responsive (tablet & mobile)
    ============================================================ */
 
-
 /* ============================================================
    SECTION 1 — RESET & BASE
    ============================================================ */
 *,
 *::before,
 *::after {
-  margin:      0;
-  padding:     0;
-  box-sizing:  border-box;
-  font-family: "Poppins", sans-serif;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  background:      linear-gradient(135deg, #f0f4ff 0%, #fce4e4 100%);
-  display:         flex;
+  font-family: "Poppins", sans-serif;
+  background-color: #f6f6f6;
+  display: flex;
   justify-content: center;
-  align-items:     center;
-  min-height:      100vh;
-  padding:         20px;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
 }
-
 
 /* ============================================================
    SECTION 2 — MAIN CONTAINER
    Split layout: form on left, decorative image on right
    ============================================================ */
 .login-container {
-  width:         100%;
-  max-width:     950px;
-  background:    #ffffff;
+  width: 100%;
+  max-width: 950px;
+  background: #ffffff;
   border-radius: 20px;
-  overflow:      hidden;
-  display:       flex;
-  box-shadow:    0 20px 60px rgba(99, 102, 241, 0.15),
-                 0 8px 25px rgba(0, 0, 0, 0.08);
-  animation:     fadeSlideUp 0.5s ease-out both;
+  overflow: hidden;
+  display: flex;
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.15),
+    0 8px 25px rgba(0, 0, 0, 0.15);
+  animation: fadeSlideUp 0.5s ease-out both;
 }
 
 /* Slide-up entrance animation for the card */
 @keyframes fadeSlideUp {
-  from { opacity: 0; transform: translateY(30px); }
-  to   { opacity: 1; transform: translateY(0);    }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-
 
 /* ============================================================
    SECTION 3 — LEFT PANEL (Form area)
    ============================================================ */
 .login-left {
-  flex:           1;
-  padding:        50px 45px;
-  display:        flex;
+  flex: 1;
+  padding: 50px 45px;
+  display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .login-left h1 {
-  font-size:     30px;
-  font-weight:   700;
-  color:         #111827;
+  font-size: 30px;
+  font-weight: 700;
+  color: #111827;
   margin-bottom: 6px;
   letter-spacing: -0.5px;
 }
 
 .subtitle {
-  color:         #6b7280;
-  font-size:     14px;
+  color: #6b7280;
+  font-size: 14px;
   margin-bottom: 28px;
 }
-
-/* Divider bar below the title */
-.login-left h1::after {
-  content:    "";
-  display:    block;
-  width:      40px;
-  height:     3px;
-  background: linear-gradient(90deg, #6366f1, #f43f5e);
-  border-radius: 2px;
-  margin-top: 10px;
-}
-
 
 /* ============================================================
    SECTION 4 — FORM INPUTS
@@ -99,58 +98,62 @@ body {
 
 /* Email input */
 .login-left form > input {
-  width:         100%;
-  padding:       13px 16px;
-  border:        1.5px solid #e5e7eb;
+  width: 100%;
+  padding: 13px 16px;
+  border: 1.5px solid #e5e7eb;
   border-radius: 10px;
-  font-size:     14px;
+  font-size: 14px;
   margin-bottom: 15px;
-  transition:    border-color 0.25s, box-shadow 0.25s;
-  background:    #fafafa;
-  color:         #111827;
-  outline:       none;
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s;
+  background: #fafafa;
+  color: #111827;
+  outline: none;
 }
 
 .login-left form > input:focus {
   border-color: #6366f1;
-  box-shadow:   0 0 0 3px rgba(99, 102, 241, 0.12);
-  background:   #fff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  background: #fff;
 }
 
 /* Password wrapper positions the eye-toggle icon absolutely */
 .password-wrapper {
-  position:      relative;
-  width:         100%;
+  position: relative;
+  width: 100%;
   margin-bottom: 15px;
 }
 
 .password-wrapper input {
-  width:         100%;
-  padding:       13px 46px 13px 16px;
-  border:        1.5px solid #e5e7eb;
+  width: 100%;
+  padding: 13px 46px 13px 16px;
+  border: 1.5px solid #e5e7eb;
   border-radius: 10px;
-  font-size:     14px;
-  transition:    border-color 0.25s, box-shadow 0.25s;
-  background:    #fafafa;
-  color:         #111827;
-  outline:       none;
+  font-size: 14px;
+  transition:
+    border-color 0.25s,
+    box-shadow 0.25s;
+  background: #fafafa;
+  color: #111827;
+  outline: none;
 }
 
 .password-wrapper input:focus {
   border-color: #6366f1;
-  box-shadow:   0 0 0 3px rgba(99, 102, 241, 0.12);
-  background:   #fff;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+  background: #fff;
 }
 
 /* Eye icon to toggle password visibility */
 .toggle-password {
-  position:  absolute;
-  right:     14px;
-  top:       50%;
+  position: absolute;
+  right: 14px;
+  top: 50%;
   transform: translateY(-50%);
-  cursor:    pointer;
+  cursor: pointer;
   font-size: 15px;
-  color:     #9ca3af;
+  color: #9ca3af;
   transition: color 0.25s;
 }
 
@@ -160,43 +163,44 @@ body {
 
 /* Remember / forgot row */
 .row {
-  display:         flex;
+  display: flex;
   justify-content: space-between;
-  font-size:       13px;
-  margin-bottom:   22px;
-  color:           #6b7280;
+  font-size: 13px;
+  margin-bottom: 22px;
+  color: #6b7280;
 }
 
 .row a {
-  color:           #6366f1;
+  color: #6366f1;
   text-decoration: none;
-  font-weight:     500;
+  font-weight: 500;
 }
 
 .row a:hover {
   text-decoration: underline;
 }
 
-
 /* ============================================================
    SECTION 5 — LOGIN BUTTON & MESSAGES
    ============================================================ */
 button {
-  width:         100%;
-  padding:       13px;
-  border:        none;
+  width: 100%;
+  padding: 13px;
+  border: none;
   border-radius: 10px;
-  background:    linear-gradient(135deg, #6366f1, #7c3aed);
-  color:         white;
-  font-size:     15px;
-  font-weight:   600;
-  cursor:        pointer;
-  transition:    transform 0.2s, box-shadow 0.2s;
+  background: linear-gradient(135deg, #ff7b00, #ffa500);
+  color: white;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   letter-spacing: 0.3px;
 }
 
 button:hover {
-  transform:  translateY(-2px);
+  transform: translateY(-2px);
   box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
 }
 
@@ -207,52 +211,53 @@ button:active {
 /* Success/error alert message box below the form */
 .login-message {
   margin-bottom: 16px;
-  padding:       11px 14px;
+  padding: 11px 14px;
   border-radius: 8px;
-  font-size:     13px;
-  display:       block;
-  border-left:   4px solid transparent;
+  font-size: 13px;
+  display: block;
+  border-left: 4px solid transparent;
+}
+
+.login-message:empty {
+  display: none;
 }
 
 .login-message.success {
-  background:  #ecfdf5;
-  color:       #065f46;
+  background: #ecfdf5;
+  color: #065f46;
   border-left-color: #10b981;
 }
 
 .login-message.error {
-  background:  #fff1f2;
-  color:       #9f1239;
+  background: #fff1f2;
+  color: #9f1239;
   border-left-color: #f43f5e;
 }
-
 
 /* ============================================================
    SECTION 6 — RIGHT PANEL (Decorative image)
    ============================================================ */
 .login-right {
-  flex:          1;
-  position:      relative;
-  overflow:      hidden;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
   border-radius: 0 20px 20px 0;
 }
 
 /* Full-cover image fills the right panel */
 .login-right img {
-  width:      100%;
-  height:     100%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  display:    block;
+  display: block;
 }
 
 /* Gradient overlay for a modern look */
 .login-right::after {
-  content:    "";
-  position:   absolute;
-  inset:      0;
-  background: linear-gradient(160deg, rgba(99,102,241,0.35) 0%, rgba(244,63,94,0.25) 100%);
+  content: "";
+  position: absolute;
+  inset: 0;
 }
-
 
 /* ============================================================
    SECTION 7 — RESPONSIVE BREAKPOINTS
@@ -262,12 +267,12 @@ button:active {
 @media (max-width: 900px) {
   .login-container {
     flex-direction: column;
-    max-width:      500px;
+    max-width: 500px;
   }
 
   .login-right {
-    height:         200px;
-    border-radius:  0;
+    height: 200px;
+    border-radius: 0;
   }
 }
 

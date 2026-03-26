@@ -1,38 +1,44 @@
-/* ============================================================
-   db.js — MySQL Connection Pool
-   Creates a shared database connection pool used by all routes.
-   Import this file anywhere you need to run a DB query.
-   ============================================================ */
+/**
+ * ============================================================
+ * db.js — MySQL Connection Pool Configuration
+ * ============================================================
+ * Creates a shared database connection pool to be used throughout
+ * the application. Using a pool ensures efficient connection
+ * management and prevents bottlenecks.
+ *
+ * @module db
+ * ============================================================
+ */
 
-const mysql  = require("mysql2");
+const mysql = require("mysql2");
 require("dotenv").config();
 
-/* ---- Create connection pool --------------------------------
-   Using a pool (not single connection) so multiple requests
-   can share connections efficiently without bottlenecks.
-   ------------------------------------------------------------ */
+/* 
+ * Create connection pool using environment variables.
+ * Note: queueLimit: 0 means no limit on the number of connection requests the pool will queue.
+ */
 const db = mysql.createPool({
-  host:             process.env.DB_HOST,
-  user:             process.env.DB_USER,
-  password:         process.env.DB_PASS,
-  database:         process.env.DB_NAME,
-  waitForConnections: true, /* Queue requests if all connections busy */
-  connectionLimit:  10,     /* Max simultaneous connections           */
-  queueLimit:       0       /* Unlimited queue (0 = no limit)         */
+  host:               process.env.DB_HOST,
+  user:               process.env.DB_USER,
+  password:           process.env.DB_PASS,
+  database:           process.env.DB_NAME,
+  waitForConnections: true,
+  connectionLimit:    10,
+  queueLimit:         0
 });
 
-/* ---- Test the connection on startup -----------------------
-   Grabs one connection to verify credentials and connectivity.
-   Releases it back to the pool immediately after.
-   ------------------------------------------------------------ */
+/* 
+ * Verify the database connection on startup.
+ * If connection fails, it will log the error message but won't stop the server.
+ */
 db.getConnection((err, connection) => {
   if (err) {
-    console.error("❌ MySQL connection failed:", err.message);
+    console.error("❌ [DATABASE] Connection failed:", err.message);
   } else {
-    console.log("✅ MySQL connected successfully");
-    connection.release(); /* Always release back to pool */
+    console.log("✅ [DATABASE] MySQL connected successfully");
+    connection.release();
   }
 });
 
-/* Export the pool — use db.query() or db.promise().query() */
 module.exports = db;
+

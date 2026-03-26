@@ -1,38 +1,26 @@
-/* ============================================================
-   middleware/verifyToken.js
-   JWT authentication middleware for general authenticated routes.
-
-   Usage: router.get("/route", verifyToken, handler)
-
-   Verifies the Bearer token is valid. Does NOT enforce role.
-   Use verifyAdmin.js when admin role is required.
-   ============================================================ */
-
 const jwt = require("jsonwebtoken");
 
 function verifyToken(req, res, next) {
 
   const authHeader = req.headers.authorization;
 
-  /* Ensure Authorization header is present */
   if (!authHeader) {
     return res.status(403).json({ message: "No token provided" });
   }
 
-  /* Extract token from "Bearer <token>" */
+  if (!authHeader.startsWith("Bearer ")) {
+    return res.status(401).json({ message: "Invalid token format" });
+  }
+
   const token = authHeader.split(" ")[1];
 
-  /* Verify and decode the JWT */
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    /* Attach decoded payload to request for downstream use */
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || "secretkey");
     req.user = decoded;
-
-    next(); /* Proceed to route handler */
-
+    next();
   } catch (err) {
-    res.status(401).json({ message: "Invalid or expired token" });
+    console.error("JWT Error:", err.message);
+    return res.status(401).json({ message: "Invalid or expired token" });
   }
 }
 

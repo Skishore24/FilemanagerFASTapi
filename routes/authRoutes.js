@@ -59,7 +59,7 @@ router.post("/login", async (req, res) => {
         role:  user.role,
         email: user.email
       },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || "mcet_secret_key_2024",
       { expiresIn: "2h" }
     );
 
