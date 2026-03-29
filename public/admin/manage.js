@@ -693,13 +693,13 @@ function toggleMenu(event) {
 }
 
 function viewFile(idx) {
-  closeDetails(); /* Close the details modal first as requested */
+  closeDetails();
   const file = files[idx];
   if (!file) return;
   const viewer = document.getElementById("viewerModal");
   const iframe = document.getElementById("viewerFrame");
   if (viewer && iframe) {
-    iframe.src = "/uploads/" + file.name;
+    iframe.src = `/api/files/secure-files/${file.name}?token=${token}`;
     viewer.style.display = "flex";
   }
 }
@@ -717,7 +717,7 @@ function downloadFile(idx) {
   const file = files[idx];
   if (!file) return;
   const link = document.createElement("a");
-  link.href = "/uploads/" + file.name;
+  link.href = `/api/files/secure-files/download/${file.name}?token=${token}`;
   link.download = file.name;
   document.body.appendChild(link);
   link.click();
@@ -728,7 +728,7 @@ function downloadFile(idx) {
 function copyLink() {
   const file = files[selectedIndex];
   if (!file) return;
-  const url = window.location.origin + "/uploads/" + file.name;
+  const url = window.location.origin + `/api/files/secure-files/${file.name}?token=${token}`;
   navigator.clipboard.writeText(url).then(() => {
     showToast("Link copied to clipboard!", "success");
   }).catch(() => {

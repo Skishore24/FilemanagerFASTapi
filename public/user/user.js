@@ -344,10 +344,9 @@ async function verifyOtp() {
 function setupUserSession(data) {
   sessionStorage.setItem("otpVerified", "true");
   sessionStorage.setItem("otpTime", Date.now());
-  sessionStorage.setItem("verifiedMobile", currentMobile);
-  /* Basic token generation - Replace with JWT in production if possible */
-  const token = btoa(`${currentMobile}:${Date.now()}`);
-  sessionStorage.setItem("authToken", token);
+  sessionStorage.setItem("verifiedMobile", data.user.mobile);
+  /* Store the secure JWT from backend */
+  sessionStorage.setItem("authToken", data.token);
 }
 
 /**
@@ -372,7 +371,7 @@ function openViewer() {
   if (fileNameEl) fileNameEl.textContent = file.name.replace(/\.[^.]+$/, "");
 
   const token = sessionStorage.getItem("authToken") || "";
-  const fileUrl = `/secure-files/${file.name}?token=${token}`;
+  const fileUrl = `/api/files/secure-files/${file.name}?token=${token}`;
   const ext = file.name.split(".").pop().toLowerCase();
 
   handleDownloadButton(file, token);
@@ -412,8 +411,11 @@ function handleDownloadButton(file, token) {
     btn.style.display = "flex";
     btn.onclick = () => {
       const link = document.createElement("a");
-      link.href = `/secure-files/download/${file.name}?token=${token}`;
+      link.href = `/api/files/secure-files/download/${file.name}?token=${token}`;
+      link.download = file.name;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       saveDownloadLog(file.name);
     };
   }
@@ -470,7 +472,7 @@ async function getCachedLocation() {
 
   try {
     /* Fetch from server-side location endpoint (hides CORS/403 errors from console) */
-    const res = await fetch("/api/location");
+    const res = await fetch("/api/logs/location");
     const data = await res.json();
     
     if (data && data.success) {
@@ -500,13 +502,20 @@ async function logActivity(action, fileName) {
 
   if (!mobile || mobile === "Unknown") return;
 
-  const endpoint = action === "view" ? "/api/save-view" : "/api/save-download";
+  const endpoint = action === "view"
+  ? "/api/logs/save-view"
+  : "/api/logs/save-download";
   const loc = await getCachedLocation();
+
+  const token = sessionStorage.getItem("authToken");
 
   try {
     await fetch(endpoint, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify({
         file: fileName,
         name: name,
@@ -716,10 +725,15 @@ setInterval(async () => {
   const mobile = sessionStorage.getItem("verifiedMobile");
   if (!mobile) return;
 
+  const token = sessionStorage.getItem("authToken");
+
   try {
     const res = await fetch("/api/users/heartbeat", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { 
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${token}`
+      },
       body: JSON.stringify({ mobile })
     });
     
