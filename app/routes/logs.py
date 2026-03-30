@@ -1,125 +1,162 @@
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import text
 from app.database import get_db
 from app.middleware.auth import verify_token
-import requests
 
 router = APIRouter()
 
 # ============================================================
-# LOCATION
-# ============================================================
-@router.get("/location")
-def get_location(request: Request):
-    ip = request.client.host
-
-    try:
-        res = requests.get(f"http://ip-api.com/json/{ip}", timeout=3).json()
-        return {
-            "ip": ip,
-            "country": res.get("country", "Unknown"),
-            "state": res.get("regionName", "Unknown"),
-            "success": True
-        }
-    except:
-        return {"ip": ip, "country": "Global", "state": "Unknown", "success": False}
-
-
-# ============================================================
-# SAVE VIEW
-# ============================================================
-@router.post("/save-view")
-def save_view(data: dict, user=Depends(verify_token), db: Session = Depends(get_db)):
-    db.execute(text("""
-        INSERT INTO view_logs (file_name, name, mobile, country, state, device, action)
-        VALUES (:file, :name, :mobile, :country, :state, :device, 'view')
-    """), data)
-    db.commit()
-    return {"success": True}
-
-
-# ============================================================
-# SAVE DOWNLOAD
-# ============================================================
-@router.post("/save-download")
-def save_download(data: dict, user=Depends(verify_token), db: Session = Depends(get_db)):
-    db.execute(text("""
-        INSERT INTO view_logs (file_name, name, mobile, country, state, device, action)
-        VALUES (:file, :name, :mobile, :country, :state, :device, 'download')
-    """), data)
-    db.commit()
-    return {"success": True}
-
-
-# ============================================================
-# GET LOGS (FIXED 🔥)
+# GET USERS (ADMIN)
 # ============================================================
 @router.get("")
 def get_logs(
     page: int = 1,
     limit: int = 10,
-    search: str = "",
-    sort: str = "DESC",
-    date: str = "",
-    category: str = "All",
-    user=Depends(verify_token),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    user=Depends(verify_token)
 ):
+    try:
+        if user["role"] != "admin":
+            raise HTTPException(status_code=403, detail="Admin only")
+
+        offset = (page - 1) * limit
+
+        # ✅ Fetch logs
+        logs = db.execute(text("""
+            SELECT 
+                id,
+                file_name,
+                name,
+                mobile,
+                ip,
+                device,
+                viewed_at
+            FROM view_logs
+            ORDER BY viewed_at DESC
+            LIMIT :limit OFFSET :offset
+        """), {"limit": limit, "offset": offset}).fetchall()
+
+        # ✅ Total count
+        total = db.execute(text("SELECT COUNT(*) FROM view_logs")).scalar() or 0
+
+        return {
+            "logs": [dict(r._mapping) for r in logs],
+            "totalPages": max(1, (total + limit - 1) // limit)
+        }
+
+    except Exception as e:
+        print("🔥 LOG ERROR:", e)
+        raise HTTPException(status_code=500, detail=str(e))
+
+# ============================================================
+# BLOCK USER
+# ============================================================
+@router.post("/block")
+def block_user(data: dict, user=Depends(verify_token), db: Session = Depends(get_db)):
     if user["role"] != "admin":
         raise HTTPException(status_code=403)
 
-    sort_order = "DESC" if sort.upper() == "DESC" else "ASC"
+    mobile = data.get("mobile")
+    if not mobile:
+        raise HTTPException(400, "Mobile required")
+    db.execute(
+        text("INSERT IGNORE INTO blocked_users (mobile) VALUES (:mobile)"),
+        {"mobile": mobile}
+    )
+    db.commit()
 
-    base_query = "FROM view_logs WHERE 1=1"
-    params = {}
-
-    if search:
-        base_query += " AND (file_name LIKE :search OR mobile LIKE :search OR name LIKE :search)"
-        params["search"] = f"%{search}%"
-
-    if date:
-        base_query += " AND DATE(viewed_at) = :date"
-        params["date"] = date
-
-    # COUNT
-    total_logs = db.execute(
-        text(f"SELECT COUNT(*) {base_query}"),
-        params
-    ).scalar()
-
-    total_pages = (total_logs + limit - 1) // limit if total_logs else 1
-
-    # MAIN QUERY
-    query = f"""
-        SELECT * {base_query}
-        ORDER BY viewed_at {sort_order}
-        LIMIT :limit OFFSET :offset
-    """
-
-    params["limit"] = limit
-    params["offset"] = (page - 1) * limit
-
-    result = db.execute(text(query), params).fetchall()
-
-    return {
-        "logs": [dict(r._mapping) for r in result],
-        "totalPages": total_pages,
-        "totalLogs": total_logs
-    }
+    return {"success": True}
 
 
 # ============================================================
-# DELETE LOG
+# UNBLOCK USER
 # ============================================================
-@router.delete("/{id}")
-def delete_log(id: int, user=Depends(verify_token), db: Session = Depends(get_db)):
+@router.post("/unblock")
+def unblock_user(data: dict, user=Depends(verify_token), db: Session = Depends(get_db)):
     if user["role"] != "admin":
         raise HTTPException(status_code=403)
+
+    mobile = data.get("mobile")
 
     db.execute(
-        text("DELETE FROM view_logs WHERE id = :id"),
-        {"id": id}
+        text("DELETE FROM blocked_users WHERE mobile = :mobile"),
+        {"mobile": mobile}
+    )
+    db.commit()
+
+    return {"success": True}
+
+
+# ============================================================
+# GET BLOCKED USERS
+# ============================================================
+@router.get("/blocked")
+def get_blocked(user=Depends(verify_token), db: Session = Depends(get_db)):
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403)
+
+    result = db.execute(
+        text("SELECT mobile FROM blocked_users")
+    ).fetchall()
+
+    return [dict(r._mapping) for r in result]
+
+
+# ============================================================
+# CHECK BLOCK STATUS
+# ============================================================
+@router.post("/check-block")
+def check_block(data: dict, db: Session = Depends(get_db)):
+    mobile = data.get("mobile")
+    if not mobile:
+        raise HTTPException(status_code=400, detail="Mobile number required")
+
+    result = db.execute(
+        text("SELECT 1 FROM blocked_users WHERE mobile = :mobile"),
+        {"mobile": mobile}
+    ).fetchone()
+
+    return {"blocked": bool(result)}
+
+
+# ============================================================
+# HEARTBEAT (Update Activity & Check Block Status)
+# ============================================================
+@router.post("/heartbeat")
+def heartbeat(data: dict, user=Depends(verify_token), db: Session = Depends(get_db)):
+    mobile = data.get("mobile")
+    if not mobile:
+        raise HTTPException(status_code=400, detail="Mobile number required")
+
+    # Update activity log (last timestamp only)
+    db.execute(text("""
+    UPDATE view_logs 
+    SET last_active = NOW() 
+    WHERE mobile = :mobile 
+    ORDER BY viewed_at DESC 
+    LIMIT 1
+    """), {"mobile": mobile})
+    db.commit()
+
+    # Check block status
+    result = db.execute(
+        text("SELECT 1 FROM blocked_users WHERE mobile = :mobile"),
+        {"mobile": mobile}
+    ).fetchone()
+
+    return {"blocked": bool(result)}
+    
+@router.post("/delete-user-logs")
+def delete_user_logs(data: dict, user=Depends(verify_token), db: Session = Depends(get_db)):
+    if user["role"] != "admin":
+        raise HTTPException(403)
+
+    mobile = data.get("mobile")
+
+    db.execute(
+        text("DELETE FROM view_logs WHERE mobile = :mobile"),
+        {"mobile": mobile}
     )
     db.commit()
 
